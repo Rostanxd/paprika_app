@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "173043746919",
+    "firebase_url": "https://paprika-f36d8.firebaseio.com",
+    "project_id": "paprika-f36d8",
+    "storage_bucket": "paprika-f36d8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173043746919:android:8dc735187fd46fd7",
+        "android_client_info": {
+          "package_name": "com.rostan.paprika_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "173043746919-dn2jcag0sftbogv5bh066niqdnclim5q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLVjRgIzCSQzHFvEoDXbEYStGSU4GcRIo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "173043746919-dn2jcag0sftbogv5bh066niqdnclim5q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
