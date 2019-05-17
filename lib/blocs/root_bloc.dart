@@ -9,13 +9,14 @@ class RootBloc implements BlocBase {
   final _user = BehaviorSubject<User>();
 
   /// Observables
-  ValueObservable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
+  ValueObservable<FirebaseUser> get firebaseUser =>
+      _firebaseUser.stream;
 
   ValueObservable<User> get user => _user.stream;
 
   /// Functions
   void userLogged() async {
-    await FirebaseAuth.instance.currentUser().then((firebaseUser) {
+    await FirebaseAuth.instance.currentUser().then((firebaseUser){
       _firebaseUser.sink.add(firebaseUser);
       if (firebaseUser != null) _userSystem(firebaseUser.uid);
     });
@@ -45,7 +46,7 @@ class RootBloc implements BlocBase {
   }
 
   void userLogOut() async {
-    await FirebaseAuth.instance.signOut().then((v){
+    await FirebaseAuth.instance.signOut().then((v) {
       userLogged();
       _user.sink.add(null);
     });

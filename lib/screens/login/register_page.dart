@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: <Widget>[
                     Container(
                       width: 300,
-                      margin: EdgeInsets.only(top: 50.0),
+                      margin: EdgeInsets.only(top: 20.0),
                       child: Text(
                         'Registro de',
                         style: TextStyle(
@@ -69,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: <Widget>[
                     Container(
                       width: 300,
-                      margin: EdgeInsets.only(top: 10.0, bottom: 40.0),
+                      margin: EdgeInsets.only(top: 10.0, bottom: 20.0),
                       child: Text('Usuario',
                           style: TextStyle(
                               fontSize: 36.0, fontWeight: FontWeight.bold)),

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/root_page.dart';
 
-void main () => runApp(MyApp());
+import 'blocs/root_bloc.dart';
+
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+  final RootBloc _rootBloc = RootBloc();
 
   @override
   Widget build(BuildContext context) {
+
     /// To set-up vertical orientation (portrait).
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -17,7 +22,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{},
-      home: RootPage(),
+      home: BlocProvider(
+        bloc: _rootBloc,
+        child: RootPage(
+          rootBloc: _rootBloc,
+        ),
+      ),
     );
   }
 }

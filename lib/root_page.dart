@@ -3,36 +3,68 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/login_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
-import 'package:paprika_app/screens/home/index.dart';
 import 'package:paprika_app/screens/login/index.dart';
+import 'package:paprika_app/screens/sales/cash_page.dart';
 
 class RootPage extends StatefulWidget {
+  final RootBloc rootBloc;
+
+  RootPage({Key key, this.rootBloc}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _RootPageState();
 }
 
 class _RootPageState extends State<RootPage> {
-  RootBloc _rootBloc;
 
   @override
   void initState() {
-    _rootBloc = RootBloc();
-    _rootBloc.userLogged();
+    widget.rootBloc.userLogged();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _rootBloc.firebaseUser,
-      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot){
-        return !snapshot.hasData ?
-        BlocProvider(
-          bloc: LoginBloc(),
-          child: LoginPage(),
-        ) : HomePage(snapshot.data);
+      stream: widget.rootBloc.firebaseUser,
+      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return loadingPage();
+            break;
+          default:
+            if (!snapshot.hasData){
+              return BlocProvider(
+                bloc: LoginBloc(),
+                child: LoginPage(),
+              );
+            }else{
+              return CashPage(rootBloc: widget.rootBloc,);
+            }
+            break;
+        }
       },
     );
   }
 
+  Widget loadingPage() {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
+              child: Text(
+                'Paprika',
+                style: TextStyle(fontSize: 50.0),
+              ),
+            ),
+            CircularProgressIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
 }
