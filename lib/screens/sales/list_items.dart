@@ -6,17 +6,11 @@ class ListItems extends StatefulWidget {
 }
 
 class _ListItemsState extends State<ListItems> {
-  double width;
-  double height;
 
   @override
   Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width;
-    height = MediaQuery.of(context).size.height;
 
     return Container(
-      height: height,
-      width: width * 0.30,
       color: Colors.lightGreen,
       padding: EdgeInsets.only(left: 5.0),
       child: Column(

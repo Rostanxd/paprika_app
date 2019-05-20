@@ -7,11 +7,11 @@ import 'package:paprika_app/screens/sales/search_item.dart';
 
 class CashPage extends StatefulWidget {
   final RootBloc rootBloc;
+
   CashPage({Key key, this.rootBloc}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CashPageState();
-
 }
 
 class _CashPageState extends State<CashPage> {
@@ -20,6 +20,7 @@ class _CashPageState extends State<CashPage> {
   @override
   void initState() {
     _cashBloc = CashBloc();
+    _cashBloc.changeIndex(0);
     super.initState();
   }
 
@@ -31,15 +32,23 @@ class _CashPageState extends State<CashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(''), backgroundColor: Colors.indigoAccent,),
+      appBar: AppBar(
+        title: Text(''),
+        backgroundColor: Colors.indigoAccent,
+      ),
       drawer: UserDrawer(widget.rootBloc),
       body: Center(
         child: Container(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              SearchItem(),
-              ListItems()
+              Flexible(
+                  flex: 4,
+                  child: SearchItem(
+                    cashBloc: _cashBloc,
+                    itemToFind: '',
+                  )),
+              Flexible(flex: 2, child: ListItems())
             ],
           ),
         ),
@@ -52,5 +61,4 @@ class _CashPageState extends State<CashPage> {
     _cashBloc.dispose();
     super.dispose();
   }
-
 }
