@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
+import 'package:paprika_app/models/item.dart';
 
 class SearchItem extends StatefulWidget {
   final CashBloc cashBloc;
@@ -126,7 +127,8 @@ class _SearchItemState extends State<SearchItem> {
             ],
           ),
         ),
-      ), onTap: (){},
+      ),
+      onTap: () {},
     ));
 
     _itemsPreviewList.add(InkWell(
@@ -147,27 +149,38 @@ class _SearchItemState extends State<SearchItem> {
             ),
           ),
         ),
-      ), onTap: (){},
+      ),
+      onTap: () {},
     ));
   }
 
   /// Widgets
   Widget _listOfItems(String itemToFind, String category) {
     print(_itemsPreviewList.length);
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverGrid(
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 150.0,
-          ),
-          delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-              return _itemsPreviewList[index];
-            },
-            childCount: _itemsPreviewList.length,
-          ),
-        ),
-      ],
+    return StreamBuilder(
+      stream: widget.cashBloc.items,
+      builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
+        if (snapshot.hasError) return Center(child: Text(snapshot.error),);
+        return snapshot.hasData
+            ? CustomScrollView(
+                slivers: <Widget>[
+                  SliverGrid(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 150.0,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return _itemsPreviewList[index];
+                      },
+                      childCount: _itemsPreviewList.length,
+                    ),
+                  ),
+                ],
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              );
+      },
     );
   }
 }

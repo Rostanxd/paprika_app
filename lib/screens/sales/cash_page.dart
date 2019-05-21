@@ -31,6 +31,8 @@ class _CashPageState extends State<CashPage> {
 
   @override
   Widget build(BuildContext context) {
+    /// Searching the items
+    _cashBloc.fetchItems('');
     return Scaffold(
       appBar: AppBar(
         title: Text(''),
