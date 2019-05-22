@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
+import 'package:paprika_app/models/category.dart';
+import 'package:paprika_app/models/item.dart';
 
 class SearchItem extends StatefulWidget {
   final CashBloc cashBloc;
@@ -13,15 +15,21 @@ class SearchItem extends StatefulWidget {
 
 class _SearchItemState extends State<SearchItem> {
   List<Widget> _widgetList = List<Widget>();
-  List<BottomNavigationBarItem> _bottomNavigationBatItemList =
+  List<BottomNavigationBarItem> _bottomNavigationBarItemList =
       List<BottomNavigationBarItem>();
-  List<Widget> _itemsPreviewList = List<Widget>();
 
   @override
   void initState() {
-    _loadingItemsPreview();
-    _loadingWidgets();
-    _loadingItems();
+    /// Getting all the categories
+    widget.cashBloc.fetchCategories();
+
+    /// Listeners to update pages and bottom navigation bars
+    widget.cashBloc.categories.listen((data) {
+      if (data != null) {
+        _loadCategoryPages(data);
+        _loadBottomNavBars(data);
+      }
+    });
     super.initState();
   }
 
@@ -45,7 +53,7 @@ class _SearchItemState extends State<SearchItem> {
           return Container(
             child: snapshot.hasData
                 ? BottomNavigationBar(
-                    items: _bottomNavigationBatItemList,
+                    items: _bottomNavigationBarItemList,
                     currentIndex: snapshot.data,
                     fixedColor: Colors.deepPurple,
                     elevation: 5.0,
@@ -55,81 +63,106 @@ class _SearchItemState extends State<SearchItem> {
                       _controlTabs(index);
                     },
                   )
-                : CircularProgressIndicator(),
+                : LinearProgressIndicator(),
           );
         },
       ),
     );
   }
 
-  void _loadingWidgets() {
-    _widgetList.add(_listOfItems('', ''));
-    _widgetList.add(Container(
-      child: Text('Platos Fuertes'),
-    ));
-    _widgetList.add(Container(
-      child: Text('Bebidas'),
-    ));
+  void _loadCategoryPages(List<Category> _categoryList) {
+    _widgetList.clear();
+    _widgetList.addAll(_categoryList.map((c) => _itemsByCategory('', c.name)));
   }
 
-  void _loadingItems() {
-    _bottomNavigationBatItemList.add(BottomNavigationBarItem(
-        icon: Icon(Icons.fastfood), title: Text('Desayunos')));
-    _bottomNavigationBatItemList.add(BottomNavigationBarItem(
-        icon: Icon(Icons.branding_watermark), title: Text('Platos Fuertes')));
-    _bottomNavigationBatItemList.add(BottomNavigationBarItem(
-        icon: Icon(Icons.local_drink), title: Text('Bebidas')));
-    _bottomNavigationBatItemList.add(
+  void _loadBottomNavBars(List<Category> _categoryList) {
+    _bottomNavigationBarItemList.clear();
+
+    /// Adding the categories to the bottom bar
+    _bottomNavigationBarItemList.addAll(_categoryList.map((c) =>
+        BottomNavigationBarItem(
+            icon: Icon(Icons.fastfood), title: Text(c.name))));
+
+    /// Adding the option t add more categories.
+    _bottomNavigationBarItemList.add(
         BottomNavigationBarItem(icon: Icon(Icons.add), title: Text('Agregar')));
   }
 
   void _controlTabs(int index) {
-    if (index != 3) {
+    if (index < (_bottomNavigationBarItemList.length - 1)) {
       widget.cashBloc.changeIndex(index);
     } else {
       /// Code to create a new group of foods
     }
   }
 
-  void _loadingItemsPreview() {
-    _itemsPreviewList.add(InkWell(
+  /// Widgets
+  Widget _itemsByCategory(String itemToFind, String category) {
+    widget.cashBloc.fetchItems();
+
+    return StreamBuilder<List<Item>>(
+      stream: widget.cashBloc.items,
+      builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
+        if (snapshot.hasError)
+          return Center(
+            child: Text(snapshot.error),
+          );
+
+        if (snapshot.hasData) {
+          return _customScrollView(snapshot.data);
+        }
+
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+  }
+
+  Widget _customScrollView(List<Item> data) {
+    List<Widget> _itemsWidget = List<Widget>();
+    _itemsWidget.addAll(data.map((i) => _itemPreview(i)));
+    _itemsWidget.add(_addNewItem());
+
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverGrid(
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 150.0,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              return _itemsWidget[index];
+            },
+            childCount: _itemsWidget.length,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _itemPreview(Item item) {
+    return InkWell(
       child: Container(
         child: Card(
           elevation: 5.0,
           child: Column(
             children: <Widget>[
-              Container(
-                  child: Image(image: AssetImage('assets/img/breakfast1.jpg'))),
+              Container(child: Image(image: NetworkImage(item.imagePath))),
               Container(
                 margin: EdgeInsets.all(10.0),
-                child: Text('Alemán'),
+                child: Text(item.name),
               )
             ],
           ),
         ),
       ),
       onTap: () {},
-    ));
+    );
+  }
 
-    _itemsPreviewList.add(InkWell(
-      child: Container(
-        child: Card(
-          elevation: 5.0,
-          child: Column(
-            children: <Widget>[
-              Container(
-                  child: Image(image: AssetImage('assets/img/breakfast2.jpg'))),
-              Container(
-                margin: EdgeInsets.all(10.0),
-                child: Text('Americano'),
-              )
-            ],
-          ),
-        ),
-      ), onTap: (){},
-    ));
-
-    _itemsPreviewList.add(InkWell(
+  Widget _addNewItem() {
+    return InkWell(
       child: Container(
         child: Card(
           elevation: 5.0,
@@ -147,27 +180,8 @@ class _SearchItemState extends State<SearchItem> {
             ),
           ),
         ),
-      ), onTap: (){},
-    ));
-  }
-
-  /// Widgets
-  Widget _listOfItems(String itemToFind, String category) {
-    print(_itemsPreviewList.length);
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverGrid(
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 150.0,
-          ),
-          delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-              return _itemsPreviewList[index];
-            },
-            childCount: _itemsPreviewList.length,
-          ),
-        ),
-      ],
+      ),
+      onTap: () {},
     );
   }
 }
