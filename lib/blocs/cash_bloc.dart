@@ -15,19 +15,20 @@ class CashBloc extends BlocBase {
 
   Observable<List<Item>> get items => _items.stream;
 
-  Observable<List<Category>> get categories => _categories.stream;
+  ValueObservable<List<Category>> get categories => _categories.stream;
 
   /// Functions
   Function get changeIndex => _index.add;
 
-  void fetchItems() async {
-    await _salesRepository.fetchItems().then((data){
+  void fetchItemsByCategory(String categoryId) async {
+    _items.sink.add(null);
+    await _salesRepository.fetchItemsByCategory(categoryId).then((data) {
       _items.sink.add(data);
     });
   }
 
   void fetchCategories() async {
-    await _salesRepository.fetchCategories().then((data){
+    await _salesRepository.fetchCategories().then((data) {
       _categories.sink.add(data);
       _index.sink.add(0);
     });

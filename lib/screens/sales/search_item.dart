@@ -14,7 +14,6 @@ class SearchItem extends StatefulWidget {
 }
 
 class _SearchItemState extends State<SearchItem> {
-  List<Widget> _widgetList = List<Widget>();
   List<BottomNavigationBarItem> _bottomNavigationBarItemList =
       List<BottomNavigationBarItem>();
 
@@ -26,7 +25,6 @@ class _SearchItemState extends State<SearchItem> {
     /// Listeners to update pages and bottom navigation bars
     widget.cashBloc.categories.listen((data) {
       if (data != null) {
-        _loadCategoryPages(data);
         _loadBottomNavBars(data);
       }
     });
@@ -42,7 +40,8 @@ class _SearchItemState extends State<SearchItem> {
             builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
               if (snapshot.hasError) print(snapshot.error);
               return snapshot.hasData
-                  ? _widgetList.elementAt(widget.cashBloc.index.value)
+                  ? _loadItemsByCategory(
+                      widget.cashBloc.categories.value[snapshot.data].id)
                   : CircularProgressIndicator();
             }),
       ),
@@ -60,7 +59,7 @@ class _SearchItemState extends State<SearchItem> {
                     showUnselectedLabels: true,
                     unselectedItemColor: Colors.grey,
                     onTap: (index) {
-                      _controlTabs(index);
+                      _loadPageByCategory(index);
                     },
                   )
                 : LinearProgressIndicator(),
@@ -70,35 +69,34 @@ class _SearchItemState extends State<SearchItem> {
     );
   }
 
-  void _loadCategoryPages(List<Category> _categoryList) {
-    _widgetList.clear();
-    _widgetList.addAll(_categoryList.map((c) => _itemsByCategory('', c.name)));
-  }
-
   void _loadBottomNavBars(List<Category> _categoryList) {
     _bottomNavigationBarItemList.clear();
 
     /// Adding the categories to the bottom bar
     _bottomNavigationBarItemList.addAll(_categoryList.map((c) =>
         BottomNavigationBarItem(
-            icon: Icon(Icons.fastfood), title: Text(c.name))));
+            icon: Icon(Icons.folder_open), title: Text(c.name))));
 
     /// Adding the option t add more categories.
     _bottomNavigationBarItemList.add(
         BottomNavigationBarItem(icon: Icon(Icons.add), title: Text('Agregar')));
   }
 
-  void _controlTabs(int index) {
+  void _loadPageByCategory(int index) {
     if (index < (_bottomNavigationBarItemList.length - 1)) {
+      /// Changing the bottom navigator item picked (UI)
       widget.cashBloc.changeIndex(index);
+
+      /// Loading the page with items by category
+      _loadItemsByCategory(widget.cashBloc.categories.value[index].id);
     } else {
-      /// Code to create a new group of foods
+      /// Code to create a new category
     }
   }
 
   /// Widgets
-  Widget _itemsByCategory(String itemToFind, String category) {
-    widget.cashBloc.fetchItems();
+  Widget _loadItemsByCategory(String categoryId) {
+    widget.cashBloc.fetchItemsByCategory(categoryId);
 
     return StreamBuilder<List<Item>>(
       stream: widget.cashBloc.items,
@@ -142,22 +140,30 @@ class _SearchItemState extends State<SearchItem> {
   }
 
   Widget _itemPreview(Item item) {
-    return InkWell(
-      child: Container(
-        child: Card(
-          elevation: 5.0,
-          child: Column(
-            children: <Widget>[
-              Container(child: Image(image: NetworkImage(item.imagePath))),
-              Container(
-                margin: EdgeInsets.all(10.0),
-                child: Text(item.name),
-              )
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        InkWell(
+          child: Container(
+            height: 100,
+            child: Card(
+              semanticContainer: true,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              child: Image.network(
+                item.imagePath,
+                fit: BoxFit.fill,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              elevation: 5,
+              margin: EdgeInsets.all(10),
+            ),
           ),
+          onTap: () {},
         ),
-      ),
-      onTap: () {},
+        Container(margin: EdgeInsets.only(top: 5.0), child: Text(item.name)),
+      ],
     );
   }
 
@@ -165,20 +171,24 @@ class _SearchItemState extends State<SearchItem> {
     return InkWell(
       child: Container(
         child: Card(
-          elevation: 5.0,
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(width: 150, child: Icon(Icons.add)),
-                Container(
-                  margin: EdgeInsets.all(10.0),
-                  child: Text('Agregar Item'),
-                )
-              ],
-            ),
+          semanticContainer: true,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(width: 150, child: Icon(Icons.add)),
+              Container(
+                margin: EdgeInsets.all(10.0),
+                child: Text('Agregar Item'),
+              )
+            ],
           ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          elevation: 5,
+          margin: EdgeInsets.all(10),
         ),
       ),
       onTap: () {},

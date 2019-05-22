@@ -4,8 +4,13 @@ import 'package:paprika_app/models/category.dart';
 class CategoryApi {
   Future<List<Category>> fetchCategories() async {
     List<Category> _categoryList = List<Category>();
-    await Firestore.instance.collection('categories').getDocuments().then((data){
-      _categoryList.addAll(data.documents.map((c) => Category.fromJson(c.data)));
+    await Firestore.instance
+        .collection('categories')
+        .orderBy('order')
+        .getDocuments()
+        .then((data) {
+      _categoryList.addAll(data.documents
+          .map((c) => Category.fromFireJson(c.documentID, c.data)));
     });
     return _categoryList;
   }

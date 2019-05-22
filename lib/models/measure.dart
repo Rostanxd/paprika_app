@@ -4,6 +4,11 @@ class Measure extends Object {
 
   Measure(this.id, this.name);
 
+  Measure.fromFireJson(String documentId, Map<String, dynamic> json){
+    this.id = documentId;
+    this.name = json['name'];
+  }
+
   Measure.fromJson(Map<String, dynamic> json){
     this.id = json['id'];
     this.name = json['name'];

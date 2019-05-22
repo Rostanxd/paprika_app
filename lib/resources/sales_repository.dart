@@ -7,7 +7,8 @@ class SalesRepository {
   ItemApi _itemApi = ItemApi();
   CategoryApi _categoryApi = CategoryApi();
 
-  Future<List<Item>> fetchItems() => _itemApi.fetchItems();
+  Future<List<Item>> fetchItemsByCategory(String categoryId) =>
+      _itemApi.fetchItemsByCategory(categoryId);
 
   Future<List<Category>> fetchCategories() => _categoryApi.fetchCategories();
 }
