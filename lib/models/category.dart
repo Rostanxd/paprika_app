@@ -5,7 +5,7 @@ class Category extends Object {
   Category(this.id, this.name);
 
   Category.fromJson(Map<String, dynamic> json){
-    this.id = json['id'];
+    this.id = json['uid'];
     this.name = json['name'];
   }
 }

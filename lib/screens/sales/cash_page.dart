@@ -20,7 +20,6 @@ class _CashPageState extends State<CashPage> {
   @override
   void initState() {
     _cashBloc = CashBloc();
-    _cashBloc.changeIndex(0);
     super.initState();
   }
 
