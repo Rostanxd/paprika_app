@@ -1,5 +1,34 @@
 import 'package:paprika_app/models/item.dart';
 
+class Invoice extends Object {
+  String id;
+  double quantity;
+  double discount;
+  double subtotal;
+  double taxes;
+  double total;
+
+  Invoice(this.quantity, this.discount, this.subtotal, this.taxes,
+      this.total);
+
+  Invoice.fromFireJson(String documentId, Map<String, dynamic> json){
+    this.id = documentId;
+    this.quantity = json['quantity'];
+    this.discount = json['discount'];
+    this.subtotal = json['subtotal'];
+    this.taxes = json['taxes'];
+    this.total = json['total'];
+  }
+
+  @override
+  String toString() {
+    return 'Invoice{id: $id, quantity: $quantity, discount: $discount, '
+        'subtotal: $subtotal, taxes: $taxes, total: $total}';
+  }
+
+
+}
+
 class InvoiceLine extends Object {
   String id;
   Item item;
@@ -7,10 +36,11 @@ class InvoiceLine extends Object {
   double discountValue;
   double quantity;
   double subtotal;
-  double totalDetail;
+  double taxes;
+  double total;
 
   InvoiceLine(this.item, this.discountRate,
-      this.discountValue, this.quantity, this.subtotal, this.totalDetail);
+      this.discountValue, this.quantity, this.subtotal, this.taxes, this.total);
 
   InvoiceLine.fromFireJson(String documentId, Map<String, dynamic> json){
     this.id = documentId;
@@ -18,7 +48,7 @@ class InvoiceLine extends Object {
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
     this.subtotal = json['subtotal'];
-    this.totalDetail = json['totalDetail'];
+    this.total = json['totalDetail'];
   }
 
   InvoiceLine.fromJson(Map<String, dynamic> json){
@@ -26,14 +56,14 @@ class InvoiceLine extends Object {
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
     this.subtotal = json['subtotal'];
-    this.totalDetail = json['totalDetail'];
+    this.total = json['totalDetail'];
   }
 
   @override
   String toString() {
     return 'InvoiceDetail{id: $id, '
         'discountRate: $discountRate, discountValue: $discountValue, '
-        'quantity: $quantity, subtotal: $subtotal, totalDetail: $totalDetail}';
+        'quantity: $quantity, subtotal: $subtotal, totalDetail: $total}';
   }
 
 

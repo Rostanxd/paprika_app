@@ -23,7 +23,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           _listItems(),
           Divider(),
           _totalInvoice(),
-          _footButtons(),
+          _invoiceButtons(),
         ],
       ),
     );
@@ -39,7 +39,24 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
             return snapshot.hasData
                 ? ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
-                      return _itemInTheList(snapshot.data[index]);
+                      return Dismissible(
+                        key: Key(index.toString()),
+                        child: _itemInTheList(snapshot.data[index]),
+                        onDismissed: (direction) {
+                          widget.cashBloc.removeFromInvoiceItem(index);
+                        },
+                        background: Container(
+                          alignment: AlignmentDirectional.centerEnd,
+                          color: Colors.red,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                            child: Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      );
                     },
                     itemCount: snapshot.data.length,
                   )
@@ -64,7 +81,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           style: TextStyle(fontStyle: FontStyle.italic),
         ),
         trailing: Text(
-          '\$ ${line.subtotal}',
+          '\$ ${line.total}',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
         ),
       ),
@@ -72,24 +89,49 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   }
 
   Widget _totalInvoice() {
-    return Column(
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              child: Text(
-                'Total a pagar \$ 20.16',
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
-              ),
-            )
-          ],
-        )
-      ],
+    return StreamBuilder(
+      stream: widget.cashBloc.invoice,
+      builder: (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+        if (snapshot.hasError)
+          return Center(
+            child: Text(snapshot.error),
+          );
+        return snapshot.hasData
+            ? Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: Text(
+                          'Total a pagar \$ ${snapshot.data.total}',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              )
+            : Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: Text(
+                          'Total a pagar \$ 0.0',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              );
+      },
     );
   }
 
-  Widget _footButtons() {
+  Widget _invoiceButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -97,7 +139,39 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           margin: EdgeInsets.only(top: 20.0, bottom: 20.0, right: 10.0),
           child: Center(
             child: RaisedButton(
-                child: Text('Nuevo'), elevation: 5.0, onPressed: () {}),
+                child: Text('Nuevo'),
+                elevation: 5.0,
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Paprika dice:'),
+                          content: Text('Deseas generar una nueva factura?'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text(
+                                'Nueva factura',
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
+                              onPressed: () {
+                                widget.cashBloc.newInvoice();
+                                Navigator.pop(context);
+                              },
+                            ),
+                            FlatButton(
+                              child: Text(
+                                'Cancelar',
+                                style: TextStyle(color: Colors.blueAccent),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      });
+                }),
           ),
         ),
         Container(
