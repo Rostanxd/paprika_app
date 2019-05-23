@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/components/user_drawer.dart';
-import 'package:paprika_app/screens/sales/list_items.dart';
+import 'package:paprika_app/screens/sales/invoice_detail.dart';
 import 'package:paprika_app/screens/sales/search_item.dart';
 
 class CashPage extends StatefulWidget {
@@ -47,7 +47,11 @@ class _CashPageState extends State<CashPage> {
                     cashBloc: _cashBloc,
                     itemToFind: '',
                   )),
-              Flexible(flex: 2, child: ListItems())
+              Flexible(
+                  flex: 2,
+                  child: InvoiceDetail(
+                    cashBloc: _cashBloc,
+                  ))
             ],
           ),
         ),

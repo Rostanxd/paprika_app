@@ -28,6 +28,7 @@ class _SearchItemState extends State<SearchItem> {
         _loadBottomNavBars(data);
       }
     });
+
     super.initState();
   }
 
@@ -160,7 +161,9 @@ class _SearchItemState extends State<SearchItem> {
               margin: EdgeInsets.all(10),
             ),
           ),
-          onTap: () {},
+          onTap: () {
+            widget.cashBloc.addItemToInvoice(item);
+          },
         ),
         Container(margin: EdgeInsets.only(top: 5.0), child: Text(item.name)),
       ],
