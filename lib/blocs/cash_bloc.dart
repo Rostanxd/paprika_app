@@ -2,7 +2,7 @@ import 'package:paprika_app/blocs/bloc_base.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/invoice.dart';
 import 'package:paprika_app/models/item.dart';
-import 'package:paprika_app/resources/sales_repository.dart';
+import 'package:paprika_app/resources/inventory_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CashBloc extends BlocBase {
@@ -11,31 +11,40 @@ class CashBloc extends BlocBase {
   final _invoice = BehaviorSubject<Invoice>();
   final _invoiceDetail = BehaviorSubject<List<InvoiceLine>>();
   final _categories = BehaviorSubject<List<Category>>();
-  final SalesRepository _salesRepository = SalesRepository();
+  final _itemSearch = BehaviorSubject<String>();
+  final InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
   ValueObservable<int> get index => _index.stream;
 
-  Observable<List<Item>> get items => _items.stream;
+  Observable<List<Item>> get itemsByCategory => _items.stream;
 
-  Observable<Invoice> get invoice => _invoice.stream;
+  ValueObservable<Invoice> get invoice => _invoice.stream;
 
   Observable<List<InvoiceLine>> get invoiceDetail => _invoiceDetail.stream;
 
   ValueObservable<List<Category>> get categories => _categories.stream;
 
+  Observable<List<Item>> get itemsBySearch => _itemSearch
+          .debounce(Duration(milliseconds: 500))
+          .switchMap((terms) async* {
+        yield await _inventoryRepository.fetchItemsByName(terms);
+      });
+
   /// Functions
-  Function get changeIndex => _index.add;
+  Function(int) get changeIndex => _index.add;
+
+  Function(String) get changeSearchItem => _itemSearch.add;
 
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
-    await _salesRepository.fetchItemsByCategory(categoryId).then((data) {
+    await _inventoryRepository.fetchItemsByCategory(categoryId).then((data) {
       _items.sink.add(data);
     });
   }
 
   void fetchCategories() async {
-    await _salesRepository.fetchCategories().then((data) {
+    await _inventoryRepository.fetchCategories().then((data) {
       _categories.sink.add(data);
       _index.sink.add(0);
     });
@@ -101,8 +110,8 @@ class CashBloc extends BlocBase {
       double taxes = double.parse((item.price * 0.12).toStringAsFixed(2));
       double total = double.parse((item.price * 1.12).toStringAsFixed(2));
 
-      _invoiceDetailList.add(InvoiceLine(
-          item, 0, discount, quantity, subtotal, taxes, total));
+      _invoiceDetailList.add(
+          InvoiceLine(item, 0, discount, quantity, subtotal, taxes, total));
     }
 
     /// Add the invoice line list to the stream
@@ -112,14 +121,18 @@ class CashBloc extends BlocBase {
     _updateInvoice();
   }
 
-  void removeFromInvoiceItem(int index){
+  void removeFromInvoiceItem(int index) {
     List<InvoiceLine> invoiceLine = _invoiceDetail.value;
     invoiceLine.removeAt(index);
     _invoiceDetail.sink.add(invoiceLine);
     _updateInvoice();
   }
 
-  void newInvoice(){
+  void addItemToCategory(Item item, Category category){
+
+  }
+
+  void newInvoice() {
     _invoice.sink.add(null);
     _invoiceDetail.sink.add(null);
   }
@@ -131,5 +144,6 @@ class CashBloc extends BlocBase {
     _invoice.close();
     _invoiceDetail.close();
     _categories.close();
+    _itemSearch.close();
   }
 }

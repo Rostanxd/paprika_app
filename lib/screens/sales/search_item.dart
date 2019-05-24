@@ -42,7 +42,7 @@ class _SearchItemState extends State<SearchItem> {
               if (snapshot.hasError) print(snapshot.error);
               return snapshot.hasData
                   ? _loadItemsByCategory(
-                      widget.cashBloc.categories.value[snapshot.data].id)
+                      widget.cashBloc.categories.value[snapshot.data])
                   : CircularProgressIndicator();
             }),
       ),
@@ -80,7 +80,7 @@ class _SearchItemState extends State<SearchItem> {
 
     /// Adding the option t add more categories.
     _bottomNavigationBarItemList.add(
-        BottomNavigationBarItem(icon: Icon(Icons.add), title: Text('Agregar')));
+        BottomNavigationBarItem(icon: Icon(Icons.add), title: Text('Nuevo')));
   }
 
   void _loadPageByCategory(int index) {
@@ -89,18 +89,18 @@ class _SearchItemState extends State<SearchItem> {
       widget.cashBloc.changeIndex(index);
 
       /// Loading the page with items by category
-      _loadItemsByCategory(widget.cashBloc.categories.value[index].id);
+      _loadItemsByCategory(widget.cashBloc.categories.value[index]);
     } else {
       /// Code to create a new category
     }
   }
 
   /// Widgets
-  Widget _loadItemsByCategory(String categoryId) {
-    widget.cashBloc.fetchItemsByCategory(categoryId);
+  Widget _loadItemsByCategory(Category category) {
+    widget.cashBloc.fetchItemsByCategory(category.id);
 
     return StreamBuilder<List<Item>>(
-      stream: widget.cashBloc.items,
+      stream: widget.cashBloc.itemsByCategory,
       builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
         if (snapshot.hasError)
           return Center(
@@ -108,7 +108,7 @@ class _SearchItemState extends State<SearchItem> {
           );
 
         if (snapshot.hasData) {
-          return _customScrollView(snapshot.data);
+          return _customScrollView(category, snapshot.data);
         }
 
         return Center(
@@ -118,10 +118,11 @@ class _SearchItemState extends State<SearchItem> {
     );
   }
 
-  Widget _customScrollView(List<Item> data) {
+  Widget _customScrollView(Category category, List<Item> data) {
     List<Widget> _itemsWidget = List<Widget>();
     _itemsWidget.addAll(data.map((i) => _itemPreview(i)));
-    _itemsWidget.add(_addNewItem());
+    _itemsWidget.add(_searchAndAddItem(category));
+    _itemsWidget.add(_createAndAddItem(category));
 
     return CustomScrollView(
       slivers: <Widget>[
@@ -170,7 +171,7 @@ class _SearchItemState extends State<SearchItem> {
     );
   }
 
-  Widget _addNewItem() {
+  Widget _searchAndAddItem(Category category) {
     return InkWell(
       child: Container(
         child: Card(
@@ -180,7 +181,7 @@ class _SearchItemState extends State<SearchItem> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Container(width: 150, child: Icon(Icons.add)),
+              Container(width: 150, child: Icon(Icons.search)),
               Container(
                 margin: EdgeInsets.all(10.0),
                 child: Text('Agregar Item'),
@@ -194,7 +195,122 @@ class _SearchItemState extends State<SearchItem> {
           margin: EdgeInsets.all(10),
         ),
       ),
+      onTap: () {
+        showSearch(
+            context: context, delegate: DataSearch(widget.cashBloc, category));
+      },
+    );
+  }
+
+  Widget _createAndAddItem(Category category) {
+    return InkWell(
+      child: Container(
+        child: Card(
+          color: Colors.deepOrangeAccent,
+          semanticContainer: true,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(width: 150, child: Icon(Icons.add, color: Colors.white,)),
+              Container(
+                margin: EdgeInsets.all(10.0),
+                child: Text('Crear Item', style: TextStyle(color: Colors.white),),
+              )
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          elevation: 5,
+          margin: EdgeInsets.all(10),
+        ),
+      ),
       onTap: () {},
     );
+  }
+}
+
+class DataSearch extends SearchDelegate<String> {
+  final CashBloc _cashBloc;
+  final Category _category;
+
+  DataSearch(this._cashBloc, this._category);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+          close(context, null);
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow, progress: transitionAnimation),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return StreamBuilder(
+      stream: _cashBloc.itemsBySearch,
+      builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
+        if (snapshot.hasError)
+          return Center(
+            child: Text(snapshot.error),
+          );
+        return snapshot.hasData
+            ? ListView.builder(
+                itemBuilder: (BuildContext context, int index) {
+                  return InkWell(
+                    child: ListTile(
+                      leading: Container(
+                        height: 75,
+                        width: 100,
+                        child: Image(
+                            image:
+                                NetworkImage(snapshot.data[index].imagePath)),
+                      ),
+                      title: Text(
+                          '${snapshot.data[index].name} / Precio: ${snapshot.data[index].price}'),
+                      subtitle: Text('${snapshot.data[index].description}'),
+                    ),
+                    onTap: () {
+                      _cashBloc.addItemToCategory(
+                          snapshot.data[index], _category);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+                itemCount: snapshot.data.length,
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    if (query.isNotEmpty) _cashBloc.changeSearchItem(query);
+    return Container(
+        margin: EdgeInsets.all(20.0),
+        child: Text(
+          'Ingrese su búsqueda.',
+          style: TextStyle(fontSize: 16.0),
+        ));
   }
 }

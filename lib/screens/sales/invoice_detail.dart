@@ -14,17 +14,22 @@ class InvoiceDetail extends StatefulWidget {
 class _InvoiceDetailState extends State<InvoiceDetail> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.teal,
-      padding: EdgeInsets.only(left: 5.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          _listItems(),
-          Divider(),
-          _totalInvoice(),
-          _invoiceButtons(),
-        ],
+    return Scaffold(
+      resizeToAvoidBottomPadding: true,
+      body: Container(
+        color: Colors.orange,
+        padding: EdgeInsets.only(left: 5.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            _listItems(),
+            Divider(
+              color: Colors.deepOrange,
+            ),
+            _totalInvoice(),
+            _invoiceButtons(),
+          ],
+        ),
       ),
     );
   }
@@ -40,7 +45,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 ? ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
                       return Dismissible(
-                        key: Key(index.toString()),
+                        key: Key(
+                            '${index.toString()}-${snapshot.data[index].item.id}'),
                         child: _itemInTheList(snapshot.data[index]),
                         onDismissed: (direction) {
                           widget.cashBloc.removeFromInvoiceItem(index);
@@ -70,7 +76,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   Widget _itemInTheList(InvoiceLine line) {
     return Card(
       elevation: 5.0,
-      color: Colors.blue[100],
+      color: Colors.orangeAccent,
       child: ListTile(
         title: Text(
           line.item.name,
@@ -105,7 +111,10 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                       Container(
                         child: Text(
                           'Total a pagar \$ ${snapshot.data.total}',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold),
                         ),
                       )
                     ],
@@ -120,7 +129,10 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                       Container(
                         child: Text(
                           'Total a pagar \$ 0.0',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold),
                         ),
                       )
                     ],
@@ -142,35 +154,37 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 child: Text('Nuevo'),
                 elevation: 5.0,
                 onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Paprika dice:'),
-                          content: Text('Deseas generar una nueva factura?'),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text(
-                                'Nueva factura',
-                                style: TextStyle(color: Colors.redAccent),
+                  if (widget.cashBloc.invoice.value != null &&
+                      widget.cashBloc.invoice.value.total > 0)
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Paprika dice:'),
+                            content: Text('Deseas generar una nueva factura?'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text(
+                                  'Nueva factura',
+                                  style: TextStyle(color: Colors.redAccent),
+                                ),
+                                onPressed: () {
+                                  widget.cashBloc.newInvoice();
+                                  Navigator.pop(context);
+                                },
                               ),
-                              onPressed: () {
-                                widget.cashBloc.newInvoice();
-                                Navigator.pop(context);
-                              },
-                            ),
-                            FlatButton(
-                              child: Text(
-                                'Cancelar',
-                                style: TextStyle(color: Colors.blueAccent),
+                              FlatButton(
+                                child: Text(
+                                  'Cancelar',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
                               ),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        );
-                      });
+                            ],
+                          );
+                        });
                 }),
           ),
         ),
@@ -178,8 +192,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           margin: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 10.0),
           child: Center(
             child: RaisedButton(
-                color: Colors.indigoAccent,
-                child: Text('Confirmar', style: TextStyle(color: Colors.white)),
+                color: Colors.deepOrange,
+                child: Text('Continuar', style: TextStyle(color: Colors.white)),
                 elevation: 5.0,
                 onPressed: () {}),
           ),
