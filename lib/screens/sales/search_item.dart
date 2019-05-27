@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
+import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
 
@@ -14,6 +16,7 @@ class SearchItem extends StatefulWidget {
 }
 
 class _SearchItemState extends State<SearchItem> {
+  RootBloc _rootBloc;
   List<BottomNavigationBarItem> _bottomNavigationBarItemList =
       List<BottomNavigationBarItem>();
 
@@ -30,6 +33,13 @@ class _SearchItemState extends State<SearchItem> {
     });
 
     super.initState();
+  }
+
+
+  @override
+  void didChangeDependencies() {
+    _rootBloc = BlocProvider.of<RootBloc>(context);
+    super.didChangeDependencies();
   }
 
   @override
@@ -206,7 +216,7 @@ class _SearchItemState extends State<SearchItem> {
     return InkWell(
       child: Container(
         child: Card(
-          color: Colors.deepOrangeAccent,
+          color: Color(_rootBloc.submitColor.value),
           semanticContainer: true,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           child: Column(

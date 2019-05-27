@@ -52,3 +52,5 @@ class LoginBloc extends Object with LoginValidator implements BlocBase {
     _firebaseUser.close();
   }
 }
+
+final loginBloc = LoginBloc();

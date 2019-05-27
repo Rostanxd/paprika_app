@@ -1,19 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/user.dart';
+import 'package:paprika_app/screens/inventory/items_main_configuration.dart';
+import 'package:paprika_app/screens/sales/cash_page.dart';
 
 class UserDrawer extends StatefulWidget {
-  final RootBloc _rootBloc;
-
-  UserDrawer(this._rootBloc);
-
   @override
   _UserDrawerState createState() => _UserDrawerState();
 }
 
 class _UserDrawerState extends State<UserDrawer> {
   final List<Widget> _listChildren = List<Widget>();
+
+  RootBloc _rootBloc;
 
   FirebaseUser _firebaseUser;
 
@@ -25,15 +26,32 @@ class _UserDrawerState extends State<UserDrawer> {
     /// Adding the header
     _listChildren.add(_header());
 
+    _listChildren.add(ListTile(
+      title: Text('POS'),
+      leading: Icon(Icons.shopping_cart),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => CashPage(rootBloc: _rootBloc,)));
+      },
+    ));
+
+    _listChildren.add(ListTile(
+      title: Text('Items'),
+      leading: Icon(Icons.category),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ItemsMainConfiguration()));
+      },
+    ));
+
     /// Adding options by the profile
     if (_user.role != '02') {
       _listChildren.add(ListTile(
         title: Text('Configuración'),
         leading: Icon(Icons.settings),
-        onTap: () {
-//          Navigator.push(
-//              context, MaterialPageRoute(builder: (context) => SettingsPage()));
-        },
+        onTap: () {},
       ));
     }
 
@@ -44,15 +62,21 @@ class _UserDrawerState extends State<UserDrawer> {
       leading: Icon(Icons.exit_to_app),
       onTap: () {
         Navigator.pop(context);
-        widget._rootBloc.userLogOut();
+        _rootBloc.userLogOut();
       },
     ));
   }
 
   @override
+  void didChangeDependencies() {
+    _rootBloc = BlocProvider.of<RootBloc>(context);
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _firebaseUser = widget._rootBloc.firebaseUser.value;
-    _user = widget._rootBloc.user.value;
+    _firebaseUser = _rootBloc.firebaseUser.value;
+    _user = _rootBloc.user.value;
 
     _loadDrawer(context);
     return Drawer(

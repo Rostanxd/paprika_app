@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
+import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/invoice.dart';
 
 class InvoiceDetail extends StatefulWidget {
@@ -12,19 +14,27 @@ class InvoiceDetail extends StatefulWidget {
 }
 
 class _InvoiceDetailState extends State<InvoiceDetail> {
+  RootBloc _rootBloc;
+
+  @override
+  void didChangeDependencies() {
+   _rootBloc = BlocProvider.of<RootBloc>(context);
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       body: Container(
-        color: Colors.orange,
+        color: Color(_rootBloc.tertiaryColor.value),
         padding: EdgeInsets.only(left: 5.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _listItems(),
             Divider(
-              color: Colors.deepOrange,
+              color: Color(_rootBloc.primaryColor.value),
             ),
             _totalInvoice(),
             _invoiceButtons(),
@@ -43,32 +53,32 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
               AsyncSnapshot<List<InvoiceLine>> snapshot) {
             return snapshot.hasData
                 ? ListView.builder(
-                    itemBuilder: (BuildContext context, int index) {
-                      return Dismissible(
-                        key: Key(
-                            '${index.toString()}-${snapshot.data[index].item.id}'),
-                        child: _itemInTheList(snapshot.data[index]),
-                        onDismissed: (direction) {
-                          widget.cashBloc.removeFromInvoiceItem(index);
-                        },
-                        background: Container(
-                          alignment: AlignmentDirectional.centerEnd,
-                          color: Colors.red,
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                            child: Icon(
-                              Icons.delete,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    itemCount: snapshot.data.length,
-                  )
+              itemBuilder: (BuildContext context, int index) {
+                return Dismissible(
+                  key: Key(
+                      '${index.toString()}-${snapshot.data[index].item.id}'),
+                  child: _itemInTheList(snapshot.data[index]),
+                  onDismissed: (direction) {
+                    widget.cashBloc.removeFromInvoiceItem(index);
+                  },
+                  background: Container(
+                    alignment: AlignmentDirectional.centerEnd,
+                    color: Colors.red,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              itemCount: snapshot.data.length,
+            )
                 : Container(
-                    child: null,
-                  );
+              child: null,
+            );
           }),
     );
   }
@@ -76,7 +86,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   Widget _itemInTheList(InvoiceLine line) {
     return Card(
       elevation: 5.0,
-      color: Colors.orangeAccent,
+      color: Color(_rootBloc.secondaryColor.value),
       child: ListTile(
         title: Text(
           line.item.name,
@@ -104,41 +114,41 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           );
         return snapshot.hasData
             ? Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        child: Text(
-                          'Total a pagar \$ ${snapshot.data.total}',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              )
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  child: Text(
+                    'Total a pagar \$ ${snapshot.data.total}',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            )
+          ],
+        )
             : Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        child: Text(
-                          'Total a pagar \$ 0.0',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              );
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  child: Text(
+                    'Total a pagar \$ 0.0',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            )
+          ],
+        );
       },
     );
   }
@@ -192,7 +202,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           margin: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 10.0),
           child: Center(
             child: RaisedButton(
-                color: Colors.deepOrange,
+                color: Color(_rootBloc.submitColor.value),
                 child: Text('Continuar', style: TextStyle(color: Colors.white)),
                 elevation: 5.0,
                 onPressed: () {}),

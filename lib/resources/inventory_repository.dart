@@ -7,6 +7,8 @@ class InventoryRepository {
   ItemApi _itemApi = ItemApi();
   CategoryApi _categoryApi = CategoryApi();
 
+  Future<Item> fetchItemById(String id) => _itemApi.fetchItemById(id);
+
   Future<List<Item>> fetchItemsByName(String name) =>
       _itemApi.fetchItemsByName(name);
 

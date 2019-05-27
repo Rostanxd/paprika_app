@@ -7,16 +7,27 @@ import 'package:rxdart/rxdart.dart';
 class RootBloc implements BlocBase {
   final _firebaseUser = BehaviorSubject<FirebaseUser>();
   final _user = BehaviorSubject<User>();
+  final _primaryColor = BehaviorSubject<int>();
+  final _secondaryColor = BehaviorSubject<int>();
+  final _tertiaryColor = BehaviorSubject<int>();
+  final _submitColor = BehaviorSubject<int>();
 
   /// Observables
-  ValueObservable<FirebaseUser> get firebaseUser =>
-      _firebaseUser.stream;
+  ValueObservable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
 
   ValueObservable<User> get user => _user.stream;
 
+  ValueObservable<int> get primaryColor => _primaryColor.stream;
+
+  ValueObservable<int> get secondaryColor => _secondaryColor.stream;
+
+  ValueObservable<int> get tertiaryColor => _tertiaryColor.stream;
+
+  ValueObservable<int> get submitColor => _submitColor.stream;
+
   /// Functions
   void userLogged() async {
-    await FirebaseAuth.instance.currentUser().then((firebaseUser){
+    await FirebaseAuth.instance.currentUser().then((firebaseUser) {
       _firebaseUser.sink.add(firebaseUser);
       if (firebaseUser != null) _userSystem(firebaseUser.uid);
     });
@@ -52,9 +63,22 @@ class RootBloc implements BlocBase {
     });
   }
 
+  void fetchColors() {
+    _primaryColor.sink.add(0xffff5722);
+    _secondaryColor.sink.add(0xFFFFAB40);
+    _tertiaryColor.sink.add(0xFFFF9800);
+    _submitColor.sink.add(0xFFFF6E40);
+  }
+
   @override
   void dispose() {
     _firebaseUser.close();
     _user.close();
+    _primaryColor.close();
+    _secondaryColor.close();
+    _tertiaryColor.close();
+    _submitColor.close();
   }
 }
+
+final rootBloc = RootBloc();

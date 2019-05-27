@@ -31,10 +31,11 @@ class _CashPageState extends State<CashPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(''),
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Color(widget.rootBloc.primaryColor.value),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -44,7 +45,7 @@ class _CashPageState extends State<CashPage> {
           ),
         ],
       ),
-      drawer: UserDrawer(widget.rootBloc),
+      drawer: UserDrawer(),
       body: Center(
         child: Container(
           child: Row(

@@ -16,10 +16,10 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-
   @override
   void initState() {
     widget.rootBloc.userLogged();
+    widget.rootBloc.fetchColors();
     super.initState();
   }
 
@@ -33,7 +33,7 @@ class _RootPageState extends State<RootPage> {
             return loadingPage();
             break;
           default:
-            if (!snapshot.hasData){
+            if (!snapshot.hasData) {
               return BlocProvider(
                 bloc: LoginBloc(),
                 child: LoginPage(),
