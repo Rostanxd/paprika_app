@@ -44,6 +44,13 @@ class _ItemListState extends State<ItemList> {
         ],
       ),
       body: _itemListStreamBuilder(_itemListBloc),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Color(_rootBloc.primaryColor.value),
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          onPressed: () {}),
     );
   }
 }
@@ -109,12 +116,20 @@ Widget _itemListStreamBuilder(ItemListBloc _itemListBloc) {
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   child: ListTile(
-                    leading: Container(
-                      height: 75,
-                      width: 100,
-                      child: Image(
-                          image: NetworkImage(snapshot.data[index].imagePath)),
-                    ),
+                    leading: snapshot.data[index].representation == 'I'
+                        ? Container(
+                            height: 75,
+                            width: 75,
+                            child: Image(
+                                image: NetworkImage(
+                                    snapshot.data[index].imagePath)),
+                          )
+                        : Container(
+                            height: 75,
+                            width: 75,
+                            child: null,
+                            color: Color(snapshot.data[index].colorCode),
+                          ),
                     title: Text(
                         '${snapshot.data[index].name} / Precio: ${snapshot.data[index].price}'),
                     subtitle: Text('${snapshot.data[index].description}'),

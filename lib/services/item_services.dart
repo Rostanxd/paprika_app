@@ -59,4 +59,11 @@ class ItemApi {
             .map((i) => Item.fromFireJson(i.documentID, i.data))));
     return _itemList;
   }
+
+  Future updateItem(Item item) async {
+    await Firestore.instance
+        .collection('items')
+        .document(item.id)
+        .updateData(item.toFireJson());
+  }
 }

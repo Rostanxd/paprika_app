@@ -12,6 +12,8 @@ class InventoryRepository {
 
   Future<Item> fetchItemById(String id) => _itemApi.fetchItemById(id);
 
+  Future updateItem(Item item) => _itemApi.updateItem(item);
+
   Future<Category> fetchCategoryById(String id) =>
       _categoryApi.fetchCategoryById(id);
 

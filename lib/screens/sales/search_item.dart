@@ -35,7 +35,6 @@ class _SearchItemState extends State<SearchItem> {
     super.initState();
   }
 
-
   @override
   void didChangeDependencies() {
     _rootBloc = BlocProvider.of<RootBloc>(context);
@@ -161,10 +160,14 @@ class _SearchItemState extends State<SearchItem> {
             child: Card(
               semanticContainer: true,
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Image.network(
-                item.imagePath,
-                fit: BoxFit.fill,
-              ),
+              child: item.representation == 'I'
+                  ? Image.network(
+                      item.imagePath,
+                      fit: BoxFit.fill,
+                    )
+                  : Container(
+                      color: Color(item.colorCode),
+                    ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5.0),
               ),
@@ -223,10 +226,18 @@ class _SearchItemState extends State<SearchItem> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Container(width: 150, child: Icon(Icons.add, color: Colors.white,)),
+              Container(
+                  width: 150,
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  )),
               Container(
                 margin: EdgeInsets.all(10.0),
-                child: Text('Crear Item', style: TextStyle(color: Colors.white),),
+                child: Text(
+                  'Crear Item',
+                  style: TextStyle(color: Colors.white),
+                ),
               )
             ],
           ),
@@ -284,15 +295,23 @@ class DataSearch extends SearchDelegate<String> {
         return snapshot.hasData
             ? ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
+                  print(snapshot.data[index].representation);
                   return InkWell(
                     child: ListTile(
-                      leading: Container(
-                        height: 75,
-                        width: 100,
-                        child: Image(
-                            image:
-                                NetworkImage(snapshot.data[index].imagePath)),
-                      ),
+                      leading: snapshot.data[index].representation == 'I'
+                          ? Container(
+                              height: 75,
+                              width: 75,
+                              child: Image(
+                                  image: NetworkImage(
+                                      snapshot.data[index].imagePath)),
+                            )
+                          : Container(
+                              height: 75,
+                              width: 75,
+                              child: null,
+                              color: Color(snapshot.data[index].colorCode),
+                            ),
                       title: Text(
                           '${snapshot.data[index].name} / Precio: ${snapshot.data[index].price}'),
                       subtitle: Text('${snapshot.data[index].description}'),

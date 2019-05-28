@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/item_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
@@ -139,7 +140,9 @@ class _ItemDetailState extends State<ItemDetail> {
                 style: TextStyle(color: Colors.white),
               ),
               color: Color(_rootBloc.primaryColor.value),
-              onPressed: () {}),
+              onPressed: () {
+                _itemBloc.updateItem();
+              }),
         )
       ],
     );
@@ -163,7 +166,8 @@ class _ItemDetailState extends State<ItemDetail> {
               ),
               Container(
                 margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextFormField(
+                child: TextField(
+                  onChanged: _itemBloc.changeName,
                   decoration: InputDecoration(
                       labelText: 'Nombre',
                       labelStyle: TextStyle(
@@ -289,8 +293,17 @@ class _ItemDetailState extends State<ItemDetail> {
                     flex: 3,
                     child: Container(
                       margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: TextFormField(
-                        keyboardType: TextInputType.numberWithOptions(),
+                      child: TextField(
+                        onChanged: (s) {
+                          double price = double.parse(s);
+                          _itemBloc.changePrice(price);
+                        },
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          BlacklistingTextInputFormatter(
+                              new RegExp('[\\-|+*/()=#\\ ]'))
+                        ],
                         decoration: InputDecoration(
                             labelText: 'Precio',
                             labelStyle: TextStyle(
@@ -310,8 +323,17 @@ class _ItemDetailState extends State<ItemDetail> {
                     flex: 3,
                     child: Container(
                       margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: TextFormField(
-                        keyboardType: TextInputType.numberWithOptions(),
+                      child: TextField(
+                        onChanged: (s) {
+                          double cost = double.parse(s);
+                          _itemBloc.changeCost(cost);
+                        },
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          BlacklistingTextInputFormatter(
+                              new RegExp('[\\-|+*/()=#\\ ]'))
+                        ],
                         decoration: InputDecoration(
                             labelText: 'Costo',
                             labelStyle: TextStyle(
@@ -331,7 +353,8 @@ class _ItemDetailState extends State<ItemDetail> {
               ),
               Container(
                 margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextFormField(
+                child: TextField(
+                  onChanged: _itemBloc.changeDescription,
                   decoration: InputDecoration(
                       labelText: 'Descripción',
                       labelStyle: TextStyle(
@@ -394,7 +417,9 @@ class _ItemDetailState extends State<ItemDetail> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               color: Color(_rootBloc.secondaryColor.value),
-                              onPressed: () {},
+                              onPressed: () {
+                                _itemBloc.loadImage();
+                              },
                             )
                           : null,
                     )
@@ -417,7 +442,7 @@ class _ItemDetailState extends State<ItemDetail> {
   Widget _colorRepresentation() {
     return Container(
       height: 150.0,
-      margin: EdgeInsets.only(top:10.0, left: 10.0, right: 10.0, bottom: 20.0),
+      margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 20.0),
       child: GridView.builder(
           itemCount: _colorLIst.length,
           gridDelegate:
@@ -426,6 +451,10 @@ class _ItemDetailState extends State<ItemDetail> {
             return StreamBuilder(
               stream: _itemBloc.colorCode,
               builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                /// Color by default
+                if (snapshot.data == 0){
+                  _itemBloc.changeColorCode(_colorLIst[0]);
+                }
                 return Center(
                   child: InkWell(
                     child: Container(
@@ -451,7 +480,7 @@ class _ItemDetailState extends State<ItemDetail> {
   Widget _imageRepresentation() {
     return Container(
       height: 150,
-      margin: EdgeInsets.only(top:10.0, left: 10.0, right: 10.0, bottom: 20.0),
+      margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 20.0),
       child: StreamBuilder(
           stream: _itemBloc.imagePath,
           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {

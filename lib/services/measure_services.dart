@@ -11,7 +11,6 @@ class MeasureApi {
         .get()
         .then((measure) {
       _measure = Measure.fromFireJson(measure.documentID, measure.data);
-      print(_measure.toString());
     });
 
     return _measure;

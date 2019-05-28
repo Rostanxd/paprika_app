@@ -119,12 +119,19 @@ class DataSearch extends SearchDelegate<String> {
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     child: ListTile(
-                      leading: Container(
+                      leading: snapshot.data[index].representation == 'I'
+                          ? Container(
                         height: 75,
-                        width: 100,
+                        width: 75,
                         child: Image(
-                            image:
-                                NetworkImage(snapshot.data[index].imagePath)),
+                            image: NetworkImage(
+                                snapshot.data[index].imagePath)),
+                      )
+                          : Container(
+                        height: 75,
+                        width: 75,
+                        child: null,
+                        color: Color(snapshot.data[index].colorCode),
                       ),
                       title: Text(
                           '${snapshot.data[index].name} / Precio: ${snapshot.data[index].price}'),
