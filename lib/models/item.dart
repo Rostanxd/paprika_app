@@ -1,3 +1,6 @@
+import 'package:paprika_app/models/category.dart';
+import 'package:paprika_app/models/measure.dart';
+
 class Item extends Object {
   String id;
   String name;
@@ -8,8 +11,8 @@ class Item extends Object {
   String representation;
   int colorCode;
   String imagePath;
-  String categoryId;
-  String measureId;
+  Category category;
+  Measure measure;
   String sku;
 
   Item(
@@ -21,8 +24,8 @@ class Item extends Object {
       this.payVat,
       this.colorCode,
       this.imagePath,
-      this.categoryId,
-      this.measureId,
+      this.category,
+      this.measure,
       this.representation,
       this.sku);
 
@@ -39,8 +42,6 @@ class Item extends Object {
     this.payVat = json['payVat'];
     this.colorCode = int.parse(_colorCode);
     this.imagePath = json['imagePath'];
-    this.categoryId = json['categoryId'];
-    this.measureId = json['measureId'];
     this.representation = json['representation'];
     this.sku = json['sku'];
   }
@@ -57,8 +58,6 @@ class Item extends Object {
     this.payVat = json['payVat'];
     this.colorCode = json['codeColor'];
     this.imagePath = json['imagePath'];
-    this.categoryId = json['categoryId'];
-    this.measureId = json['measureId'];
     this.representation = json['representation'];
     this.sku = json['sku'];
   }
@@ -68,7 +67,7 @@ class Item extends Object {
     return 'Item{id: $id, name: $name, description: $description, '
         'cost: $cost, price: $price, payVat: $payVat, '
         'representation: $representation, tagColor: $colorCode, '
-        'imagePath: $imagePath, categoryId: $categoryId, measureId: $measureId, '
-        'sku: $sku}';
+        'imagePath: $imagePath, category: ${category.toString()}, '
+        'measureId: ${measure.toString()}, sku: $sku}';
   }
 }

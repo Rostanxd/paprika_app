@@ -16,4 +16,10 @@ class Category extends Object {
     this.name = json['name'];
     this.order = json['order'];
   }
+
+  @override
+  String toString() {
+    return 'Category{id: $id, name: $name, order: $order}';
+  }
+
 }

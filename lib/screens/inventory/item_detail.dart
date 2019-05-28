@@ -19,6 +19,10 @@ class _ItemDetailState extends State<ItemDetail> {
   List<DropdownMenuItem<String>> _representationTypes =
       List<DropdownMenuItem<String>>();
   List<int> _colorLIst = List<int>();
+  List<DropdownMenuItem<String>> _categoriesDropDownItems =
+      List<DropdownMenuItem<String>>();
+  List<DropdownMenuItem<String>> _measuresDropDownItems =
+      List<DropdownMenuItem<String>>();
 
   /// Form text Controllers
   TextEditingController _nameCtrl = TextEditingController();
@@ -30,6 +34,8 @@ class _ItemDetailState extends State<ItemDetail> {
   void initState() {
     _itemBloc = itemBloc;
     _itemBloc.fetchItem(widget.item.id);
+    _itemBloc.fetchCategories();
+    _itemBloc.fetchMeasures();
 
     /// Adding the representations for the dropdown
     _representationTypes
@@ -171,6 +177,112 @@ class _ItemDetailState extends State<ItemDetail> {
                   controller: _nameCtrl,
                 ),
               ),
+              Container(
+                margin: EdgeInsets.only(
+                  left: 10.0,
+                  right: 10.0,
+                ),
+                child: StreamBuilder(
+                    stream: _itemBloc.itemAllData,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      /// Loading default data
+                      _categoriesDropDownItems.clear();
+                      _categoriesDropDownItems.add(DropdownMenuItem(
+                        value: null,
+                        child: Text('Seleccionar...'),
+                      ));
+
+                      /// If we have an error
+                      if (snapshot.hasError)
+                        return Container(
+                          child: Text(snapshot.error.toString()),
+                        );
+
+                      /// Once we got the data
+                      if (snapshot.hasData && snapshot.data) {
+                        _categoriesDropDownItems.addAll(_itemBloc
+                            .categoryList.value
+                            .map((c) => DropdownMenuItem(
+                                  value: c.id,
+                                  child: Text(c.name),
+                                )));
+                      }
+
+                      /// Returning the dropdown
+                      return DropdownButtonFormField(
+                        value: _itemBloc.categoryId.value,
+                        items: _categoriesDropDownItems,
+                        decoration: InputDecoration(
+                            labelText: 'Categoría',
+                            labelStyle: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color:
+                                        Color(_rootBloc.primaryColor.value))),
+                            errorText: ''),
+                        onChanged: (c) {
+                          _itemBloc.changeCategory(c);
+                        },
+                      );
+                    }),
+              ),
+              Container(
+                margin: EdgeInsets.only(
+                  left: 10.0,
+                  right: 10.0,
+                ),
+                child: StreamBuilder(
+                    stream: _itemBloc.itemAllData,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      /// Loading default data
+                      _measuresDropDownItems.clear();
+                      _measuresDropDownItems.add(DropdownMenuItem(
+                        value: null,
+                        child: Text('Seleccionar...'),
+                      ));
+
+                      /// If we have an error
+                      if (snapshot.hasError)
+                        return Container(
+                          child: Text(snapshot.error.toString()),
+                        );
+
+                      /// Once we got the data
+                      if (snapshot.hasData && snapshot.data) {
+                        _measuresDropDownItems.addAll(_itemBloc
+                            .measureList.value
+                            .map((m) => DropdownMenuItem(
+                                  value: m.id,
+                                  child: Text(m.name),
+                                )));
+                      }
+
+                      /// Returning the dropdown
+                      return DropdownButtonFormField(
+                        value: _itemBloc.measureId.value,
+                        items: _measuresDropDownItems,
+                        decoration: InputDecoration(
+                            labelText: 'Medida',
+                            labelStyle: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color:
+                                        Color(_rootBloc.primaryColor.value))),
+                            errorText: ''),
+                        onChanged: (m) {
+                          _itemBloc.changeMeasure(m);
+                        },
+                      );
+                    }),
+              ),
               Row(
                 children: <Widget>[
                   Flexible(
@@ -232,7 +344,7 @@ class _ItemDetailState extends State<ItemDetail> {
                       errorText: ''),
                   controller: _descriptionCtrl,
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -305,7 +417,7 @@ class _ItemDetailState extends State<ItemDetail> {
   Widget _colorRepresentation() {
     return Container(
       height: 150.0,
-      margin: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+      margin: EdgeInsets.only(top:10.0, left: 10.0, right: 10.0, bottom: 20.0),
       child: GridView.builder(
           itemCount: _colorLIst.length,
           gridDelegate:
@@ -339,10 +451,18 @@ class _ItemDetailState extends State<ItemDetail> {
   Widget _imageRepresentation() {
     return Container(
       height: 150,
-      margin: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
-      child: Image(
-        image: NetworkImage(_itemBloc.imagePath.value),
-      ),
+      margin: EdgeInsets.only(top:10.0, left: 10.0, right: 10.0, bottom: 20.0),
+      child: StreamBuilder(
+          stream: _itemBloc.imagePath,
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            return Center(
+              child: snapshot.hasData
+                  ? Image(
+                      image: NetworkImage(_itemBloc.imagePath.value),
+                    )
+                  : CircularProgressIndicator(),
+            );
+          }),
     );
   }
 }

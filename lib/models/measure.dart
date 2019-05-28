@@ -13,4 +13,10 @@ class Measure extends Object {
     this.id = json['id'];
     this.name = json['name'];
   }
+
+  @override
+  String toString() {
+    return 'Measure{id: $id, name: $name}';
+  }
+
 }
