@@ -31,24 +31,40 @@ class _ItemDetailState extends State<ItemDetail> {
   TextEditingController _price = TextEditingController();
   TextEditingController _cost = TextEditingController();
 
+  /// If the item parameter in the widget is 'null', that means
+  /// we are creating a new item
   @override
   void initState() {
-    _itemBloc = itemBloc;
-    _itemBloc.fetchItem(widget.item.id);
+    _itemBloc = new ItemBloc();
     _itemBloc.fetchCategories();
     _itemBloc.fetchMeasures();
+
+    /// to listen the messenger
+    _itemBloc.messenger.listen((message) {
+      if (message != null)
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Inicio de sesión'),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cerrar'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            });
+    });
 
     /// Adding the representations for the dropdown
     _representationTypes
         .add(DropdownMenuItem(value: 'C', child: Text('Color')));
     _representationTypes
         .add(DropdownMenuItem(value: 'I', child: Text('Imagen/Photo')));
-
-    /// Adding initial value to the controllers
-    _nameCtrl.text = widget.item.name;
-    _descriptionCtrl.text = widget.item.description;
-    _price.text = widget.item.price.toString();
-    _cost.text = widget.item.cost.toString();
 
     /// Loading the color palette
     _colorLIst.add(0xFFFE0E0E0);
@@ -59,6 +75,19 @@ class _ItemDetailState extends State<ItemDetail> {
     _colorLIst.add(0xFF4CAF50);
     _colorLIst.add(0xFF2196F3);
     _colorLIst.add(0xFF9C27B0);
+
+    /// Adding initial value to the controllers
+    if (widget.item != null) {
+      _itemBloc.fetchItem(widget.item.id);
+      _nameCtrl.text = widget.item.name;
+      _descriptionCtrl.text = widget.item.description;
+      _price.text = widget.item.price.toString();
+      _cost.text = widget.item.cost.toString();
+    } else {
+      _itemBloc.changeStateBool(true);
+      _itemBloc.changeRepresentation('C');
+      _itemBloc.changeColorCode(0xFFFE0E0E0);
+    }
 
     super.initState();
   }
@@ -71,44 +100,40 @@ class _ItemDetailState extends State<ItemDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: _itemBloc.item,
-      builder: (BuildContext context, AsyncSnapshot<Item> snapshot) {
-        if (snapshot.hasError)
-          return Center(
-            child: Text(snapshot.error),
-          );
-        return snapshot.hasData
-            ? _itemScaffold()
-            : Center(
-                child: CircularProgressIndicator(),
-              );
-      },
-    );
-  }
-
-  Widget _itemScaffold() {
     return Scaffold(
       appBar: AppBar(
         title: Text('Detalles del item'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
       ),
-      body: ListView(
-        children: <Widget>[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Flexible(
-                flex: 3,
-                child: _infoCard(),
-              ),
-              Flexible(
-                flex: 3,
-                child: _representationPosCard(),
-              )
-            ],
-          ),
-        ],
+      body: StreamBuilder(
+        stream: _itemBloc.item,
+        builder: (BuildContext context, AsyncSnapshot<Item> snapshot) {
+          if (snapshot.hasError)
+            return Center(
+              child: Text(snapshot.error),
+            );
+          return widget.item == null || snapshot.hasData
+              ? ListView(
+                  children: <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Flexible(
+                          flex: 3,
+                          child: _infoCard(),
+                        ),
+                        Flexible(
+                          flex: 3,
+                          child: _representationPosCard(),
+                        )
+                      ],
+                    ),
+                  ],
+                )
+              : Center(
+                  child: CircularProgressIndicator(),
+                );
+        },
       ),
       persistentFooterButtons: <Widget>[
         Container(
@@ -148,6 +173,13 @@ class _ItemDetailState extends State<ItemDetail> {
     );
   }
 
+  @override
+  void dispose() {
+    _itemBloc.dispose();
+    super.dispose();
+  }
+
+  /// Widgets
   Widget _infoCard() {
     return Container(
       margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0, right: 5.0),
@@ -157,12 +189,42 @@ class _ItemDetailState extends State<ItemDetail> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 10.0, left: 10.0),
-                child: Text(
-                  'Información',
-                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: 10.0, left: 10.0),
+                    child: Text(
+                      'Información',
+                      style: TextStyle(
+                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(top: 10.0),
+                        child: Text('Estado'),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 10.0),
+                        child: StreamBuilder(
+                          stream: _itemBloc.stateBool,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<bool> snapshot) {
+                            return Checkbox(
+                              value: !snapshot.hasData ? false : snapshot.data,
+                              onChanged: _itemBloc.changeStateBool,
+                              checkColor: Color(_rootBloc.primaryColor.value),
+                              activeColor: Colors.white10,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Container(
                 margin: EdgeInsets.only(left: 10.0, right: 10.0),
@@ -193,7 +255,7 @@ class _ItemDetailState extends State<ItemDetail> {
                       /// Loading default data
                       _categoriesDropDownItems.clear();
                       _categoriesDropDownItems.add(DropdownMenuItem(
-                        value: null,
+                        value: '',
                         child: Text('Seleccionar...'),
                       ));
 
@@ -215,7 +277,9 @@ class _ItemDetailState extends State<ItemDetail> {
 
                       /// Returning the dropdown
                       return DropdownButtonFormField(
-                        value: _itemBloc.categoryId.value,
+                        value: snapshot.hasData && snapshot.data
+                            ? _itemBloc.categoryId.value
+                            : '',
                         items: _categoriesDropDownItems,
                         decoration: InputDecoration(
                             labelText: 'Categoría',
@@ -246,7 +310,7 @@ class _ItemDetailState extends State<ItemDetail> {
                       /// Loading default data
                       _measuresDropDownItems.clear();
                       _measuresDropDownItems.add(DropdownMenuItem(
-                        value: null,
+                        value: '',
                         child: Text('Seleccionar...'),
                       ));
 
@@ -268,7 +332,9 @@ class _ItemDetailState extends State<ItemDetail> {
 
                       /// Returning the dropdown
                       return DropdownButtonFormField(
-                        value: _itemBloc.measureId.value,
+                        value: snapshot.hasData && snapshot.data
+                            ? _itemBloc.measureId.value
+                            : '',
                         items: _measuresDropDownItems,
                         decoration: InputDecoration(
                             labelText: 'Medida',
@@ -452,7 +518,7 @@ class _ItemDetailState extends State<ItemDetail> {
               stream: _itemBloc.colorCode,
               builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
                 /// Color by default
-                if (snapshot.data == 0){
+                if (snapshot.data == 0) {
                   _itemBloc.changeColorCode(_colorLIst[0]);
                 }
                 return Center(
@@ -489,7 +555,7 @@ class _ItemDetailState extends State<ItemDetail> {
                   ? Image(
                       image: NetworkImage(_itemBloc.imagePath.value),
                     )
-                  : CircularProgressIndicator(),
+                  : Text('No hay imágen cargada.'),
             );
           }),
     );

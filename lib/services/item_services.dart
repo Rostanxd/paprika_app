@@ -54,6 +54,7 @@ class ItemApi {
     await Firestore.instance
         .collection('items')
         .where('categoryId', isEqualTo: categoryId)
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((data) => _itemList.addAll(data.documents
             .map((i) => Item.fromFireJson(i.documentID, i.data))));

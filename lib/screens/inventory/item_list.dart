@@ -50,7 +50,10 @@ class _ItemListState extends State<ItemList> {
             Icons.add,
             color: Colors.white,
           ),
-          onPressed: () {}),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => ItemDetail()));
+          }),
     );
   }
 }

@@ -11,7 +11,7 @@ import 'package:rxdart/rxdart.dart';
 
 class ItemBloc extends BlocBase {
   final _item = BehaviorSubject<Item>();
-  final _state = BehaviorSubject<String>();
+  final _stateBool = BehaviorSubject<bool>();
   final _name = BehaviorSubject<String>();
   final _description = BehaviorSubject<String>();
   final _price = BehaviorSubject<double>();
@@ -26,12 +26,15 @@ class ItemBloc extends BlocBase {
   final _measureList = BehaviorSubject<List<Measure>>();
   final _sku = BehaviorSubject<String>();
   final _file = BehaviorSubject<File>();
+  final _message = BehaviorSubject<String>();
   InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
   Observable<Item> get item => _item.stream;
 
   ValueObservable<String> get name => _name.stream;
+
+  ValueObservable<bool> get stateBool => _stateBool.stream;
 
   ValueObservable<String> get description => _description.stream;
 
@@ -55,6 +58,8 @@ class ItemBloc extends BlocBase {
 
   ValueObservable<List<Measure>> get measureList => _measureList.stream;
 
+  Observable<String> get messenger => _message.stream;
+
   Stream<bool> get itemAllData => Observable.combineLatest5(
           _item, _categoryId, _measureId, _categoryList, _measureList,
           (a, b, c, d, e) {
@@ -65,7 +70,7 @@ class ItemBloc extends BlocBase {
 
   /// Functions
   void fetchItem(String itemId) async {
-    _state.sink.add(null);
+    _stateBool.sink.add(null);
     _name.sink.add(null);
     _description.sink.add(null);
     _price.sink.add(null);
@@ -80,7 +85,7 @@ class ItemBloc extends BlocBase {
 
     await _inventoryRepository.fetchItemById(itemId).then((item) async {
       _item.sink.add(item);
-      _state.sink.add(item.state);
+      _stateBool.sink.add(item.state == 'A' ? true : false);
       _name.sink.add(item.name);
       _description.sink.add(item.description);
       _price.sink.add(item.price);
@@ -98,7 +103,7 @@ class ItemBloc extends BlocBase {
   void updateItem() async {
     Item item = Item(
         _item.value.id,
-        _state.value,
+        _stateBool.value == true ? 'A' : 'I',
         _name.value,
         _description.value,
         _cost.value,
@@ -112,7 +117,7 @@ class ItemBloc extends BlocBase {
         _sku.value);
 
     await _inventoryRepository.updateItem(item).then((v) {
-//      fetchItem(item.id);
+      _message.sink.add('Item actualizado con éxito');
     });
   }
 
@@ -131,6 +136,8 @@ class ItemBloc extends BlocBase {
   }
 
   Function(String) get changeName => _name.add;
+
+  Function(bool) get changeStateBool => _stateBool.add;
 
   Function(String) get changeDescription => _description.add;
 
@@ -170,7 +177,7 @@ class ItemBloc extends BlocBase {
   @override
   void dispose() {
     _item.close();
-    _state.close();
+    _stateBool.close();
     _name.close();
     _description.close();
     _price.close();
@@ -185,7 +192,8 @@ class ItemBloc extends BlocBase {
     _measureList.close();
     _sku.close();
     _file.close();
+    _message.close();
   }
 }
 
-final itemBloc = ItemBloc();
+final itemBloc = new ItemBloc();

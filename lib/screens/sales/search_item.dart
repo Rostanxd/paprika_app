@@ -4,6 +4,7 @@ import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
+import 'package:paprika_app/screens/inventory/item_detail.dart';
 
 class SearchItem extends StatefulWidget {
   final CashBloc cashBloc;
@@ -248,7 +249,10 @@ class _SearchItemState extends State<SearchItem> {
           margin: EdgeInsets.all(10),
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ItemDetail()));
+      },
     );
   }
 }
