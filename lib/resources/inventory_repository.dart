@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
 import 'package:paprika_app/models/measure.dart';
@@ -12,7 +13,9 @@ class InventoryRepository {
 
   Future<Item> fetchItemById(String id) => _itemApi.fetchItemById(id);
 
-  Future updateItem(Item item) => _itemApi.updateItem(item);
+  Future<void> updateItem(Item item) => _itemApi.updateItem(item);
+
+  Future<DocumentReference> createItem(Item item) => _itemApi.createItem(item);
 
   Future<Category> fetchCategoryById(String id) =>
       _categoryApi.fetchCategoryById(id);

@@ -30,7 +30,7 @@ class ItemBloc extends BlocBase {
   InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
-  Observable<Item> get item => _item.stream;
+  ValueObservable<Item> get item => _item.stream;
 
   ValueObservable<String> get name => _name.stream;
 
@@ -60,11 +60,15 @@ class ItemBloc extends BlocBase {
 
   Observable<String> get messenger => _message.stream;
 
-  Stream<bool> get itemAllData => Observable.combineLatest5(
-          _item, _categoryId, _measureId, _categoryList, _measureList,
-          (a, b, c, d, e) {
-        if (a != null && b != null && c != null && d != null && e != null)
-          return true;
+  Stream<bool> get selectCategory =>
+      Observable.combineLatest2(_categoryId, _categoryList, (a, b) {
+        if (a != null && b != null) return true;
+        return false;
+      });
+
+  Stream<bool> get selectMeasure =>
+      Observable.combineLatest2(_measureId, _measureList, (a, b) {
+        if (a != null && b != null) return true;
         return false;
       });
 
@@ -141,9 +145,19 @@ class ItemBloc extends BlocBase {
 
   Function(String) get changeDescription => _description.add;
 
-  Function(double) get changePrice => _price.add;
+  void changePrice (String newPrice) {
+    print(newPrice.toString());
+    if (newPrice.isEmpty) return _price.addError('Por favor ingrese el precio');
+    if (!isNumeric(newPrice)) return _price.addError('Por favor ingrese un número válido');
+    return _price.sink.add(double.parse(newPrice));
+  }
 
-  Function(double) get changeCost => _cost.add;
+  void changeCost (String newCost) {
+    print(newCost.toString());
+    if (newCost.isEmpty) return _price.addError('Por favor ingrese el costo');
+    if (!isNumeric(newCost)) return _price.addError('Por favor ingrese un número válido');
+    return _cost.sink.add(double.parse(newCost));
+  }
 
   Function(String) get changeCategory => _categoryId.add;
 
@@ -153,9 +167,11 @@ class ItemBloc extends BlocBase {
 
   Function(int) get changeColorCode => _colorCode.add;
 
+  Function(String) get changeSku => _sku.add;
+
   void loadImage() async {
     await ip.ImagePicker.pickImage(source: ip.ImageSource.camera).then((img) {
-      if (img != null){
+      if (img != null) {
         _file.sink.add(img);
         uploadItemImage();
       }
@@ -168,10 +184,86 @@ class ItemBloc extends BlocBase {
         FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = storageRef.putFile(_file.value);
     await uploadTask.onComplete.then((taskSnapShot) async {
-      await taskSnapShot.ref.getDownloadURL().then((data){
+      await taskSnapShot.ref.getDownloadURL().then((data) {
         _imagePath.sink.add(data);
       });
     });
+  }
+
+  void createItem() async {
+    bool submit = true;
+
+    if (submit && (_name.value == null || _name.value.isEmpty)){
+      _name.sink.addError('Ingrese un nombre');
+      submit = false;
+    }
+
+    if (submit && (_categoryId.value == null || _categoryId.value.isEmpty)){
+      _categoryId.sink.addError('Seleccione una categoría');
+      _categoryId.sink.add('');
+      submit = false;
+    }
+
+    if (submit && (_measureId.value == null || _measureId.value.isEmpty)){
+      _measureId.sink.addError('Seleccione una medida');
+      _measureId.sink.add('');
+      submit = false;
+    }
+
+    if (submit && (_price.value == null || _price.value == 0)){
+      _price.sink.addError('Por favor ingrese el precio');
+      submit = false;
+    }
+    if (submit && (_cost.value == null || _cost.value == 0)){
+      _cost.sink.addError('Por favor ingrese el costo');
+      submit = false;
+    }
+
+    if (submit && (_description.value == null || _description.value.isEmpty)){
+      _description.sink.addError('Ingrese una descripción');
+      submit = false;
+    }
+
+    if (submit && (_sku.value == null || _sku.value.isEmpty)) submit = false;
+
+    if (submit && _representation.value == 'I' && _imagePath.value.isEmpty)
+      submit = false;
+    if (submit && _representation.value == 'C' && _colorCode.value == 0)
+      submit = false;
+
+    if (submit) {
+      Item item = Item(
+          '',
+          _stateBool.value ? 'A' : 'I',
+          _name.value,
+          _description.value,
+          _cost.value,
+          _price.value,
+          _payVat.value,
+          _colorCode.value,
+          _imagePath.value,
+          _categoryList.value.firstWhere((c) => c.id == _categoryId.value),
+          _measureList.value.firstWhere((m) => m.id == measureId.value),
+          _representation.value,
+          _sku.value);
+
+      await _inventoryRepository.createItem(item).then((document) {
+        _message.sink.add('Item creado con éxito!');
+        fetchItem(document.documentID);
+      }, onError: (error) {
+        _message.sink.add('Error: ${error.toString()}');
+      });
+    } else {
+      _message.sink.add('Lo sentimos hay campos por llenar');
+    }
+  }
+
+  bool isNumeric(String s) {
+    if(s == null) {
+      return false;
+    }
+    // ignore: deprecated_member_use
+    return double.parse(s, (e) => null) != null;
   }
 
   @override

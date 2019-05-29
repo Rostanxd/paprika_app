@@ -28,16 +28,15 @@ class _ItemDetailState extends State<ItemDetail> {
   /// Form text Controllers
   TextEditingController _nameCtrl = TextEditingController();
   TextEditingController _descriptionCtrl = TextEditingController();
-  TextEditingController _price = TextEditingController();
-  TextEditingController _cost = TextEditingController();
+  TextEditingController _priceCtrl = TextEditingController();
+  TextEditingController _costCtrl = TextEditingController();
+  TextEditingController _skuCtrl = TextEditingController();
 
   /// If the item parameter in the widget is 'null', that means
   /// we are creating a new item
   @override
   void initState() {
     _itemBloc = new ItemBloc();
-    _itemBloc.fetchCategories();
-    _itemBloc.fetchMeasures();
 
     /// to listen the messenger
     _itemBloc.messenger.listen((message) {
@@ -60,11 +59,29 @@ class _ItemDetailState extends State<ItemDetail> {
             });
     });
 
+    /// Calling the functions to get all categories and measures
+    _itemBloc.fetchCategories();
+    _itemBloc.fetchMeasures();
+
     /// Adding the representations for the dropdown
     _representationTypes
         .add(DropdownMenuItem(value: 'C', child: Text('Color')));
     _representationTypes
         .add(DropdownMenuItem(value: 'I', child: Text('Imagen/Photo')));
+
+    /// Default values
+    _itemBloc.changeCategory('');
+    _itemBloc.changeMeasure('');
+    _itemBloc.changeStateBool(true);
+    _itemBloc.changeRepresentation('C');
+    _itemBloc.changeColorCode(0xFFFE0E0E0);
+
+    /// Loading default data
+    _categoriesDropDownItems.clear();
+    _categoriesDropDownItems.add(DropdownMenuItem(
+      value: '',
+      child: Text('Seleccionar...'),
+    ));
 
     /// Loading the color palette
     _colorLIst.add(0xFFFE0E0E0);
@@ -81,12 +98,9 @@ class _ItemDetailState extends State<ItemDetail> {
       _itemBloc.fetchItem(widget.item.id);
       _nameCtrl.text = widget.item.name;
       _descriptionCtrl.text = widget.item.description;
-      _price.text = widget.item.price.toString();
-      _cost.text = widget.item.cost.toString();
-    } else {
-      _itemBloc.changeStateBool(true);
-      _itemBloc.changeRepresentation('C');
-      _itemBloc.changeColorCode(0xFFFE0E0E0);
+      _priceCtrl.text = widget.item.price.toString();
+      _costCtrl.text = widget.item.cost.toString();
+      _skuCtrl.text = widget.item.sku;
     }
 
     super.initState();
@@ -166,7 +180,11 @@ class _ItemDetailState extends State<ItemDetail> {
               ),
               color: Color(_rootBloc.primaryColor.value),
               onPressed: () {
-                _itemBloc.updateItem();
+                if (_itemBloc.item.value != null) {
+                  _itemBloc.updateItem();
+                } else {
+                  _itemBloc.createItem();
+                }
               }),
         )
       ],
@@ -228,19 +246,27 @@ class _ItemDetailState extends State<ItemDetail> {
               ),
               Container(
                 margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextField(
-                  onChanged: _itemBloc.changeName,
-                  decoration: InputDecoration(
-                      labelText: 'Nombre',
-                      labelStyle: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Color(_rootBloc.primaryColor.value))),
-                      errorText: ''),
-                  controller: _nameCtrl,
+                child: StreamBuilder(
+                  stream: _itemBloc.name,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    return TextField(
+                      onChanged: _itemBloc.changeName,
+                      decoration: InputDecoration(
+                          labelText: 'Nombre',
+                          labelStyle: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color(_rootBloc.primaryColor.value))),
+                          errorText: snapshot.error != null
+                              ? snapshot.error.toString()
+                              : ''),
+                      controller: _nameCtrl,
+                    );
+                  },
                 ),
               ),
               Container(
@@ -249,7 +275,7 @@ class _ItemDetailState extends State<ItemDetail> {
                   right: 10.0,
                 ),
                 child: StreamBuilder(
-                    stream: _itemBloc.itemAllData,
+                    stream: _itemBloc.selectCategory,
                     builder:
                         (BuildContext context, AsyncSnapshot<bool> snapshot) {
                       /// Loading default data
@@ -259,13 +285,6 @@ class _ItemDetailState extends State<ItemDetail> {
                         child: Text('Seleccionar...'),
                       ));
 
-                      /// If we have an error
-                      if (snapshot.hasError)
-                        return Container(
-                          child: Text(snapshot.error.toString()),
-                        );
-
-                      /// Once we got the data
                       if (snapshot.hasData && snapshot.data) {
                         _categoriesDropDownItems.addAll(_itemBloc
                             .categoryList.value
@@ -275,7 +294,6 @@ class _ItemDetailState extends State<ItemDetail> {
                                 )));
                       }
 
-                      /// Returning the dropdown
                       return DropdownButtonFormField(
                         value: snapshot.hasData && snapshot.data
                             ? _itemBloc.categoryId.value
@@ -291,7 +309,9 @@ class _ItemDetailState extends State<ItemDetail> {
                                 borderSide: BorderSide(
                                     color:
                                         Color(_rootBloc.primaryColor.value))),
-                            errorText: ''),
+                            errorText: snapshot.error != null
+                                ? snapshot.error.toString()
+                                : ''),
                         onChanged: (c) {
                           _itemBloc.changeCategory(c);
                         },
@@ -304,7 +324,7 @@ class _ItemDetailState extends State<ItemDetail> {
                   right: 10.0,
                 ),
                 child: StreamBuilder(
-                    stream: _itemBloc.itemAllData,
+                    stream: _itemBloc.selectMeasure,
                     builder:
                         (BuildContext context, AsyncSnapshot<bool> snapshot) {
                       /// Loading default data
@@ -313,12 +333,6 @@ class _ItemDetailState extends State<ItemDetail> {
                         value: '',
                         child: Text('Seleccionar...'),
                       ));
-
-                      /// If we have an error
-                      if (snapshot.hasError)
-                        return Container(
-                          child: Text(snapshot.error.toString()),
-                        );
 
                       /// Once we got the data
                       if (snapshot.hasData && snapshot.data) {
@@ -346,7 +360,9 @@ class _ItemDetailState extends State<ItemDetail> {
                                 borderSide: BorderSide(
                                     color:
                                         Color(_rootBloc.primaryColor.value))),
-                            errorText: ''),
+                            errorText: snapshot.error != null
+                                ? snapshot.error.toString()
+                                : ''),
                         onChanged: (m) {
                           _itemBloc.changeMeasure(m);
                         },
@@ -359,49 +375,111 @@ class _ItemDetailState extends State<ItemDetail> {
                     flex: 3,
                     child: Container(
                       margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: TextField(
-                        onChanged: (s) {
-                          double price = double.parse(s);
-                          _itemBloc.changePrice(price);
-                        },
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          BlacklistingTextInputFormatter(
-                              new RegExp('[\\-|+*/()=#\\ ]'))
-                        ],
-                        decoration: InputDecoration(
-                            labelText: 'Precio',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: ''),
-                        controller: _price,
-                      ),
+                      child: StreamBuilder(
+                          stream: _itemBloc.price,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<double> snapshot) {
+                            return TextField(
+                              onChanged: (s) {
+                                _itemBloc.changePrice(s);
+                              },
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              inputFormatters: [
+                                BlacklistingTextInputFormatter(
+                                    new RegExp('[\\-|+*/()=#\\ ]'))
+                              ],
+                              decoration: InputDecoration(
+                                  labelText: 'Precio',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(
+                                              _rootBloc.primaryColor.value))),
+                                  errorText: snapshot.error != null
+                                      ? snapshot.error.toString()
+                                      : ''),
+                              controller: _priceCtrl,
+                            );
+                          }),
                     ),
                   ),
                   Flexible(
                     flex: 3,
                     child: Container(
                       margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: TextField(
-                        onChanged: (s) {
-                          double cost = double.parse(s);
-                          _itemBloc.changeCost(cost);
-                        },
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          BlacklistingTextInputFormatter(
-                              new RegExp('[\\-|+*/()=#\\ ]'))
-                        ],
+                      child: StreamBuilder(
+                          stream: _itemBloc.cost,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<double> snapshot) {
+                            return TextField(
+                              onChanged: (s) {
+                                _itemBloc.changeCost(s);
+                              },
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              inputFormatters: [
+                                BlacklistingTextInputFormatter(
+                                    new RegExp('[\\-|+*/()=#\\ ]'))
+                              ],
+                              decoration: InputDecoration(
+                                  labelText: 'Costo',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(
+                                              _rootBloc.primaryColor.value))),
+                                  errorText: snapshot.error != null
+                                      ? snapshot.error.toString()
+                                      : ''),
+                              controller: _costCtrl,
+                            );
+                          }),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                child: StreamBuilder(
+                    stream: _itemBloc.sku,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return TextField(
+                        onChanged: _itemBloc.changeSku,
                         decoration: InputDecoration(
-                            labelText: 'Costo',
+                            labelText: 'SKU',
+                            labelStyle: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color:
+                                    Color(_rootBloc.primaryColor.value))),
+                            errorText: snapshot.error != null
+                                ? snapshot.error.toString()
+                                : ''),
+                        controller: _skuCtrl,
+                      );
+                    }),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                child: StreamBuilder(
+                    stream: _itemBloc.description,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return TextField(
+                        onChanged: _itemBloc.changeDescription,
+                        decoration: InputDecoration(
+                            labelText: 'Descripción',
                             labelStyle: TextStyle(
                                 fontFamily: 'Montserrat',
                                 fontWeight: FontWeight.bold,
@@ -410,29 +488,12 @@ class _ItemDetailState extends State<ItemDetail> {
                                 borderSide: BorderSide(
                                     color:
                                         Color(_rootBloc.primaryColor.value))),
-                            errorText: ''),
-                        controller: _cost,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextField(
-                  onChanged: _itemBloc.changeDescription,
-                  decoration: InputDecoration(
-                      labelText: 'Descripción',
-                      labelStyle: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Color(_rootBloc.primaryColor.value))),
-                      errorText: ''),
-                  controller: _descriptionCtrl,
-                ),
+                            errorText: snapshot.error != null
+                                ? snapshot.error.toString()
+                                : ''),
+                        controller: _descriptionCtrl,
+                      );
+                    }),
               ),
             ],
           ),
