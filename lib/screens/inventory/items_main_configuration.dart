@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
+import 'package:paprika_app/screens/inventory/category_list.dart';
 import 'package:paprika_app/screens/inventory/item_list.dart';
 
 class ItemsMainConfiguration extends StatefulWidget {
@@ -39,9 +40,14 @@ class _ItemsMainConfigurationState extends State<ItemsMainConfiguration> {
           ),
           ListTile(
             leading: Icon(Icons.category),
-            title: Text('Caegories'),
+            title: Text('Categorías'),
             trailing: Icon(Icons.navigate_next),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CategoryList()));
+            },
           ),
         ],
       ),

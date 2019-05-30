@@ -175,8 +175,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                             actions: <Widget>[
                               FlatButton(
                                 child: Text(
-                                  'Nueva factura',
-                                  style: TextStyle(color: Colors.redAccent),
+                                  'Sí, nueva factura',
+                                  style: TextStyle(color: Colors.black),
                                 ),
                                 onPressed: () {
                                   widget.cashBloc.newInvoice();
@@ -185,8 +185,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                               ),
                               FlatButton(
                                 child: Text(
-                                  'Cancelar',
-                                  style: TextStyle(color: Colors.black),
+                                  'No, cancelar',
+                                  style: TextStyle(color: Colors.redAccent),
                                 ),
                                 onPressed: () {
                                   Navigator.pop(context);

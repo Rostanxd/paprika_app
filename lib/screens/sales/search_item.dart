@@ -131,7 +131,7 @@ class _SearchItemState extends State<SearchItem> {
   Widget _customScrollView(Category category, List<Item> data) {
     List<Widget> _itemsWidget = List<Widget>();
     _itemsWidget.addAll(data.map((i) => _itemPreview(i)));
-    _itemsWidget.add(_searchAndAddItem(category));
+//    _itemsWidget.add(_searchAndAddItem(category));
     _itemsWidget.add(_createAndAddItem(category));
 
     return CustomScrollView(
@@ -185,6 +185,7 @@ class _SearchItemState extends State<SearchItem> {
     );
   }
 
+  /*
   Widget _searchAndAddItem(Category category) {
     return InkWell(
       child: Container(
@@ -215,6 +216,7 @@ class _SearchItemState extends State<SearchItem> {
       },
     );
   }
+  */
 
   Widget _createAndAddItem(Category category) {
     return InkWell(
@@ -251,7 +253,11 @@ class _SearchItemState extends State<SearchItem> {
       ),
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ItemDetail()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => ItemDetail(
+                      category: category,
+                    )));
       },
     );
   }
@@ -299,7 +305,6 @@ class DataSearch extends SearchDelegate<String> {
         return snapshot.hasData
             ? ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
-                  print(snapshot.data[index].representation);
                   return InkWell(
                     child: ListTile(
                       leading: snapshot.data[index].representation == 'I'

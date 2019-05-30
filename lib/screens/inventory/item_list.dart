@@ -134,8 +134,9 @@ Widget _itemListStreamBuilder(ItemListBloc _itemListBloc) {
                             color: Color(snapshot.data[index].colorCode),
                           ),
                     title: Text(
-                        '${snapshot.data[index].name} / Precio: ${snapshot.data[index].price}'),
+                        '${snapshot.data[index].name} / Precio: \$ ${snapshot.data[index].price}'),
                     subtitle: Text('${snapshot.data[index].description}'),
+                    trailing: Icon(Icons.navigate_next),
                   ),
                   onTap: () {
                     Navigator.push(

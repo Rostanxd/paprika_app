@@ -129,7 +129,8 @@ class CashBloc extends BlocBase {
   }
 
   void addItemToCategory(Item item, Category category){
-
+    item.category = category;
+    _inventoryRepository.updateItem(item);
   }
 
   void newInvoice() {

@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/item_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
+import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
 
 class ItemDetail extends StatefulWidget {
   final Item item;
+  final Category category;
 
-  const ItemDetail({Key key, this.item}) : super(key: key);
+  const ItemDetail({Key key, this.item, this.category}) : super(key: key);
 
   @override
   _ItemDetailState createState() => _ItemDetailState();
@@ -45,7 +47,7 @@ class _ItemDetailState extends State<ItemDetail> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Inicio de sesión'),
+                title: Text('Paprika dice:'),
                 content: Text(message),
                 actions: <Widget>[
                   FlatButton(
@@ -59,6 +61,13 @@ class _ItemDetailState extends State<ItemDetail> {
             });
     });
 
+    /// Listener to the stream what control if the item is deleted
+    _itemBloc.itemDeleted.listen((bool) {
+      if (bool) {
+        Navigator.pop(context);
+      }
+    });
+
     /// Calling the functions to get all categories and measures
     _itemBloc.fetchCategories();
     _itemBloc.fetchMeasures();
@@ -70,11 +79,12 @@ class _ItemDetailState extends State<ItemDetail> {
         .add(DropdownMenuItem(value: 'I', child: Text('Imagen/Photo')));
 
     /// Default values
-    _itemBloc.changeCategory('');
+    _itemBloc.changeCategory(widget.category != null ? widget.category.id : '');
     _itemBloc.changeMeasure('');
     _itemBloc.changeStateBool(true);
     _itemBloc.changeRepresentation('C');
     _itemBloc.changeColorCode(0xFFFE0E0E0);
+    _itemBloc.changeSku('');
 
     /// Loading default data
     _categoriesDropDownItems.clear();
@@ -151,13 +161,54 @@ class _ItemDetailState extends State<ItemDetail> {
       ),
       persistentFooterButtons: <Widget>[
         Container(
-          child: RaisedButton(
-              child: Text(
-                'Eliminar',
-                style: TextStyle(color: Colors.white),
-              ),
-              color: Colors.red,
-              onPressed: () {}),
+          child: StreamBuilder(
+              stream: _itemBloc.item,
+              builder: (BuildContext context, AsyncSnapshot<Item> snapshot) {
+                return snapshot.hasData
+                    ? RaisedButton(
+                        child: Text(
+                          'Eliminar',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: Colors.red,
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Paprika pregunta:'),
+                                  content: Text(
+                                      'Estás seguro de querer eliminar este item ?'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text('Sí, eliminarlo'),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    FlatButton(
+                                      child: Text(
+                                        'No, cancelar',
+                                        style: TextStyle(
+                                            color: Color(
+                                                _rootBloc.primaryColor.value)),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              });
+                        })
+                    : RaisedButton(
+                        child: Text(
+                          'Eliminar',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: Colors.grey,
+                        onPressed: () {});
+              }),
         ),
         Container(
           margin: EdgeInsets.only(left: 50.0),
@@ -223,7 +274,7 @@ class _ItemDetailState extends State<ItemDetail> {
                     children: <Widget>[
                       Container(
                         margin: EdgeInsets.only(top: 10.0),
-                        child: Text('Estado'),
+                        child: Text('Se encuentra a la venta ?'),
                       ),
                       Container(
                         margin: EdgeInsets.only(top: 10.0),
@@ -462,7 +513,7 @@ class _ItemDetailState extends State<ItemDetail> {
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                     color:
-                                    Color(_rootBloc.primaryColor.value))),
+                                        Color(_rootBloc.primaryColor.value))),
                             errorText: snapshot.error != null
                                 ? snapshot.error.toString()
                                 : ''),
@@ -540,7 +591,7 @@ class _ItemDetailState extends State<ItemDetail> {
                       child: snapshot.data == 'I'
                           ? RaisedButton(
                               child: Text(
-                                'Seleccionar',
+                                'Capturar',
                                 style: TextStyle(color: Colors.white),
                               ),
                               color: Color(_rootBloc.secondaryColor.value),

@@ -9,7 +9,7 @@ class CategoryApi {
         .document(categoryId)
         .get()
         .then((c) {
-          _category = Category.fromFireJson(c.documentID, c.data);
+      _category = Category.fromFireJson(c.documentID, c.data);
     });
 
     return _category;
@@ -26,5 +26,33 @@ class CategoryApi {
           .map((c) => Category.fromFireJson(c.documentID, c.data)));
     });
     return _categoryList;
+  }
+
+  Future<List<Category>> fetchCategoriesByName(String name) async {
+    List<Category> _categoryList = List<Category>();
+    await Firestore.instance
+        .collection('categories')
+        .orderBy('name')
+        .where('name', isGreaterThanOrEqualTo: name)
+        .getDocuments()
+        .then((data) {
+      _categoryList.addAll(data.documents
+          .map((c) => Category.fromFireJson(c.documentID, c.data)));
+    });
+
+    return _categoryList;
+  }
+
+  Future<void> updateCategory(Category category) async {
+    await Firestore.instance
+        .collection('categories')
+        .document(category.id)
+        .updateData(category.toFireJson());
+  }
+
+  Future<DocumentReference> createCategory(Category category) async {
+    return await Firestore.instance
+        .collection('categories')
+        .add(category.toFireJson());
   }
 }

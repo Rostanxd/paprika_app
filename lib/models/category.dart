@@ -3,7 +3,7 @@ class Category extends Object {
   String name;
   int order;
 
-  Category(this.id, this.name);
+  Category(this.id, this.name, this.order);
 
   Category.fromFireJson(String documentId, Map<String, dynamic> json){
     this.id = documentId;
@@ -16,6 +16,12 @@ class Category extends Object {
     this.name = json['name'];
     this.order = json['order'];
   }
+  
+  Map<String, dynamic> toFireJson() => {
+    'id': this.id,
+    'name': this.name,
+    'order': this.order,
+  };
 
   @override
   String toString() {

@@ -68,6 +68,16 @@ class ItemApi {
         .updateData(item.toFireJson());
   }
 
+  Future<void> deleteItem(Item item) async {
+    /// Updating the state of the item
+    item.state = 'E';
+
+    await Firestore.instance
+        .collection('items')
+        .document(item.id)
+        .updateData(item.toFireJson());
+  }
+
   Future<DocumentReference> createItem(Item item) async {
     return await Firestore.instance.collection('items').add(item.toFireJson());
   }

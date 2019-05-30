@@ -15,6 +15,8 @@ class InventoryRepository {
 
   Future<void> updateItem(Item item) => _itemApi.updateItem(item);
 
+  Future<void> deleteItem(Item item) => _itemApi.deleteItem(item);
+
   Future<DocumentReference> createItem(Item item) => _itemApi.createItem(item);
 
   Future<Category> fetchCategoryById(String id) =>
@@ -30,6 +32,15 @@ class InventoryRepository {
       _itemApi.fetchItemsByCategory(categoryId);
 
   Future<List<Category>> fetchCategories() => _categoryApi.fetchCategories();
+
+  Future<List<Category>> fetchCategoriesByName(String categoryName) =>
+      _categoryApi.fetchCategoriesByName(categoryName);
+
+  Future<void> updateCategory(Category category) =>
+      _categoryApi.updateCategory(category);
+
+  Future<DocumentReference> createCategory(Category category) =>
+      _categoryApi.createCategory(category);
 
   Future<List<Measure>> fetchMeasures() => _measureApi.fetchMeasures();
 }

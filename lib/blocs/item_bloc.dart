@@ -27,6 +27,7 @@ class ItemBloc extends BlocBase {
   final _sku = BehaviorSubject<String>();
   final _file = BehaviorSubject<File>();
   final _message = BehaviorSubject<String>();
+  final _itemDeleted = BehaviorSubject<bool>();
   InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
@@ -57,6 +58,8 @@ class ItemBloc extends BlocBase {
   ValueObservable<List<Category>> get categoryList => _categoryList.stream;
 
   ValueObservable<List<Measure>> get measureList => _measureList.stream;
+
+  ValueObservable<bool> get itemDeleted => _itemDeleted.stream;
 
   Observable<String> get messenger => _message.stream;
 
@@ -105,24 +108,26 @@ class ItemBloc extends BlocBase {
   }
 
   void updateItem() async {
-    Item item = Item(
-        _item.value.id,
-        _stateBool.value == true ? 'A' : 'I',
-        _name.value,
-        _description.value,
-        _cost.value,
-        _price.value,
-        _payVat.value,
-        _colorCode.value,
-        _imagePath.value,
-        _categoryList.value.firstWhere((c) => c.id == _categoryId.value),
-        _measureList.value.firstWhere((m) => m.id == _measureId.value),
-        _representation.value,
-        _sku.value);
+    if (_validateFormItem()) {
+      Item item = Item(
+          _item.value.id,
+          _stateBool.value == true ? 'A' : 'I',
+          _name.value,
+          _description.value,
+          _cost.value,
+          _price.value,
+          _payVat.value,
+          _colorCode.value,
+          _imagePath.value,
+          _categoryList.value.firstWhere((c) => c.id == _categoryId.value),
+          _measureList.value.firstWhere((m) => m.id == _measureId.value),
+          _representation.value,
+          _sku.value);
 
-    await _inventoryRepository.updateItem(item).then((v) {
-      _message.sink.add('Item actualizado con éxito');
-    });
+      await _inventoryRepository.updateItem(item).then((v) {
+        _message.sink.add('Item actualizado con éxito');
+      });
+    }
   }
 
   void fetchCategories() async {
@@ -145,17 +150,17 @@ class ItemBloc extends BlocBase {
 
   Function(String) get changeDescription => _description.add;
 
-  void changePrice (String newPrice) {
-    print(newPrice.toString());
+  void changePrice(String newPrice) {
     if (newPrice.isEmpty) return _price.addError('Por favor ingrese el precio');
-    if (!isNumeric(newPrice)) return _price.addError('Por favor ingrese un número válido');
+    if (!isNumeric(newPrice))
+      return _price.addError('Por favor ingrese un número válido');
     return _price.sink.add(double.parse(newPrice));
   }
 
-  void changeCost (String newCost) {
-    print(newCost.toString());
+  void changeCost(String newCost) {
     if (newCost.isEmpty) return _price.addError('Por favor ingrese el costo');
-    if (!isNumeric(newCost)) return _price.addError('Por favor ingrese un número válido');
+    if (!isNumeric(newCost))
+      return _price.addError('Por favor ingrese un número válido');
     return _cost.sink.add(double.parse(newCost));
   }
 
@@ -191,47 +196,7 @@ class ItemBloc extends BlocBase {
   }
 
   void createItem() async {
-    bool submit = true;
-
-    if (submit && (_name.value == null || _name.value.isEmpty)){
-      _name.sink.addError('Ingrese un nombre');
-      submit = false;
-    }
-
-    if (submit && (_categoryId.value == null || _categoryId.value.isEmpty)){
-      _categoryId.sink.addError('Seleccione una categoría');
-      _categoryId.sink.add('');
-      submit = false;
-    }
-
-    if (submit && (_measureId.value == null || _measureId.value.isEmpty)){
-      _measureId.sink.addError('Seleccione una medida');
-      _measureId.sink.add('');
-      submit = false;
-    }
-
-    if (submit && (_price.value == null || _price.value == 0)){
-      _price.sink.addError('Por favor ingrese el precio');
-      submit = false;
-    }
-    if (submit && (_cost.value == null || _cost.value == 0)){
-      _cost.sink.addError('Por favor ingrese el costo');
-      submit = false;
-    }
-
-    if (submit && (_description.value == null || _description.value.isEmpty)){
-      _description.sink.addError('Ingrese una descripción');
-      submit = false;
-    }
-
-    if (submit && (_sku.value == null || _sku.value.isEmpty)) submit = false;
-
-    if (submit && _representation.value == 'I' && _imagePath.value.isEmpty)
-      submit = false;
-    if (submit && _representation.value == 'C' && _colorCode.value == 0)
-      submit = false;
-
-    if (submit) {
+    if (_validateFormItem()) {
       Item item = Item(
           '',
           _stateBool.value ? 'A' : 'I',
@@ -258,8 +223,61 @@ class ItemBloc extends BlocBase {
     }
   }
 
+  void deleteItem() async {
+    _inventoryRepository
+        .deleteItem(_item.value)
+        .then((v) => _itemDeleted.sink.add(true));
+  }
+
+  bool _validateFormItem() {
+    bool submit = true;
+
+    if (submit && (_name.value == null || _name.value.isEmpty)) {
+      _name.sink.addError('Ingrese un nombre');
+      submit = false;
+    }
+
+    if (submit && (_categoryId.value == null || _categoryId.value.isEmpty)) {
+      _categoryId.sink.addError('Seleccione una categoría');
+      _categoryId.sink.add('');
+      submit = false;
+    }
+
+    if (submit && (_measureId.value == null || _measureId.value.isEmpty)) {
+      _measureId.sink.addError('Seleccione una medida');
+      _measureId.sink.add('');
+      submit = false;
+    }
+
+    if (submit && (_price.value == null || _price.value == 0)) {
+      _price.sink.addError('Por favor ingrese el precio');
+      submit = false;
+    }
+    if (submit && (_cost.value == null || _cost.value == 0)) {
+      _cost.sink.addError('Por favor ingrese el costo');
+      submit = false;
+    }
+
+    if (submit && (_description.value == null || _description.value.isEmpty)) {
+      _description.sink.addError('Ingrese una descripción');
+      submit = false;
+    }
+
+    if (submit && (_sku.value == null || _sku.value.isEmpty)) {
+      _sku.sink.addError('Por favor indique el SKU del item');
+      submit = false;
+    }
+
+    if (submit && _representation.value == 'I' && _imagePath.value.isEmpty)
+      submit = false;
+    if (submit && _representation.value == 'C' && _colorCode.value == 0)
+      submit = false;
+
+    return submit;
+  }
+
   bool isNumeric(String s) {
-    if(s == null) {
+    if (s == null) {
       return false;
     }
     // ignore: deprecated_member_use
@@ -285,6 +303,7 @@ class ItemBloc extends BlocBase {
     _sku.close();
     _file.close();
     _message.close();
+    _itemDeleted.close();
   }
 }
 
