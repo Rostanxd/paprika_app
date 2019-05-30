@@ -45,12 +45,12 @@ class CategoryBloc extends BlocBase {
   void createCategory() async {
     if (_validateFormCategory()) {
       Category category =
-          Category(_category.value.id, _name.value, _order.value);
+          Category('', _name.value, _order.value);
 
-      _inventoryRepository.createCategory(category).then((document){
+      _inventoryRepository.createCategory(category).then((document) {
         _message.sink.add('Categoría creada con éxito');
         fetchCategoryById(document.documentID);
-      }, onError: (error){
+      }, onError: (error) {
         _message.sink.add('Error ${error.toString()}');
       });
     } else {
@@ -60,7 +60,11 @@ class CategoryBloc extends BlocBase {
 
   Function(String) get changeName => _name.add;
 
-  Function(int) get changeOrder => _order.add;
+  void changeOrder(String newOrder) {
+    if (!isNumeric(newOrder))
+      return _order.sink.addError('Por favor ingrese un número válido');
+    return _order.sink.add(int.parse(newOrder));
+  }
 
   bool _validateFormCategory() {
     bool submit = true;
@@ -75,6 +79,14 @@ class CategoryBloc extends BlocBase {
     }
 
     return submit;
+  }
+
+  bool isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+    // ignore: deprecated_member_use
+    return double.parse(s, (e) => null) != null;
   }
 
   @override

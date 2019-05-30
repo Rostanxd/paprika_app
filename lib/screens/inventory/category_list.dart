@@ -3,6 +3,7 @@ import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/category_list_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/category.dart';
+import 'package:paprika_app/screens/inventory/category_detail.dart';
 
 class CategoryList extends StatefulWidget {
   @override
@@ -49,7 +50,10 @@ class _CategoryListState extends State<CategoryList> {
             Icons.add,
             color: Colors.white,
           ),
-          onPressed: () {}),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CategoryDetail()));
+          }),
     );
   }
 }
@@ -121,7 +125,14 @@ Widget _itemListStreamBuilder(CategoryListBloc _categoryListBloc) {
                   subtitle:
                       Text('Orden: ${snapshot.data[index].order.toString()}'),
                   trailing: Icon(Icons.navigate_next),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CategoryDetail(
+                                  category: snapshot.data[index],
+                                )));
+                  },
                 ));
               },
               itemCount: snapshot.data.length,

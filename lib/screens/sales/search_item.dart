@@ -4,6 +4,7 @@ import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
+import 'package:paprika_app/screens/inventory/category_detail.dart';
 import 'package:paprika_app/screens/inventory/item_detail.dart';
 
 class SearchItem extends StatefulWidget {
@@ -102,6 +103,8 @@ class _SearchItemState extends State<SearchItem> {
       _loadItemsByCategory(widget.cashBloc.categories.value[index]);
     } else {
       /// Code to create a new category
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => CategoryDetail()));
     }
   }
 

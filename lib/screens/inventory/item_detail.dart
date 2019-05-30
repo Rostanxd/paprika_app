@@ -431,9 +431,7 @@ class _ItemDetailState extends State<ItemDetail> {
                           builder: (BuildContext context,
                               AsyncSnapshot<double> snapshot) {
                             return TextField(
-                              onChanged: (s) {
-                                _itemBloc.changePrice(s);
-                              },
+                              onChanged: _itemBloc.changePrice,
                               keyboardType: TextInputType.numberWithOptions(
                                   decimal: true),
                               inputFormatters: [
@@ -467,9 +465,7 @@ class _ItemDetailState extends State<ItemDetail> {
                           builder: (BuildContext context,
                               AsyncSnapshot<double> snapshot) {
                             return TextField(
-                              onChanged: (s) {
-                                _itemBloc.changeCost(s);
-                              },
+                              onChanged: _itemBloc.changeCost,
                               keyboardType: TextInputType.numberWithOptions(
                                   decimal: true),
                               inputFormatters: [
