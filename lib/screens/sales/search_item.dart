@@ -4,7 +4,6 @@ import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
-import 'package:paprika_app/screens/inventory/category_detail.dart';
 import 'package:paprika_app/screens/inventory/item_detail.dart';
 
 class SearchItem extends StatefulWidget {
@@ -89,12 +88,20 @@ class _SearchItemState extends State<SearchItem> {
         BottomNavigationBarItem(
             icon: Icon(Icons.folder_open), title: Text(c.name))));
 
-    /// Adding the option t add more categories.
+    /// Adding the option to add more categories.
+    /*
     _bottomNavigationBarItemList.add(
         BottomNavigationBarItem(icon: Icon(Icons.add), title: Text('Nuevo')));
+    */
   }
 
   void _loadPageByCategory(int index) {
+    /// Changing the bottom navigator item picked (UI)
+    widget.cashBloc.changeIndex(index);
+
+    /// Loading the page with items by category
+    _loadItemsByCategory(widget.cashBloc.categories.value[index]);
+    /*
     if (index < (_bottomNavigationBarItemList.length - 1)) {
       /// Changing the bottom navigator item picked (UI)
       widget.cashBloc.changeIndex(index);
@@ -106,6 +113,7 @@ class _SearchItemState extends State<SearchItem> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => CategoryDetail()));
     }
+    */
   }
 
   /// Widgets

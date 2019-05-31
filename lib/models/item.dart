@@ -50,7 +50,6 @@ class Item extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
-    'id': this.id,
     'state': this.state,
     'name': this.name,
     'description': this.description,

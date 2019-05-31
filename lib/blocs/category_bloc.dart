@@ -6,6 +6,7 @@ import 'package:rxdart/rxdart.dart';
 class CategoryBloc extends BlocBase {
   final _category = BehaviorSubject<Category>();
   final _name = BehaviorSubject<String>();
+  final _stateBool = BehaviorSubject<bool>();
   final _order = BehaviorSubject<int>();
   final _message = BehaviorSubject<String>();
   InventoryRepository _inventoryRepository = InventoryRepository();
@@ -19,20 +20,26 @@ class CategoryBloc extends BlocBase {
 
   ValueObservable<String> get messenger => _message.stream;
 
+  ValueObservable<bool> get stateBool => _stateBool.stream;
+
   /// Functions
   void fetchCategoryById(String id) async {
     _name.sink.add(null);
+    _stateBool.sink.add(false);
     _order.sink.add(null);
 
     await _inventoryRepository.fetchCategoryById(id).then((category) {
       _category.sink.add(category);
+      _name.sink.add(category.name);
+      _stateBool.sink.add(category.state == 'A' ? true : false);
+      _order.sink.add(category.order);
     });
   }
 
   void updateCategory() async {
     if (_validateFormCategory()) {
-      Category category =
-          Category(_category.value.id, _name.value, _order.value);
+      Category category = Category(_category.value.id, _name.value,
+          _stateBool.value ? 'A' : 'I', _order.value);
 
       await _inventoryRepository.updateCategory(category).then((v) {
         _message.sink.add('Categoría actualizada con éxito');
@@ -45,7 +52,7 @@ class CategoryBloc extends BlocBase {
   void createCategory() async {
     if (_validateFormCategory()) {
       Category category =
-          Category('', _name.value, _order.value);
+          Category('', _name.value, _stateBool.value ? 'A' : 'I', _order.value);
 
       _inventoryRepository.createCategory(category).then((document) {
         _message.sink.add('Categoría creada con éxito');
@@ -59,6 +66,8 @@ class CategoryBloc extends BlocBase {
   }
 
   Function(String) get changeName => _name.add;
+
+  Function(bool) get changeStateBool => _stateBool.add;
 
   void changeOrder(String newOrder) {
     if (!isNumeric(newOrder))
@@ -93,6 +102,7 @@ class CategoryBloc extends BlocBase {
   void dispose() {
     _category.close();
     _name.close();
+    _stateBool.close();
     _order.close();
     _message.close();
   }

@@ -57,11 +57,14 @@ class _CashPageState extends State<CashPage> {
                     cashBloc: _cashBloc,
                     itemToFind: '',
                   )),
-              Flexible(
-                  flex: 2,
-                  child: InvoiceDetail(
-                    cashBloc: _cashBloc,
-                  ))
+              Hero(
+                tag: 'invoice-detail',
+                child: Flexible(
+                    flex: 2,
+                    child: InvoiceDetail(
+                      cashBloc: _cashBloc,
+                    )),
+              )
             ],
           ),
         ),

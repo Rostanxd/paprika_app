@@ -30,6 +30,31 @@ class _CategoryDetailState extends State<CategoryDetail> {
   void initState() {
     _categoryBloc = CategoryBloc();
 
+    /// to listen the messenger
+    _categoryBloc.messenger.listen((message) {
+      if (message != null)
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Paprika dice:'),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cerrar'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            });
+    });
+
+    /// Default values
+    _categoryBloc.changeStateBool(true);
+
+    /// If the category in the widget is not null, we are updating data.
     if (widget.category != null) {
       _categoryBloc.fetchCategoryById(widget.category.id);
       _nameCtrl.text = widget.category.name;
@@ -171,12 +196,42 @@ class _CategoryDetailState extends State<CategoryDetail> {
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(top: 10.0, left: 10.0),
-              child: Text(
-                'Información',
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: Text(
+                    'Información',
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 10.0),
+                      child: Text('Se encuentra a la venta ?'),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 10.0),
+                      child: StreamBuilder(
+                        stream: _categoryBloc.stateBool,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<bool> snapshot) {
+                          return Checkbox(
+                            value: !snapshot.hasData ? false : snapshot.data,
+                            onChanged: _categoryBloc.changeStateBool,
+                            checkColor: Color(_rootBloc.primaryColor.value),
+                            activeColor: Colors.white10,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             Container(
               margin: EdgeInsets.only(left: 10.0, right: 10.0),

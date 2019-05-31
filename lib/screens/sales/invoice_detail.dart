@@ -3,6 +3,7 @@ import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/invoice.dart';
+import 'package:paprika_app/screens/sales/cash_check_out.dart';
 
 class InvoiceDetail extends StatefulWidget {
   final CashBloc cashBloc;
@@ -18,7 +19,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
 
   @override
   void didChangeDependencies() {
-   _rootBloc = BlocProvider.of<RootBloc>(context);
+    _rootBloc = BlocProvider.of<RootBloc>(context);
     super.didChangeDependencies();
   }
 
@@ -46,39 +47,39 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
 
   Widget _listItems() {
     return Container(
-      height: 300,
+      height: 500,
       child: StreamBuilder<List<InvoiceLine>>(
           stream: widget.cashBloc.invoiceDetail,
           builder: (BuildContext context,
               AsyncSnapshot<List<InvoiceLine>> snapshot) {
             return snapshot.hasData
                 ? ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                return Dismissible(
-                  key: Key(
-                      '${index.toString()}-${snapshot.data[index].item.id}'),
-                  child: _itemInTheList(snapshot.data[index]),
-                  onDismissed: (direction) {
-                    widget.cashBloc.removeFromInvoiceItem(index);
-                  },
-                  background: Container(
-                    alignment: AlignmentDirectional.centerEnd,
-                    color: Colors.red,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                      child: Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                );
-              },
-              itemCount: snapshot.data.length,
-            )
+                    itemBuilder: (BuildContext context, int index) {
+                      return Dismissible(
+                        key: Key(
+                            '${index.toString()}-${snapshot.data[index].item.id}'),
+                        child: _itemInTheList(snapshot.data[index]),
+                        onDismissed: (direction) {
+                          widget.cashBloc.removeFromInvoiceItem(index);
+                        },
+                        background: Container(
+                          alignment: AlignmentDirectional.centerEnd,
+                          color: Colors.red,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                            child: Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    itemCount: snapshot.data.length,
+                  )
                 : Container(
-              child: null,
-            );
+                    child: null,
+                  );
           }),
     );
   }
@@ -114,41 +115,41 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           );
         return snapshot.hasData
             ? Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  child: Text(
-                    'Total a pagar \$ ${snapshot.data.total}',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            )
-          ],
-        )
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: Text(
+                          'Total a pagar \$ ${snapshot.data.total}',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              )
             : Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  child: Text(
-                    'Total a pagar \$ 0.0',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            )
-          ],
-        );
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: Text(
+                          'Total a pagar \$ 0.0',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              );
       },
     );
   }
@@ -205,7 +206,14 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 color: Color(_rootBloc.submitColor.value),
                 child: Text('Continuar', style: TextStyle(color: Colors.white)),
                 elevation: 5.0,
-                onPressed: () {}),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CashCheckOut(
+                                cashBloc: widget.cashBloc,
+                              )));
+                }),
           ),
         ),
       ],
