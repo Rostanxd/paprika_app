@@ -3,6 +3,7 @@ import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/customer.dart';
 import 'package:paprika_app/models/invoice.dart';
 import 'package:paprika_app/models/item.dart';
+import 'package:paprika_app/resources/customer_repository.dart';
 import 'package:paprika_app/resources/inventory_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -13,6 +14,7 @@ class CashBloc extends BlocBase {
   final _invoiceDetail = BehaviorSubject<List<InvoiceLine>>();
   final _categories = BehaviorSubject<List<Category>>();
   final _itemSearch = BehaviorSubject<String>();
+  final _customerSearch = BehaviorSubject<String>();
   final _checkingOut = BehaviorSubject<bool>();
   final _cashReceived = BehaviorSubject<double>();
   final _customer = BehaviorSubject<Customer>();
@@ -20,6 +22,7 @@ class CashBloc extends BlocBase {
   final _invoiceChange = BehaviorSubject<double>();
   final _message = BehaviorSubject<String>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
+  final CustomerRepository _customerRepository = CustomerRepository();
 
   /// Observables
   ValueObservable<int> get index => _index.stream;
@@ -38,6 +41,12 @@ class CashBloc extends BlocBase {
         yield await _inventoryRepository.fetchItemsByName(terms);
       });
 
+  Observable<List<Customer>> get customersBySearch => _customerSearch
+      .debounce(Duration(milliseconds: 500))
+      .switchMap((terms) async* {
+        yield await _customerRepository.fetchCustomersById(terms);
+  });
+
   Observable<bool> get checkingOut => _checkingOut.stream;
 
   Observable<Customer> get customer => _customer.stream;
@@ -54,6 +63,8 @@ class CashBloc extends BlocBase {
   Function(int) get changeIndex => _index.add;
 
   Function(String) get changeSearchItem => _itemSearch.add;
+
+  Function(String) get changeSearchCustomerId => _customerSearch.add;
 
   Function(bool) get changeCheckOut => _checkingOut.add;
 
@@ -195,6 +206,7 @@ class CashBloc extends BlocBase {
     _invoiceDetail.close();
     _categories.close();
     _itemSearch.close();
+    _customerSearch.close();
     _checkingOut.close();
     _customer.close();
     _cashReceived.close();

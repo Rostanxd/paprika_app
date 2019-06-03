@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
+import 'package:paprika_app/models/customer.dart';
 import 'package:paprika_app/models/invoice.dart';
+import 'package:paprika_app/screens/crm/customer_detail.dart';
 import 'package:paprika_app/screens/sales/cash_check_out_page.dart';
 
 class InvoiceDetail extends StatefulWidget {
@@ -43,9 +45,16 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   ? Container(margin: EdgeInsets.only(right: 20.0), child: null)
                   : Container(
                       margin: EdgeInsets.only(right: 20.0),
-                      child: Icon(
-                        Icons.person_add,
-                        color: Colors.black,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.person_add,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          showSearch(
+                              context: context,
+                              delegate: DataSearch(widget.cashBloc));
+                        },
                       ));
             },
           ),
@@ -325,5 +334,97 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
               );
       },
     );
+  }
+}
+
+class DataSearch extends SearchDelegate<String> {
+  final CashBloc _cashBloc;
+
+  DataSearch(this._cashBloc);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+          close(context, null);
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow, progress: transitionAnimation),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return StreamBuilder(
+      stream: _cashBloc.customersBySearch,
+      builder: (BuildContext context, AsyncSnapshot<List<Customer>> snapshot) {
+        if (snapshot.hasError)
+          return Center(
+            child: Text(snapshot.error.toString()),
+          );
+        return snapshot.hasData && snapshot.data.length > 0
+            ? ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return InkWell(
+                    child: ListTile(
+                      leading: Container(
+                        height: 75,
+                        width: 75,
+                        child: Icon(Icons.person),
+                      ),
+                      title: Text(
+                          '${snapshot.data[index].id} - ${snapshot.data[index].lastName} ${snapshot.data[index].firstName}'),
+                      onTap: () {
+                        _cashBloc.changeCustomer(snapshot.data[index]);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  );
+                })
+            : InkWell(
+                child: ListTile(
+                  leading: Container(
+                    height: 75,
+                    width: 75,
+                    child: Icon(Icons.person_add),
+                  ),
+                  title: Text('Agregar nuevo registro'),
+                ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CustomerDetail(
+                                cashBloc: _cashBloc,
+                              )));
+                },
+              );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    if (query.isNotEmpty) _cashBloc.changeSearchCustomerId(query);
+    return Container(
+        margin: EdgeInsets.all(20.0),
+        child: Text(
+          'Ingrese su búsqueda.',
+          style: TextStyle(fontSize: 16.0),
+        ));
   }
 }

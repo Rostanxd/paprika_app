@@ -30,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
         showDialog(
             context: context,
             builder: (BuildContext context) {
+
               return AlertDialog(
                 title: Text('Inicio de sesión'),
                 content: Text(message),
@@ -65,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     Container(
                       width: 300,
-                      margin: EdgeInsets.only(top: 20.0),
+                      margin: EdgeInsets.only(top: 50.0),
                       child: Text(
                         'Paprika',
                         style: TextStyle(
@@ -129,7 +130,8 @@ class _LoginPageState extends State<LoginPage> {
                     fontWeight: FontWeight.bold,
                     color: Colors.grey),
                 focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xff011e41))),
+                    borderSide:
+                        BorderSide(color: Color(_rootBloc.primaryColor.value))),
                 errorText: snapshot.error),
           ),
         );
@@ -154,7 +156,8 @@ class _LoginPageState extends State<LoginPage> {
                     fontWeight: FontWeight.bold,
                     color: Colors.grey),
                 focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xff011e41))),
+                    borderSide:
+                        BorderSide(color: Color(_rootBloc.primaryColor.value))),
                 errorText: snapshot.error),
           ),
         );
@@ -180,7 +183,9 @@ class _LoginPageState extends State<LoginPage> {
                 borderRadius: BorderRadius.circular(20.0),
                 shadowColor: Color(0xff212121),
                 color: snapshot.data != null
-                    ? snapshot.data ? Color(0xff011e41) : Colors.grey
+                    ? snapshot.data
+                        ? Color(_rootBloc.primaryColor.value)
+                        : Colors.grey
                     : Colors.grey,
                 elevation: 7.0,
                 child: Row(

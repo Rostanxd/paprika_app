@@ -325,7 +325,7 @@ class DataSearch extends SearchDelegate<String> {
       builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
         if (snapshot.hasError)
           return Center(
-            child: Text(snapshot.error),
+            child: Text(snapshot.error.toString()),
           );
         return snapshot.hasData
             ? ListView.builder(
