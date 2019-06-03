@@ -1,7 +1,9 @@
+import 'package:paprika_app/models/customer.dart';
 import 'package:paprika_app/models/item.dart';
 
 class Invoice extends Object {
   String id;
+  Customer customer;
   double quantity;
   double discount;
   double subtotal;
@@ -19,6 +21,15 @@ class Invoice extends Object {
     this.taxes = json['taxes'];
     this.total = json['total'];
   }
+
+  Map<String, dynamic> toFireJson() => {
+    'customerId': this.customer.id,
+    'quantity': this.quantity,
+    'discount': this.discount,
+    'subtotal': this.subtotal,
+    'taxes': this.taxes,
+    'total': this.total,
+  };
 
   @override
   String toString() {

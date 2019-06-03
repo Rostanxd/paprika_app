@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
+import 'package:paprika_app/components/user_drawer.dart';
 import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/item.dart';
 import 'package:paprika_app/screens/inventory/item_detail.dart';
@@ -45,6 +46,20 @@ class _SearchItemState extends State<SearchItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(''),
+        backgroundColor: Color(_rootBloc.primaryColor.value),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                  context: context, delegate: DataSearch(widget.cashBloc));
+            },
+          ),
+        ],
+      ),
+      drawer: UserDrawer(),
       body: Center(
         child: StreamBuilder<int>(
             stream: widget.cashBloc.index,
@@ -276,9 +291,8 @@ class _SearchItemState extends State<SearchItem> {
 
 class DataSearch extends SearchDelegate<String> {
   final CashBloc _cashBloc;
-  final Category _category;
 
-  DataSearch(this._cashBloc, this._category);
+  DataSearch(this._cashBloc);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -337,8 +351,7 @@ class DataSearch extends SearchDelegate<String> {
                       subtitle: Text('${snapshot.data[index].description}'),
                     ),
                     onTap: () {
-                      _cashBloc.addItemToCategory(
-                          snapshot.data[index], _category);
+                      _cashBloc.addItemToInvoice(snapshot.data[index]);
                       Navigator.pop(context);
                     },
                   );

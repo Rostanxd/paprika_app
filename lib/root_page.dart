@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/login_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
@@ -25,6 +26,11 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Color(widget.rootBloc.primaryColor.value)
+    ));
+
     return StreamBuilder(
       stream: widget.rootBloc.firebaseUser,
       builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
