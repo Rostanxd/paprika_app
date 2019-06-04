@@ -3,6 +3,7 @@ import 'package:paprika_app/blocs/bloc_provider.dart';
 import 'package:paprika_app/blocs/cash_bloc.dart';
 import 'package:paprika_app/blocs/root_bloc.dart';
 import 'package:paprika_app/models/customer.dart';
+import 'package:paprika_app/screens/crm/customer_detail.dart';
 
 class InvoiceCustomer extends StatefulWidget {
   final CashBloc cashBloc;
@@ -33,10 +34,20 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
           style: TextStyle(color: Colors.black),
         ),
         leading: InkWell(
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
+          child: StreamBuilder(
+              stream: widget.cashBloc.customer,
+              builder:
+                  (BuildContext context, AsyncSnapshot<Customer> snapshot) {
+                return snapshot.hasData
+                    ? Icon(
+                        Icons.close,
+                        color: Colors.black,
+                      )
+                    : Icon(
+                        Icons.arrow_back,
+                        color: Colors.black,
+                      );
+              }),
           onTap: () {
             Navigator.pop(context);
           },
@@ -44,12 +55,32 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
         elevation: 5.0,
         backgroundColor: Colors.white,
         actions: <Widget>[
-          FlatButton(
-            child: Text(
-              'Agregar a la factura',
-              style: TextStyle(color: Color(_rootBloc.primaryColor.value)),
-            ),
-            onPressed: () {},
+          StreamBuilder(
+            stream: widget.cashBloc.customer,
+            builder: (BuildContext context, AsyncSnapshot<Customer> snapshot) {
+              return snapshot.hasData
+                  ? FlatButton(
+                      child: Text(
+                        'Remover de la facturas',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                      onPressed: () {
+                        widget.cashBloc.changeCustomer(null);
+                        Navigator.pop(context);
+                      },
+                    )
+                  : FlatButton(
+                      child: Text(
+                        'Agregar a la factura',
+                        style: TextStyle(
+                            color: Color(_rootBloc.primaryColor.value)),
+                      ),
+                      onPressed: () {
+                        widget.cashBloc.changeCustomer(widget.customer);
+                        Navigator.pop(context);
+                      },
+                    );
+            },
           )
         ],
       ),
@@ -64,9 +95,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
               ),
               Flexible(
                 flex: 3,
-                child: Container(
-                  child: null,
-                ),
+                child: _customerSummary(),
               )
             ],
           ),
@@ -92,41 +121,150 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
+                  margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
                   child: Text(
                     '${widget.customer.lastName} ${widget.customer.firstName}',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                   ),
                 )
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Container(child: Icon(Icons.credit_card)),
                 Container(
+                    margin: EdgeInsets.only(left: 40.0, top: 20.0),
+                    child: Icon(Icons.credit_card)),
+                Container(
+                  margin: EdgeInsets.only(left: 20.0, top: 20.0),
                   child: Text(widget.customer.id),
                 )
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Container(child: Icon(Icons.email)),
                 Container(
+                    margin: EdgeInsets.only(left: 40.0, top: 20.0),
+                    child: Icon(Icons.email)),
+                Container(
+                  margin: EdgeInsets.only(left: 20.0, top: 20.0),
                   child: Text(widget.customer.email),
                 )
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Container(child: Icon(Icons.phone_android)),
                 Container(
+                    margin: EdgeInsets.only(left: 40.0, top: 20.0),
+                    child: Icon(Icons.phone_android)),
+                Container(
+                  margin: EdgeInsets.only(left: 20.0, top: 20.0),
                   child: Text(widget.customer.cellphoneOne),
                 )
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                    margin: EdgeInsets.only(left: 40.0, top: 20.0),
+                    child: Icon(Icons.phone)),
+                Container(
+                  margin: EdgeInsets.only(left: 20.0, top: 20.0),
+                  child: widget.customer.telephoneOne.isNotEmpty
+                      ? Text(widget.customer.telephoneOne)
+                      : Text('-'),
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                    margin: EdgeInsets.only(left: 40.0, top: 20.0),
+                    child: Icon(Icons.date_range)),
+                Container(
+                  margin: EdgeInsets.only(left: 20.0, top: 20.0),
+                  child: widget.customer.bornDate.isNotEmpty
+                      ? Text(widget.customer.bornDate)
+                      : Text('-'),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
             Divider(),
+            Row(
+              children: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'Editar datos del cliente',
+                    style:
+                        TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CustomerDetail(
+                                  customer: widget.customer,
+                                )));
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _customerSummary() {
+    return Container(
+      child: Card(
+        elevation: 5.0,
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
+                  child: Text(
+                    'Resumen de compras',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                  ),
+                )
+              ],
+            ),
+            ListTile(
+              leading: Container(
+                  margin: EdgeInsets.all(10.0),
+                  child: Icon(Icons.collections_bookmark)),
+              title: Text('-'),
+              subtitle: Text('No. Tickets'),
+            ),
+            ListTile(
+              leading: Container(
+                  margin: EdgeInsets.all(10.0),
+                  child: Icon(Icons.calendar_today)),
+              title: Text('-'),
+              subtitle: Text('Ultima compra'),
+            ),
+            ListTile(
+              leading: Container(
+                  margin: EdgeInsets.all(10.0),
+                  child: Icon(Icons.attach_money)),
+              title: Text('-'),
+              subtitle: Text('Monto'),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
           ],
         ),
       ),

@@ -86,7 +86,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                                   onPressed: () {
                                     showSearch(
                                         context: context,
-                                        delegate: DataSearch(widget.cashBloc));
+                                        delegate: DataSearch(
+                                            widget.cashBloc, _rootBloc));
                                   },
                                 ));
                       },
@@ -360,9 +361,10 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
 }
 
 class DataSearch extends SearchDelegate<String> {
+  final RootBloc _rootBloc;
   final CashBloc _cashBloc;
 
-  DataSearch(this._cashBloc);
+  DataSearch(this._cashBloc, this._rootBloc);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -411,8 +413,13 @@ class DataSearch extends SearchDelegate<String> {
                       title: Text(
                           '${snapshot.data[index].id} - ${snapshot.data[index].lastName} ${snapshot.data[index].firstName}'),
                       onTap: () {
-                        _cashBloc.changeCustomer(snapshot.data[index]);
-                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => InvoiceCustomer(
+                                      cashBloc: _cashBloc,
+                                      customer: snapshot.data[index],
+                                    )));
                       },
                     ),
                   );
@@ -427,6 +434,7 @@ class DataSearch extends SearchDelegate<String> {
                   title: Text('Agregar nuevo registro'),
                 ),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -442,11 +450,101 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isNotEmpty) _cashBloc.changeSearchCustomerId(query);
-    return Container(
-        margin: EdgeInsets.all(20.0),
-        child: Text(
-          'Ingrese su búsqueda.',
-          style: TextStyle(fontSize: 16.0),
+    return StreamBuilder(
+        stream: _cashBloc.customersBySearch,
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Customer>> snapshot) {
+          return ListView(
+            children: _buildingSuggestionList(context, snapshot.data),
+          );
+        });
+  }
+
+  List<Widget> _buildingSuggestionList(
+      BuildContext context, List<Customer> _customerList) {
+    List<Widget> _listWidgets = List<Widget>();
+    _listWidgets.addAll(<Widget>[
+      FlatButton(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.add,
+              color: Colors.deepOrangeAccent,
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 20.0),
+              child: Text(
+                'Nuevo cliente',
+                style:
+                    TextStyle(color: Colors.deepOrangeAccent, fontSize: 16.0),
+              ),
+            ),
+          ],
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CustomerDetail(
+                        cashBloc: _cashBloc,
+                      )));
+        },
+      ),
+      Divider(),
+    ]);
+
+    /// No customers
+    if (_customerList == null || _customerList.length == 0) {
+      _listWidgets.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 20.0),
+            child: Text('Ultimos clientes que han facturado...'),
+          )
+        ],
+      ));
+    }
+
+    /// Customers found
+    if (_customerList != null && _customerList.length != 0) {
+      _listWidgets.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 20.0),
+            child: Text('Resultado de la búsqueda...'),
+          )
+        ],
+      ));
+
+      /// Adding the list of customers.
+      _customerList.map((c) {
+        _listWidgets.add(InkWell(
+          child: ListTile(
+            leading: Container(
+              height: 75,
+              width: 75,
+              child: Icon(Icons.person),
+            ),
+            title: Text('${c.id} - ${c.lastName} ${c.firstName}'),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => InvoiceCustomer(
+                            cashBloc: _cashBloc,
+                            customer: c,
+                          )));
+            },
+          ),
         ));
+      }).toList();
+    }
+
+    return _listWidgets;
   }
 }

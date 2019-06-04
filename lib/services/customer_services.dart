@@ -15,7 +15,6 @@ class CustomerApi {
   }
 
   Future<List<Customer>> fetchCustomersById(String id) async {
-    print(id);
     List<Customer> customerList = List<Customer>();
     await Firestore.instance
         .collection('customers')
