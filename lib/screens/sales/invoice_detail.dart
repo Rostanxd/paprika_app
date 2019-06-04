@@ -6,6 +6,7 @@ import 'package:paprika_app/models/customer.dart';
 import 'package:paprika_app/models/invoice.dart';
 import 'package:paprika_app/screens/crm/customer_detail.dart';
 import 'package:paprika_app/screens/sales/cash_check_out_page.dart';
+import 'package:paprika_app/screens/sales/invoice_customer.dart';
 
 class InvoiceDetail extends StatefulWidget {
   final CashBloc cashBloc;
@@ -42,33 +43,54 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
             stream: widget.cashBloc.processed,
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               return snapshot.hasData && snapshot.data
-                  ? Container(margin: EdgeInsets.only(right: 20.0), child: null)
-                  : Container(
+                  ? Container(
                       margin: EdgeInsets.only(right: 20.0),
                       child: IconButton(
                         icon: Icon(
-                          Icons.person_add,
+                          Icons.person_pin,
                           color: Colors.black,
                         ),
-                        onPressed: () {
-                          showSearch(
-                              context: context,
-                              delegate: DataSearch(widget.cashBloc));
-                        },
-                      ));
-            },
-          ),
-          StreamBuilder(
-            stream: widget.cashBloc.processed,
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              return snapshot.hasData && snapshot.data
-                  ? Container(margin: EdgeInsets.only(right: 20.0), child: null)
-                  : Container(
-                      margin: EdgeInsets.only(right: 20.0),
-                      child: Icon(
-                        Icons.menu,
-                        color: Colors.black,
-                      ));
+                        onPressed: () {},
+                      ))
+                  : StreamBuilder(
+                      stream: widget.cashBloc.customer,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Customer> snapshot) {
+                        return snapshot.hasData
+                            ? Container(
+                                margin: EdgeInsets.only(right: 20.0),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.person_pin,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                InvoiceCustomer(
+                                                  cashBloc: widget.cashBloc,
+                                                  customer: widget
+                                                      .cashBloc.customer.value,
+                                                )));
+                                  },
+                                ))
+                            : Container(
+                                margin: EdgeInsets.only(right: 20.0),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.person_add,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    showSearch(
+                                        context: context,
+                                        delegate: DataSearch(widget.cashBloc));
+                                  },
+                                ));
+                      },
+                    );
             },
           ),
         ],

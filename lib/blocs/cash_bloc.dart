@@ -49,7 +49,7 @@ class CashBloc extends BlocBase {
 
   Observable<bool> get checkingOut => _checkingOut.stream;
 
-  Observable<Customer> get customer => _customer.stream;
+  ValueObservable<Customer> get customer => _customer.stream;
 
   ValueObservable<double> get cashReceived => _cashReceived.stream;
 
