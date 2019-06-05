@@ -3,7 +3,7 @@ import 'package:paprika_app/models/category.dart';
 import 'package:paprika_app/models/customer.dart';
 import 'package:paprika_app/models/invoice.dart';
 import 'package:paprika_app/models/item.dart';
-import 'package:paprika_app/resources/customer_repository.dart';
+import 'package:paprika_app/resources/crm_repository.dart';
 import 'package:paprika_app/resources/inventory_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -22,7 +22,7 @@ class CashBloc extends BlocBase {
   final _invoiceChange = BehaviorSubject<double>();
   final _message = BehaviorSubject<String>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
-  final CustomerRepository _customerRepository = CustomerRepository();
+  final CrmRepository _customerRepository = CrmRepository();
 
   /// Observables
   ValueObservable<int> get index => _index.stream;
@@ -41,11 +41,14 @@ class CashBloc extends BlocBase {
         yield await _inventoryRepository.fetchItemsByName(terms);
       });
 
-  Observable<List<Customer>> get customersBySearch => _customerSearch
-      .debounce(Duration(milliseconds: 500))
-      .switchMap((terms) async* {
-        yield await _customerRepository.fetchCustomersById(terms);
-  });
+  Observable<List<Customer>> get customersBySearch {
+    if (_customerSearch.value == null) return null;
+    return _customerSearch
+        .debounce(Duration(milliseconds: 500))
+        .switchMap((terms) async* {
+      yield await _customerRepository.fetchCustomersById(terms);
+    });
+  }
 
   Observable<bool> get checkingOut => _checkingOut.stream;
 
@@ -196,6 +199,8 @@ class CashBloc extends BlocBase {
     _cashReceived.sink.add(null);
     _customer.sink.add(null);
     _processed.sink.add(false);
+    _customerSearch.add(null);
+    _itemSearch.sink.add(null);
   }
 
   @override

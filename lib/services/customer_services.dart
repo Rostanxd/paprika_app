@@ -24,4 +24,17 @@ class CustomerApi {
             .map((c) => Customer.fromFireJson(c.documentID, c.data))));
     return customerList;
   }
+
+  Future<void> updateCustomer(String customerId, Customer customer) async {
+    await Firestore.instance
+        .collection('customers')
+        .document(customerId)
+        .updateData(customer.toFireJson());
+  }
+
+  Future<DocumentReference> createCustomer(Customer customer) async {
+    return await Firestore.instance
+        .collection('customers')
+        .add(customer.toFireJson());
+  }
 }

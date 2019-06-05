@@ -249,7 +249,8 @@ class _ItemDetailState extends State<ItemDetail> {
   }
 
   /// Widgets
-  Widget _infoCard() {
+  Widget
+  _infoCard() {
     return Container(
       margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0, right: 5.0),
       child: Card(

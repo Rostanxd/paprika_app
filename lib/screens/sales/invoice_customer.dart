@@ -78,6 +78,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                       onPressed: () {
                         widget.cashBloc.changeCustomer(widget.customer);
                         Navigator.pop(context);
+                        Navigator.pop(context);
                       },
                     );
             },

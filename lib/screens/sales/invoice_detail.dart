@@ -84,6 +84,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                                     color: Colors.black,
                                   ),
                                   onPressed: () {
+                                    widget.cashBloc
+                                        .changeSearchCustomerId(null);
                                     showSearch(
                                         context: context,
                                         delegate: DataSearch(

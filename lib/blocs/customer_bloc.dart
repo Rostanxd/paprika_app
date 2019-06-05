@@ -1,11 +1,12 @@
 import 'package:paprika_app/blocs/bloc_base.dart';
 import 'package:paprika_app/models/customer.dart';
-import 'package:paprika_app/resources/customer_repository.dart';
+import 'package:paprika_app/resources/crm_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CustomerBloc extends BlocBase {
   final _customer = BehaviorSubject<Customer>();
   final _id = BehaviorSubject<String>();
+  final _customerId = BehaviorSubject<String>();
   final _firstName = BehaviorSubject<String>();
   final _lastName = BehaviorSubject<String>();
   final _state = BehaviorSubject<String>();
@@ -13,12 +14,15 @@ class CustomerBloc extends BlocBase {
   final _cellphone = BehaviorSubject<String>();
   final _telephone = BehaviorSubject<String>();
   final _bornDate = BehaviorSubject<String>();
-  CustomerRepository _customerRepository = CustomerRepository();
+  final _message = BehaviorSubject<String>();
+  CrmRepository _crmRepository = CrmRepository();
 
   /// Observables
-  Observable<Customer> get customer => _customer.stream;
+  ValueObservable<Customer> get customer => _customer.stream;
 
   ValueObservable<String> get id => _id.stream;
+
+  ValueObservable<String> get customerId => _customerId.stream;
 
   ValueObservable<String> get firstName => _firstName.stream;
 
@@ -34,10 +38,20 @@ class CustomerBloc extends BlocBase {
 
   ValueObservable<String> get bornDate => _bornDate.stream;
 
+  ValueObservable<String> get messenger => _message.stream;
+
   /// Functions
   void fetchCustomerById(String id) async {
-    await _customerRepository.fetchCustomerById(id).then((customer) {
+    await _crmRepository.fetchCustomerById(id).then((customer) {
       _customer.sink.add(customer);
+      _customerId.sink.add(customer.customerId);
+      _id.sink.add(customer.id);
+      _firstName.sink.add(customer.firstName);
+      _lastName.sink.add(customer.lastName);
+      _email.sink.add(customer.email);
+      _cellphone.sink.add(customer.cellphoneOne);
+      _telephone.sink.add(customer.telephoneOne);
+      _bornDate.sink.add(customer.bornDate);
     });
   }
 
@@ -57,10 +71,75 @@ class CustomerBloc extends BlocBase {
 
   Function(String) get changeBornDate => _bornDate.add;
 
+  Function(String) get changeMessage => _message.add;
+
+  Future<bool> updateCustomer() async {
+    bool submit = false;
+    if (_validateFormCustomer()) {
+      Customer customer = Customer.toFireBase(
+          _email.value,
+          _firstName.value,
+          _id.value,
+          _lastName.value,
+          _cellphone.value);
+
+      await _crmRepository
+          .updateCustomer(_customerId.value, customer)
+          .then((v) {
+        _message.sink.add('Cliente actualizado con éxito.');
+        submit = true;
+      });
+    } else {
+      _message.sink.add('Lo sentimos hay campos por llenar');
+    }
+    return submit;
+  }
+
+  void createCustomer() async {
+    if (_validateFormCustomer()) {
+      Customer customer = Customer.toFireBase(
+          _email.value,
+          _firstName.value,
+          _id.value,
+          _lastName.value,
+          _cellphone.value);
+
+      await _crmRepository.createCustomer(customer).then((document) {
+        _message.sink.add('Cliente creado con éxito.');
+        fetchCustomerById(document.documentID);
+      }, onError: (error) {
+        _message.sink.add('Error: ${error.toString()}.');
+      });
+    } else {
+      _message.sink.add('Lo sentimos hay campos por llenar');
+    }
+  }
+
+  bool _validateFormCustomer() {
+    bool submit = true;
+    if (submit && (_id.value == null || _id.value.isEmpty)) {
+      _id.sink.addError('Ingrese la cédula o ruc del cliente');
+      submit = false;
+    }
+
+    if (submit && (_firstName.value == null || _firstName.value.isEmpty)) {
+      _firstName.sink.addError('Ingrese al menos un nombre del cliente');
+      submit = false;
+    }
+
+    if (submit && (_lastName.value == null || _lastName.value.isEmpty)) {
+      _lastName.sink.addError('Ingrese al menos un apellido del cliente');
+      submit = false;
+    }
+
+    return submit;
+  }
+
   @override
   void dispose() {
     _customer.close();
     _id.close();
+    _customerId.close();
     _firstName.close();
     _lastName.close();
     _state.close();
@@ -68,5 +147,6 @@ class CustomerBloc extends BlocBase {
     _cellphone.close();
     _telephone.close();
     _bornDate.close();
+    _message.close();
   }
 }
