@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:paprika_app/blocs/bloc_provider.dart';
-import 'package:paprika_app/blocs/login_bloc.dart';
+import 'package:paprika_app/utils/bloc_provider.dart';
+import 'package:paprika_app/authentication/blocs/login_bloc.dart';
 import 'package:paprika_app/root_page.dart';
 
-import 'blocs/root_bloc.dart';
+import 'package:paprika_app/root_bloc.dart';
 
 void main() => runApp(BlocProvider<RootBloc>(
     bloc: rootBloc,

@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:paprika_app/blocs/bloc_provider.dart';
-import 'package:paprika_app/blocs/login_bloc.dart';
-import 'package:paprika_app/blocs/root_bloc.dart';
-import 'package:paprika_app/screens/login/index.dart';
-import 'package:paprika_app/screens/sales/cash_page.dart';
+import 'package:paprika_app/utils/bloc_provider.dart';
+import 'package:paprika_app/authentication/blocs/login_bloc.dart';
+import 'package:paprika_app/root_bloc.dart';
+import 'package:paprika_app/authentication/ui/screens/index.dart';
+import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 
 class RootPage extends StatefulWidget {
   final RootBloc rootBloc;
