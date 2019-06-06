@@ -13,7 +13,7 @@ class CustomerBloc extends BlocBase {
   final _email = BehaviorSubject<String>();
   final _cellphone = BehaviorSubject<String>();
   final _telephone = BehaviorSubject<String>();
-  final _bornDate = BehaviorSubject<String>();
+  final _bornDate = BehaviorSubject<DateTime>();
   final _message = BehaviorSubject<String>();
   CrmRepository _crmRepository = CrmRepository();
 
@@ -36,7 +36,7 @@ class CustomerBloc extends BlocBase {
 
   ValueObservable<String> get telephone => _telephone.stream;
 
-  ValueObservable<String> get bornDate => _bornDate.stream;
+  ValueObservable<DateTime> get bornDate => _bornDate.stream;
 
   ValueObservable<String> get messenger => _message.stream;
 
@@ -69,7 +69,7 @@ class CustomerBloc extends BlocBase {
 
   Function(String) get changeTelephone => _telephone.add;
 
-  Function(String) get changeBornDate => _bornDate.add;
+  Function(DateTime) get changeBornDate => _bornDate.add;
 
   Function(String) get changeMessage => _message.add;
 
@@ -111,6 +111,9 @@ class CustomerBloc extends BlocBase {
 
       await _crmRepository.createCustomer(newCustomer).then((document) {
         _message.sink.add('Cliente creado con éxito.');
+
+        /// Updating the pk
+        newCustomer.customerId = document.documentID;
         _customer.sink.add(newCustomer);
       }, onError: (error) {
         _message.sink.add('Error: ${error.toString()}.');

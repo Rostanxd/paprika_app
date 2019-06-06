@@ -151,7 +151,9 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                     child: Icon(Icons.email)),
                 Container(
                   margin: EdgeInsets.only(left: 20.0, top: 20.0),
-                  child: Text(widget.customer.email),
+                  child: widget.customer.email != null
+                      ? Text(widget.customer.email)
+                      : Text('-'),
                 )
               ],
             ),
@@ -163,7 +165,9 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                     child: Icon(Icons.phone_android)),
                 Container(
                   margin: EdgeInsets.only(left: 20.0, top: 20.0),
-                  child: Text(widget.customer.cellphoneOne),
+                  child: widget.customer.cellphoneOne != null
+                      ? Text(widget.customer.cellphoneOne)
+                      : Text('-'),
                 )
               ],
             ),
@@ -175,7 +179,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                     child: Icon(Icons.phone)),
                 Container(
                   margin: EdgeInsets.only(left: 20.0, top: 20.0),
-                  child: widget.customer.telephoneOne.isNotEmpty
+                  child: widget.customer.telephoneOne != null
                       ? Text(widget.customer.telephoneOne)
                       : Text('-'),
                 )
@@ -189,8 +193,8 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                     child: Icon(Icons.date_range)),
                 Container(
                   margin: EdgeInsets.only(left: 20.0, top: 20.0),
-                  child: widget.customer.bornDate.isNotEmpty
-                      ? Text(widget.customer.bornDate)
+                  child: widget.customer.bornDate != null
+                      ? Text(widget.customer.bornDate.toString())
                       : Text('-'),
                 )
               ],
@@ -212,6 +216,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => CustomerDetail(
+                                  cashBloc: widget.cashBloc,
                                   customer: widget.customer,
                                 )));
                   },

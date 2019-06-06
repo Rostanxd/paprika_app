@@ -4,7 +4,7 @@ abstract class Person extends Object{
   String lastName;
   String gender;
   String email;
-  String bornDate;
+  DateTime bornDate;
   String anniversaryDate;
   String civilState;
   String passport;

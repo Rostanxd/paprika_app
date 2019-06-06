@@ -28,6 +28,23 @@ class _CustomerDetailState extends State<CustomerDetail> {
   TextEditingController _emailCtrl = TextEditingController();
   TextEditingController _telephoneCtrl = TextEditingController();
   TextEditingController _bornDateCtrl = TextEditingController();
+  DateTime _now = new DateTime.now();
+
+  ///  Future to show the date picker
+  Future _selectDate() async {
+    DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: _customerBloc.bornDate.value.toString().isNotEmpty &&
+                _customerBloc.bornDate.value != null
+            ? _customerBloc.bornDate.value
+            : DateTime(_now.year - 17),
+        firstDate: DateTime(1900),
+        lastDate: DateTime(_now.year - 17));
+
+    if (picked != null) {
+      _customerBloc.changeBornDate(picked);
+    }
+  }
 
   @override
   void initState() {
@@ -54,8 +71,6 @@ class _CustomerDetailState extends State<CustomerDetail> {
             });
     });
 
-    _customerBloc.customer.listen((c) => print(c.toString()));
-
     /// Adding initial values to the controllers
     if (widget.customer != null) {
       _customerBloc.fetchCustomerById(widget.customer.customerId);
@@ -65,7 +80,7 @@ class _CustomerDetailState extends State<CustomerDetail> {
       _cellphoneCtrl.text = widget.customer.cellphoneOne;
       _emailCtrl.text = widget.customer.email;
       _telephoneCtrl.text = widget.customer.telephoneOne;
-      _bornDateCtrl.text = widget.customer.bornDate;
+      _bornDateCtrl.text = widget.customer.bornDate.toString();
     }
 
     super.initState();
@@ -144,6 +159,9 @@ class _CustomerDetailState extends State<CustomerDetail> {
                       widget.customer.lastName = _lastNameCtrl.text;
                       widget.customer.email = _emailCtrl.text;
                       widget.customer.cellphoneOne = _cellphoneCtrl.text;
+                      widget.customer.telephoneOne = _telephoneCtrl.text;
+                      widget.customer.bornDate =
+                          DateTime.parse(_bornDateCtrl.text);
                     }
                   });
                 } else {
@@ -182,180 +200,251 @@ class _CustomerDetailState extends State<CustomerDetail> {
                   )
                 ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.id,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeId,
-                        decoration: InputDecoration(
-                            labelText: 'Cédula / Ruc',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _idCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.credit_card),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.id,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          return TextField(
+                            onChanged: _customerBloc.changeId,
+                            decoration: InputDecoration(
+                                labelText: 'Cédula / Ruc',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(
+                                            _rootBloc.primaryColor.value))),
+                                errorText: snapshot.error != null
+                                    ? snapshot.error.toString()
+                                    : ''),
+                            controller: _idCtrl,
+                          );
+                        }),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.firstName,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeFirstName,
-                        decoration: InputDecoration(
-                            labelText: 'Nombres',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _firstNameCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.text_format),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.firstName,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          return TextField(
+                            onChanged: _customerBloc.changeFirstName,
+                            decoration: InputDecoration(
+                                labelText: 'Nombres',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(
+                                            _rootBloc.primaryColor.value))),
+                                errorText: snapshot.error != null
+                                    ? snapshot.error.toString()
+                                    : ''),
+                            controller: _firstNameCtrl,
+                          );
+                        }),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.lastName,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeLastName,
-                        decoration: InputDecoration(
-                            labelText: 'Apellidos',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _lastNameCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.text_format),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.lastName,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          return TextField(
+                            onChanged: _customerBloc.changeLastName,
+                            decoration: InputDecoration(
+                                labelText: 'Apellidos',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(
+                                            _rootBloc.primaryColor.value))),
+                                errorText: snapshot.error != null
+                                    ? snapshot.error.toString()
+                                    : ''),
+                            controller: _lastNameCtrl,
+                          );
+                        }),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.email,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeEmail,
-                        decoration: InputDecoration(
-                            labelText: 'E-mail',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _emailCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.email),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.email,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          return TextField(
+                            onChanged: _customerBloc.changeEmail,
+                            decoration: InputDecoration(
+                                labelText: 'E-mail',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(
+                                            _rootBloc.primaryColor.value))),
+                                errorText: snapshot.error != null
+                                    ? snapshot.error.toString()
+                                    : ''),
+                            controller: _emailCtrl,
+                          );
+                        }),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.cellphone,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeCellphone,
-                        decoration: InputDecoration(
-                            labelText: 'Celular',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _cellphoneCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.smartphone),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.cellphone,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          return TextField(
+                            onChanged: _customerBloc.changeCellphone,
+                            decoration: InputDecoration(
+                                labelText: 'Celular',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(
+                                            _rootBloc.primaryColor.value))),
+                                errorText: snapshot.error != null
+                                    ? snapshot.error.toString()
+                                    : ''),
+                            controller: _cellphoneCtrl,
+                          );
+                        }),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.telephone,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeTelephone,
-                        decoration: InputDecoration(
-                            labelText: 'Teléfono',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _telephoneCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.phone),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.telephone,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          return TextField(
+                            onChanged: _customerBloc.changeTelephone,
+                            decoration: InputDecoration(
+                                labelText: 'Teléfono',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(
+                                            _rootBloc.primaryColor.value))),
+                                errorText: snapshot.error != null
+                                    ? snapshot.error.toString()
+                                    : ''),
+                            controller: _telephoneCtrl,
+                          );
+                        }),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: StreamBuilder(
-                    stream: _customerBloc.bornDate,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      return TextField(
-                        onChanged: _customerBloc.changeBornDate,
-                        decoration: InputDecoration(
-                            labelText: 'Fecha de nacimiento',
-                            labelStyle: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color:
-                                        Color(_rootBloc.primaryColor.value))),
-                            errorText: snapshot.error != null
-                                ? snapshot.error.toString()
-                                : ''),
-                        controller: _bornDateCtrl,
-                      );
-                    }),
+              Row(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.calendar_today),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20.0, bottom: 20.0),
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    child: StreamBuilder(
+                        stream: _customerBloc.bornDate,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<DateTime> snapshot) {
+                          if (snapshot.hasData)
+                            _bornDateCtrl.text = snapshot.data.toString();
+                          return GestureDetector(
+                            onTap: () {
+                              _selectDate();
+                            },
+                            child: AbsorbPointer(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                    labelText: 'Fecha de nacimiento',
+                                    labelStyle: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                    focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Color(
+                                                _rootBloc.primaryColor.value))),
+                                    errorText: snapshot.error != null
+                                        ? snapshot.error.toString()
+                                        : ''),
+                                controller: _bornDateCtrl,
+                              ),
+                            ),
+                          );
+                        }),
+                  ),
+                ],
               ),
             ],
           )),
