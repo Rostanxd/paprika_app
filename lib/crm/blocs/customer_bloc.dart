@@ -1,4 +1,4 @@
-import 'package:paprika_app/utils/bloc_base.dart';
+import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/crm/resources/crm_repository.dart';
 import 'package:rxdart/rxdart.dart';

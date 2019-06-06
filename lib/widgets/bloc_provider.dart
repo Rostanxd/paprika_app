@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:paprika_app/utils/bloc_base.dart';
+import 'package:paprika_app/models/bloc_base.dart';
 
 class BlocProvider<T extends BlocBase> extends StatefulWidget {
   BlocProvider({

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:paprika_app/utils/bloc_provider.dart';
+import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/inventory/blocs/category_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/inventory/models/category.dart';

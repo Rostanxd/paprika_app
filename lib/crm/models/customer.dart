@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:paprika_app/crm/models/person.dart';
+import 'package:paprika_app/models/person.dart';
 
 class Customer implements Person {
   String customerId;

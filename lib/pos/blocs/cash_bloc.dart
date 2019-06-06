@@ -1,4 +1,5 @@
-import 'package:paprika_app/utils/bloc_base.dart';
+import 'package:paprika_app/pos/resources/sales_repository.dart';
+import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
@@ -23,6 +24,7 @@ class CashBloc extends BlocBase {
   final _message = BehaviorSubject<String>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
   final CrmRepository _customerRepository = CrmRepository();
+  final SalesRepository _salesRepository = SalesRepository();
 
   /// Observables
   ValueObservable<int> get index => _index.stream;
@@ -77,14 +79,6 @@ class CashBloc extends BlocBase {
 
   Function(String) get changeMessage => _message.add;
 
-  void changeProcessed() {
-    if (_cashReceived == null || _cashReceived.value < _invoice.value.total) {
-      return _message.sink.add(
-          'El valor recibido es inferior al total de la factura.\nCorrija por favor.');
-    }
-    _processed.sink.add(true);
-  }
-
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
     await _inventoryRepository.fetchItemsByCategory(categoryId).then((data) {
@@ -130,9 +124,10 @@ class CashBloc extends BlocBase {
       taxes = double.parse(taxes.toStringAsFixed(2));
       total = double.parse(total.toStringAsFixed(2));
 
-      invoice = Invoice(quantity, discount, subtotal, taxes, total);
+      invoice = Invoice(null, quantity, discount, subtotal, taxes, total,
+          List<InvoiceLine>(), '', DateTime.now());
     } else {
-      invoice = Invoice(0, 0, 0, 0, 0);
+      invoice = Invoice(null, 0, 0, 0, 0, 0, null, '', DateTime.now());
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -180,7 +175,7 @@ class CashBloc extends BlocBase {
     _updateInvoice();
   }
 
-  void removeFromInvoiceItem(int index) {
+  void removeItemFromInvoice(int index) {
     List<InvoiceLine> invoiceLine = _invoiceDetail.value;
     invoiceLine.removeAt(index);
     _invoiceDetail.sink.add(invoiceLine);
@@ -201,6 +196,45 @@ class CashBloc extends BlocBase {
     _processed.sink.add(false);
     _customerSearch.add(null);
     _itemSearch.sink.add(null);
+  }
+
+  Future<void> createInvoice(String user) async {
+    /// Creating the invoice with its detail
+    Invoice newInvoice = Invoice(
+        _customer.value,
+        _invoice.value.quantity,
+        _invoice.value.discount,
+        _invoice.value.subtotal,
+        _invoice.value.taxes,
+        _invoice.value.total,
+        _invoiceDetail.value,
+        user,
+        DateTime.now());
+
+    if (newInvoice.detail.length == 0) {
+      return _message.sink.add('No hay items en la factura.');
+    }
+
+    if (newInvoice.customer == null) {
+      return _message.sink.add('No ha agregado el cliente a la factura.');
+    }
+
+    if (_cashReceived == null || _cashReceived.value < _invoice.value.total) {
+      return _message.sink
+          .add('El valor recibido es inferior al total de la factura.'
+              '\nCorrija por favor.');
+    }
+
+    /// Creating the header
+    await _salesRepository.createInvoice(newInvoice).then((document) async {
+      newInvoice.detail.forEach((detail) async {
+        detail.invoiceId = document.documentID;
+        await _salesRepository.createDetailInvoice(document.documentID, detail);
+      });
+      _processed.sink.add(true);
+    }, onError: (error) {
+      _message.sink.add('Error durante el almacenamiento de la factura.');
+    });
   }
 
   @override

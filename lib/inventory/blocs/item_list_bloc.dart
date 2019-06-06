@@ -1,4 +1,4 @@
-import 'package:paprika_app/utils/bloc_base.dart';
+import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/resources/inventory_repository.dart';
 import 'package:rxdart/rxdart.dart';

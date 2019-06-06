@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:paprika_app/utils/bloc_provider.dart';
+import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/crm/models/customer.dart';
@@ -141,7 +141,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                             '${index.toString()}-${snapshot.data[index].item.id}'),
                         child: _itemInTheList(snapshot.data[index]),
                         onDismissed: (direction) {
-                          widget.cashBloc.removeFromInvoiceItem(index);
+                          widget.cashBloc.removeItemFromInvoice(index);
                         },
                         background: Container(
                           alignment: AlignmentDirectional.centerEnd,
@@ -533,6 +533,7 @@ class DataSearch extends SearchDelegate<String> {
               child: Icon(Icons.person),
             ),
             title: Text('${c.id} - ${c.lastName} ${c.firstName}'),
+            trailing: Icon(Icons.navigate_next),
             onTap: () {
               Navigator.push(
                   context,

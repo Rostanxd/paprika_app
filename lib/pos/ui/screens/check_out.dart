@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:paprika_app/utils/bloc_provider.dart';
+import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
@@ -167,7 +167,7 @@ class _CheckOutState extends State<CheckOut> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
-                widget.cashBloc.changeProcessed();
+                widget.cashBloc.createInvoice(_rootBloc.user.value.id);
               }),
         )
       ],

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:paprika_app/utils/bloc_base.dart';
+import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -40,7 +40,7 @@ class RootBloc implements BlocBase {
         .document(_uid)
         .snapshots()
         .listen((document) {
-      User user = User.fromJson(document.data);
+      User user = User.fromJson(document.documentID, document.data);
 
       /// Getting the name of the role
       Firestore.instance
