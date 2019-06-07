@@ -19,7 +19,7 @@ class CategoryApi {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
-        .orderBy('order')
+        .orderBy('order', descending: true)
         .getDocuments()
         .then((data) {
       _categoryList.addAll(data.documents
@@ -33,6 +33,7 @@ class CategoryApi {
     await Firestore.instance
         .collection('categories')
         .orderBy('name')
+        .orderBy('order', descending: true)
         .where('name', isGreaterThanOrEqualTo: name)
         .getDocuments()
         .then((data) {

@@ -1,6 +1,7 @@
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/crm/resources/crm_repository.dart';
+import 'package:paprika_app/utils/fieldTypeValidators.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CustomerBloc extends BlocBase {
@@ -138,6 +139,11 @@ class CustomerBloc extends BlocBase {
 
     if (submit && (_lastName.value == null || _lastName.value.isEmpty)) {
       _lastName.sink.addError('Ingrese al menos un apellido del cliente');
+      submit = false;
+    }
+
+    if (submit && (!FieldTypeValidators.isEmail(_email.value))){
+      _email.sink.addError('Email inválido por favor corrija');
       submit = false;
     }
 

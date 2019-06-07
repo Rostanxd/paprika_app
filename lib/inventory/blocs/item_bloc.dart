@@ -7,6 +7,7 @@ import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
 import 'package:paprika_app/inventory/resources/inventory_repository.dart';
+import 'package:paprika_app/utils/fieldTypeValidators.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ItemBloc extends BlocBase {
@@ -152,14 +153,14 @@ class ItemBloc extends BlocBase {
 
   void changePrice(String newPrice) {
     if (newPrice.isEmpty) return _price.addError('Por favor ingrese el precio');
-    if (!isNumeric(newPrice))
+    if (!FieldTypeValidators.stringIsNumeric(newPrice))
       return _price.addError('Por favor ingrese un número válido');
     return _price.sink.add(double.parse(newPrice));
   }
 
   void changeCost(String newCost) {
     if (newCost.isEmpty) return _price.addError('Por favor ingrese el costo');
-    if (!isNumeric(newCost))
+    if (!FieldTypeValidators.stringIsNumeric(newCost))
       return _price.addError('Por favor ingrese un número válido');
     return _cost.sink.add(double.parse(newCost));
   }
@@ -274,14 +275,6 @@ class ItemBloc extends BlocBase {
       submit = false;
 
     return submit;
-  }
-
-  bool isNumeric(String s) {
-    if (s == null) {
-      return false;
-    }
-    // ignore: deprecated_member_use
-    return double.parse(s, (e) => null) != null;
   }
 
   @override
