@@ -4,14 +4,14 @@ import 'package:paprika_app/pos/models/invoice.dart';
 class InvoiceApi {
   Future<DocumentReference> createInvoice(Invoice invoice) async {
     return await Firestore.instance
-        .collection('invoice')
+        .collection('invoices')
         .add(invoice.toFireJson());
   }
 
   Future<DocumentReference> createDetailInvoice(
       String invoiceId, InvoiceLine detail) async {
     return await Firestore.instance
-        .collection('invoice_detail')
+        .collection('invoices_details')
         .add(detail.toFireJson());
   }
 }

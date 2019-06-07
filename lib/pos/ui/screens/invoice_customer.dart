@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/pos/models/invoice.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -18,6 +19,12 @@ class InvoiceCustomer extends StatefulWidget {
 
 class _InvoiceCustomerState extends State<InvoiceCustomer> {
   RootBloc _rootBloc;
+
+  @override
+  void initState() {
+    widget.cashBloc.fetchCustomerSummary(widget.customer);
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -251,21 +258,44 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
               leading: Container(
                   margin: EdgeInsets.all(10.0),
                   child: Icon(Icons.collections_bookmark)),
-              title: Text('-'),
+              title: StreamBuilder(
+                  stream: widget.cashBloc.customerNumberOfTickets,
+                  builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                    if (snapshot.hasError) return Text('-');
+                    return snapshot.hasData
+                        ? Text(snapshot.data.toString())
+                        : Text('-');
+                  }),
               subtitle: Text('No. Tickets'),
             ),
             ListTile(
               leading: Container(
                   margin: EdgeInsets.all(10.0),
                   child: Icon(Icons.calendar_today)),
-              title: Text('-'),
+              title: StreamBuilder(
+                  stream: widget.cashBloc.customerLasInvoice,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+                    if (snapshot.hasError) return Text('-');
+                    return snapshot.hasData
+                        ? Text(snapshot.data.creationDate.toString())
+                        : Text('-');
+                  }),
               subtitle: Text('Ultima compra'),
             ),
             ListTile(
               leading: Container(
                   margin: EdgeInsets.all(10.0),
                   child: Icon(Icons.attach_money)),
-              title: Text('-'),
+              title: StreamBuilder(
+                  stream: widget.cashBloc.customerLasInvoice,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+                    if (snapshot.hasError) return Text('-');
+                    return snapshot.hasData
+                        ? Text(snapshot.data.total.toString())
+                        : Text('-');
+                  }),
               subtitle: Text('Monto'),
             ),
             SizedBox(

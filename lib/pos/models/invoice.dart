@@ -10,7 +10,7 @@ class Invoice extends Object {
   double subtotal;
   double taxes;
   double total;
-  String userCreation;
+  String creationUser;
   DateTime creationDate;
   List<InvoiceLine> detail;
 
@@ -22,7 +22,7 @@ class Invoice extends Object {
       this.taxes,
       this.total,
       this.detail,
-      this.userCreation,
+      this.creationUser,
       this.creationDate);
 
   Invoice.fromFireJson(String documentId, Map<String, dynamic> json) {
@@ -32,6 +32,9 @@ class Invoice extends Object {
     this.subtotal = json['subtotal'];
     this.taxes = json['taxes'];
     this.total = json['total'];
+    this.creationUser = json['creationUser'];
+    this.creationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['creationDate'].seconds * 1000);
   }
 
   Map<String, dynamic> toFireJson() => {
@@ -41,16 +44,19 @@ class Invoice extends Object {
         'subtotal': this.subtotal,
         'taxes': this.taxes,
         'total': this.total,
-        'userCreation': this.userCreation,
+        'creationUser': this.creationUser,
         'creationDate': Timestamp.fromDate(this.creationDate)
       };
 
   @override
   String toString() {
-    return 'Invoice{id: $id, customer: $customer, quantity:'
-        ' $quantity, discount: $discount, subtotal: '
-        '$subtotal, taxes: $taxes, total: $total, detail: ${detail.toString()}';
+    return 'Invoice{id: $id, customer: $customer, quantity: $quantity, '
+        'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
+        'total: $total, creationUser: $creationUser, '
+        'creationDate: $creationDate, detail: $detail}';
   }
+
+
 }
 
 class InvoiceLine extends Object {

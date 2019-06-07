@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/crm/models/customer.dart';
+import 'package:paprika_app/pos/models/invoice.dart';
 
 class CustomerApi {
   Future<Customer> fetchCustomerById(String customerId) async {
@@ -36,5 +37,34 @@ class CustomerApi {
     return await Firestore.instance
         .collection('customers')
         .add(customer.toFireJson());
+  }
+
+  Future<int> customerNumberOfInvoices(String customerId) async {
+    int numberTickets = 0;
+    await Firestore.instance
+        .collection('invoices')
+        .where('customerId', isEqualTo: customerId)
+        .getDocuments()
+        .then((querySnapshot) {
+          numberTickets = querySnapshot.documents.length;
+    });
+    return numberTickets;
+  }
+
+  Future<Invoice> customerLastInvoice(String customerId) async {
+    List<Invoice> invoiceList = List<Invoice>();
+    Invoice invoice;
+    await Firestore.instance
+        .collection('invoices')
+        .where('customerId', isEqualTo: customerId)
+        .orderBy('creationDate', descending: true)
+        .limit(1)
+        .getDocuments()
+        .then((querySnapshot) {
+      querySnapshot.documents.forEach(
+          (i) => invoiceList.add(Invoice.fromFireJson(i.documentID, i.data)));
+    });
+    if (invoiceList.length == 0) return invoice;
+    return invoice = invoiceList[0];
   }
 }
