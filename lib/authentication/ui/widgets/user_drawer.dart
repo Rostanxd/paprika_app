@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
+import 'package:paprika_app/root_page.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/authentication/models/user.dart';
@@ -16,67 +18,23 @@ class _UserDrawerState extends State<UserDrawer> {
 
   RootBloc _rootBloc;
 
+  AuthenticationBloc _authenticationBloc;
+
   FirebaseUser _firebaseUser;
 
   User _user;
 
-  void _loadDrawer(BuildContext context) {
-    _listChildren.clear();
-
-    /// Adding the header
-    _listChildren.add(_header());
-
-    _listChildren.add(ListTile(
-      title: Text('POS'),
-      leading: Icon(Icons.shopping_cart),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => CashPage(rootBloc: _rootBloc,)));
-      },
-    ));
-
-    _listChildren.add(ListTile(
-      title: Text('Items'),
-      leading: Icon(Icons.category),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ItemsMainConfiguration()));
-      },
-    ));
-
-    /// Adding options by the profile
-    if (_user.role != '02') {
-      _listChildren.add(ListTile(
-        title: Text('Configuración'),
-        leading: Icon(Icons.settings),
-        onTap: () {},
-      ));
-    }
-
-    /// Adding exit option
-    _listChildren.add(Divider());
-    _listChildren.add(ListTile(
-      title: Text('Salir'),
-      leading: Icon(Icons.exit_to_app),
-      onTap: () {
-        Navigator.pop(context);
-        _rootBloc.userLogOut();
-      },
-    ));
-  }
-
   @override
   void didChangeDependencies() {
     _rootBloc = BlocProvider.of<RootBloc>(context);
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    _firebaseUser = _rootBloc.firebaseUser.value;
-    _user = _rootBloc.user.value;
+    _firebaseUser = _authenticationBloc.firebaseUser.value;
+    _user = _authenticationBloc.user.value;
 
     _loadDrawer(context);
     return Drawer(
@@ -131,5 +89,66 @@ class _UserDrawerState extends State<UserDrawer> {
               fit: BoxFit.cover,
               image: AssetImage('assets/img/drawer_image.jpg'))),
     );
+  }
+
+  void _loadDrawer(BuildContext context) {
+    _listChildren.clear();
+
+    /// Adding the header
+    _listChildren.add(_header());
+
+    _listChildren.add(ListTile(
+      title: Text('POS'),
+      leading: Icon(Icons.shopping_cart),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => CashPage()));
+      },
+    ));
+
+    _listChildren.add(ListTile(
+      title: Text('Items'),
+      leading: Icon(Icons.category),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ItemsMainConfiguration()));
+      },
+    ));
+
+    /// Adding options by the profile
+    if (_user.role != '02') {
+      _listChildren.add(ListTile(
+        title: Text('Configuración'),
+        leading: Icon(Icons.settings),
+        onTap: () {},
+      ));
+    }
+
+    /// Adding exit option
+    _listChildren.add(Divider());
+    _listChildren.add(ListTile(
+      title: Text('Salir'),
+      leading: Icon(Icons.exit_to_app),
+      onTap: () {
+        /// Hidden the user drawer
+        Navigator.pop(context);
+
+        /// Calling the function to sign out
+        _authenticationBloc.userLogOut().then((signOut) {
+          if (signOut) {
+            /// Navigation to the root page
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => RootPage(
+                          rootBloc: _rootBloc,
+                          authenticationBloc: _authenticationBloc,
+                        )),
+                (Route<dynamic> route) => false);
+          }
+        });
+      },
+    ));
   }
 }

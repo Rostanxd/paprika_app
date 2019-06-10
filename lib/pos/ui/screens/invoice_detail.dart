@@ -329,9 +329,9 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                           stream: widget.cashBloc.invoiceDetail,
                           builder: (BuildContext context,
                               AsyncSnapshot<List<InvoiceLine>> snapshot) {
-                            return snapshot.hasData
+                            return snapshot.hasData && snapshot.data.length > 0
                                 ? RaisedButton(
-                                    color: Color(_rootBloc.submitColor.value),
+                                    color: Color(0xFFFF6E40),
                                     child: Text('Continuar',
                                         style: TextStyle(color: Colors.white)),
                                     elevation: 5.0,

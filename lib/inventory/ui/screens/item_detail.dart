@@ -616,7 +616,7 @@ class _ItemDetailState extends State<ItemDetail> {
 
   Widget _colorRepresentation() {
     return Container(
-      height: 150.0,
+      height: 200.0,
       margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 20.0),
       child: GridView.builder(
           itemCount: _colorLIst.length,

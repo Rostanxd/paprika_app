@@ -19,7 +19,7 @@ class CategoryApi {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
-        .orderBy('order', descending: true)
+        .orderBy('order', descending: false)
         .getDocuments()
         .then((data) {
       _categoryList.addAll(data.documents

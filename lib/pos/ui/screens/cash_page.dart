@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
-import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
 
 class CashPage extends StatefulWidget {
-  final RootBloc rootBloc;
-
-  CashPage({Key key, this.rootBloc}) : super(key: key);
-
   @override
   State<StatefulWidget> createState() => _CashPageState();
 }
@@ -19,7 +14,7 @@ class _CashPageState extends State<CashPage> {
   @override
   void initState() {
     _cashBloc = CashBloc();
-    _cashBloc.messenger.listen((message){
+    _cashBloc.messenger.listen((message) {
       if (message != null)
         showDialog(
             context: context,
@@ -42,13 +37,7 @@ class _CashPageState extends State<CashPage> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Center(
         child: Container(
@@ -75,7 +64,6 @@ class _CashPageState extends State<CashPage> {
 
   @override
   void dispose() {
-    _cashBloc.dispose();
     super.dispose();
   }
 }

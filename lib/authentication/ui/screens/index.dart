@@ -1,36 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:paprika_app/widgets/bloc_provider.dart';
-import 'package:paprika_app/authentication/blocs/login_bloc.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/blocs/register_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/authentication/ui/screens/register_page.dart';
 
 class LoginPage extends StatefulWidget {
+  final RootBloc rootBloc;
+  final AuthenticationBloc authenticationBloc;
+
+  const LoginPage({Key key, this.rootBloc, this.authenticationBloc})
+      : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   RootBloc _rootBloc;
-  LoginBloc _loginBloc;
+  AuthenticationBloc _authenticationBloc;
 
   @override
-  void didChangeDependencies() {
-    _rootBloc = BlocProvider.of<RootBloc>(context);
-    _loginBloc = BlocProvider.of<LoginBloc>(context);
-
-    /// Listen to the Firebase user stream
-    _loginBloc.firebaseUser.listen((user) {
-      _rootBloc.userLogged();
-    });
+  void initState() {
+    _rootBloc = widget.rootBloc;
+    _authenticationBloc = widget.authenticationBloc;
 
     /// Control the message in the dialog
-    _loginBloc.message.listen((message) {
+    _authenticationBloc.message.listen((message) {
       if (message != null)
         showDialog(
             context: context,
             builder: (BuildContext context) {
-
               return AlertDialog(
                 title: Text('Inicio de sesión'),
                 content: Text(message),
@@ -46,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
             });
     });
 
-    super.didChangeDependencies();
+    super.initState();
   }
 
   @override
@@ -110,19 +109,18 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _loginBloc.dispose();
     super.dispose();
   }
 
   /// Field for the user's Id
   Widget _emailField() {
     return StreamBuilder(
-      stream: _loginBloc.email,
+      stream: _authenticationBloc.email,
       builder: (context, snapshot) {
         return Container(
           width: 300.0,
           child: TextField(
-            onChanged: _loginBloc.changeEmail,
+            onChanged: _authenticationBloc.changeEmail,
             decoration: InputDecoration(
                 labelText: 'E-mail',
                 labelStyle: TextStyle(
@@ -142,12 +140,12 @@ class _LoginPageState extends State<LoginPage> {
   /// Field for the user's password
   Widget _passwordField() {
     return StreamBuilder(
-      stream: _loginBloc.password,
+      stream: _authenticationBloc.password,
       builder: (context, snapshot) {
         return Container(
           width: 300.0,
           child: TextField(
-            onChanged: _loginBloc.changePassword,
+            onChanged: _authenticationBloc.changePassword,
             obscureText: true,
             decoration: InputDecoration(
                 labelText: 'Clave',
@@ -168,12 +166,12 @@ class _LoginPageState extends State<LoginPage> {
   /// Submit button for the form
   Widget _submitButton() {
     return StreamBuilder(
-        stream: _loginBloc.submitValid,
+        stream: _authenticationBloc.submitValid,
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           return InkWell(
             onTap: () {
               if (snapshot.data != null && snapshot.data) {
-                _loginBloc.logIn();
+                _authenticationBloc.logIn();
               }
             },
             child: Container(
@@ -216,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
   /// Streamer to build button login or circular progress indicator
   Widget _streamButtonSubmit() {
     return StreamBuilder(
-      stream: _loginBloc.logging,
+      stream: _authenticationBloc.logging,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         return snapshot.hasData && snapshot.data
             ? Container(
@@ -232,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
   /// Sign In button for the form
   Widget _signInButton() {
     return StreamBuilder(
-      stream: _loginBloc.logging,
+      stream: _authenticationBloc.logging,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         return snapshot.hasData && snapshot.data
             ? Container(

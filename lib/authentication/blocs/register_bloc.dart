@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:paprika_app/models/bloc_base.dart';
-import 'package:paprika_app/authentication/blocs/login_validator.dart';
+import 'package:paprika_app/authentication/blocs/authentication_validator.dart';
 
-class RegisterBloc extends Object with LoginValidator implements BlocBase {
+class RegisterBloc extends Object with AuthenticationValidator implements BlocBase {
   final _email = BehaviorSubject<String>();
   final _password = BehaviorSubject<String>();
   final _passwordTwo = BehaviorSubject<String>();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -17,6 +18,7 @@ class CheckOut extends StatefulWidget {
 
 class _CheckOutState extends State<CheckOut> {
   RootBloc _rootBloc;
+  AuthenticationBloc _authenticationBloc;
   TextEditingController _cashReceivedCtrl = TextEditingController();
 
   @override
@@ -28,6 +30,7 @@ class _CheckOutState extends State<CheckOut> {
   @override
   void didChangeDependencies() {
     _rootBloc = BlocProvider.of<RootBloc>(context);
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     super.didChangeDependencies();
   }
 
@@ -167,7 +170,8 @@ class _CheckOutState extends State<CheckOut> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
-                widget.cashBloc.createInvoice(_rootBloc.user.value.id);
+                widget.cashBloc
+                    .createInvoice(_authenticationBloc.user.value.id);
               }),
         )
       ],
@@ -293,10 +297,7 @@ class _CheckOutState extends State<CheckOut> {
           ),
           onPressed: () {
             Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => CashPage(
-                          rootBloc: _rootBloc,
-                        )),
+                MaterialPageRoute(builder: (context) => CashPage()),
                 (Route<dynamic> route) => false);
           }),
     );
