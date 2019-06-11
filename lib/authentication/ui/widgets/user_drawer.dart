@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
-import 'package:paprika_app/root_page.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/authentication/models/user.dart';
@@ -20,8 +19,6 @@ class _UserDrawerState extends State<UserDrawer> {
 
   AuthenticationBloc _authenticationBloc;
 
-  FirebaseUser _firebaseUser;
-
   User _user;
 
   @override
@@ -33,7 +30,7 @@ class _UserDrawerState extends State<UserDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    _firebaseUser = _authenticationBloc.firebaseUser.value;
+//    _firebaseUser = _authenticationBloc.firebaseUser.value;
     _user = _authenticationBloc.user.value;
 
     _loadDrawer(context);
@@ -66,11 +63,23 @@ class _UserDrawerState extends State<UserDrawer> {
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
                 ),
-                Container(
-                  child: Text(
-                    _firebaseUser.email,
-                    style: TextStyle(color: Colors.white, fontSize: 14.0),
-                  ),
+                StreamBuilder(
+                  stream: _authenticationBloc.firebaseUser,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<FirebaseUser> snapshot) {
+                    return snapshot.hasData ?
+                    Container(
+                      child: Text(
+                        snapshot.data.email,
+                        style: TextStyle(color: Colors.white, fontSize: 14.0),
+                      ),
+                    ) : Container(
+                      child: Text(
+                        'Loading...',
+                        style: TextStyle(color: Colors.white, fontSize: 14.0),
+                      ),
+                    );
+                  },
                 ),
                 Container(
                   child: Text(
@@ -132,22 +141,13 @@ class _UserDrawerState extends State<UserDrawer> {
       title: Text('Salir'),
       leading: Icon(Icons.exit_to_app),
       onTap: () {
+        print('userDrawer: click button!');
+
         /// Hidden the user drawer
         Navigator.pop(context);
 
         /// Calling the function to sign out
-        _authenticationBloc.userLogOut().then((signOut) {
-          if (signOut) {
-            /// Navigation to the root page
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => RootPage(
-                          rootBloc: _rootBloc,
-                          authenticationBloc: _authenticationBloc,
-                        )),
-                (Route<dynamic> route) => false);
-          }
-        });
+        _authenticationBloc.userLogOut();
       },
     ));
   }

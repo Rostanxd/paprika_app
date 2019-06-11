@@ -29,7 +29,7 @@ class AuthenticationBloc extends Object
 
   Observable<String> get message => _message.stream;
 
-  ValueObservable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
+  Observable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
 
   ValueObservable<User> get user => _user.stream;
 
@@ -42,7 +42,11 @@ class AuthenticationBloc extends Object
   void userLogged() async {
     await _authenticationRepository.userLogged().then((firebaseUser) {
       _firebaseUser.sink.add(firebaseUser);
-      if (firebaseUser != null) _userSystem(firebaseUser.uid);
+      if (firebaseUser != null) {
+        _userSystem(firebaseUser.uid);
+      } else {
+        _user.sink.add(null);
+      }
     });
   }
 
@@ -68,18 +72,14 @@ class AuthenticationBloc extends Object
   }
 
   /// Function to log-out
-  Future<bool> userLogOut() async {
-    bool signOut = false;
+  void userLogOut() async {
     await _authenticationRepository.signOut().then((v) {
       _firebaseUser.sink.add(null);
       _user.sink.add(null);
       _message.sink.add(null);
       _email.sink.add(null);
       _password.sink.add(null);
-      signOut = true;
     });
-
-    return signOut;
   }
 
   @override
