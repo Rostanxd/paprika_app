@@ -24,6 +24,11 @@ class _LoginPageState extends State<LoginPage> {
     _rootBloc = widget.rootBloc;
     _authenticationBloc = widget.authenticationBloc;
 
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
     /// Control the message in the dialog
     _authenticationBloc.message.listen((message) {
       if (message != null)
@@ -44,8 +49,7 @@ class _LoginPageState extends State<LoginPage> {
               );
             });
     });
-
-    super.initState();
+    super.didChangeDependencies();
   }
 
   @override

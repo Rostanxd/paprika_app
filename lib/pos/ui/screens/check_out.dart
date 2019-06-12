@@ -5,7 +5,6 @@ import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
-import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 
 class CheckOut extends StatefulWidget {
   final CashBloc cashBloc;
@@ -85,6 +84,11 @@ class _CheckOutState extends State<CheckOut> {
 
   @override
   void dispose() {
+    /// If the invoice is processed, when the user
+    /// try to go back, it's gonna make a new invoice.
+    if (widget.cashBloc.processed.value) {
+      widget.cashBloc.newInvoice();
+    }
     super.dispose();
   }
 
@@ -296,9 +300,8 @@ class _CheckOutState extends State<CheckOut> {
             ],
           ),
           onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => CashPage()),
-                (Route<dynamic> route) => false);
+            widget.cashBloc.newInvoice();
+            Navigator.pop(context);
           }),
     );
   }

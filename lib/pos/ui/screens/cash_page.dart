@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
@@ -10,10 +11,13 @@ class CashPage extends StatefulWidget {
 
 class _CashPageState extends State<CashPage> {
   CashBloc _cashBloc;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     _cashBloc = CashBloc();
+
+    /// Messenger's listener
     _cashBloc.messenger.listen((message) {
       if (message != null)
         showDialog(
@@ -39,6 +43,8 @@ class _CashPageState extends State<CashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: UserDrawer(),
       body: Center(
         child: Container(
           child: Row(
@@ -47,6 +53,7 @@ class _CashPageState extends State<CashPage> {
               Flexible(
                   flex: 4,
                   child: SearchItem(
+                    scaffoldKey: _scaffoldKey,
                     cashBloc: _cashBloc,
                     itemToFind: '',
                   )),

@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
-import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/ui/screens/item_detail.dart';
 
 class SearchItem extends StatefulWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
   final CashBloc cashBloc;
   final String itemToFind;
 
-  const SearchItem({Key key, this.cashBloc, this.itemToFind}) : super(key: key);
+  const SearchItem({Key key, this.cashBloc, this.itemToFind, this.scaffoldKey})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _SearchItemState();
@@ -47,6 +48,9 @@ class _SearchItemState extends State<SearchItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(icon: Icon(Icons.menu), onPressed: () {
+          widget.scaffoldKey.currentState.openDrawer();
+        }),
         title: Text(''),
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[
@@ -59,7 +63,6 @@ class _SearchItemState extends State<SearchItem> {
           ),
         ],
       ),
-      drawer: UserDrawer(),
       body: Center(
         child: StreamBuilder<int>(
             stream: widget.cashBloc.index,

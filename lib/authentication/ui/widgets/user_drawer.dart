@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
-import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/inventory/ui/screens/items_main_configuration.dart';
 import 'package:paprika_app/pos/ui/screens/cash_page.dart';
@@ -15,7 +14,7 @@ class UserDrawer extends StatefulWidget {
 class _UserDrawerState extends State<UserDrawer> {
   final List<Widget> _listChildren = List<Widget>();
 
-  RootBloc _rootBloc;
+  FirebaseUser _firebaseUser;
 
   AuthenticationBloc _authenticationBloc;
 
@@ -23,18 +22,18 @@ class _UserDrawerState extends State<UserDrawer> {
 
   @override
   void didChangeDependencies() {
-    _rootBloc = BlocProvider.of<RootBloc>(context);
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-//    _firebaseUser = _authenticationBloc.firebaseUser.value;
+    _firebaseUser = _authenticationBloc.firebaseUser.value;
     _user = _authenticationBloc.user.value;
 
     _loadDrawer(context);
     return Drawer(
+      elevation: 5.0,
       child: ListView(children: _listChildren),
     );
   }
@@ -63,23 +62,11 @@ class _UserDrawerState extends State<UserDrawer> {
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
                 ),
-                StreamBuilder(
-                  stream: _authenticationBloc.firebaseUser,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<FirebaseUser> snapshot) {
-                    return snapshot.hasData ?
-                    Container(
-                      child: Text(
-                        snapshot.data.email,
-                        style: TextStyle(color: Colors.white, fontSize: 14.0),
-                      ),
-                    ) : Container(
-                      child: Text(
-                        'Loading...',
-                        style: TextStyle(color: Colors.white, fontSize: 14.0),
-                      ),
-                    );
-                  },
+                Container(
+                  child: Text(
+                    _firebaseUser.email,
+                    style: TextStyle(color: Colors.white, fontSize: 14.0),
+                  ),
                 ),
                 Container(
                   child: Text(
