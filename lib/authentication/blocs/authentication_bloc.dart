@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/authentication/models/user.dart';
-import 'package:paprika_app/authentication/resources/AuthenticationRepository.dart';
+import 'package:paprika_app/authentication/resources/authentication_repository.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/authentication/blocs/authentication_validator.dart';
@@ -14,6 +15,8 @@ class AuthenticationBloc extends Object
   final _message = BehaviorSubject<String>();
   final _firebaseUser = BehaviorSubject<FirebaseUser>();
   final _user = BehaviorSubject<User>();
+  final _enterprise = BehaviorSubject<Enterprise>();
+  final _validUser = BehaviorSubject<bool>();
   final AuthenticationRepository _authenticationRepository =
       AuthenticationRepository();
 
@@ -25,9 +28,23 @@ class AuthenticationBloc extends Object
   Stream<bool> get submitValid =>
       Observable.combineLatest2(email, password, (a, b) => true);
 
+  Stream<bool> get validUser => Observable.combineLatest3(
+      firebaseUser, user, enterprise, (a, b, c) {
+        print(a);
+        print(b);
+        print(c);
+        if (a != null && b != null && c != null){
+          return true;
+        } else {
+          return false;
+        }
+      });
+
   Observable<bool> get logging => _logging.stream;
 
   Observable<String> get message => _message.stream;
+
+  Observable<Enterprise> get enterprise => _enterprise.stream;
 
   ValueObservable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
 
@@ -40,34 +57,58 @@ class AuthenticationBloc extends Object
 
   /// Function to check is the user is logged or not
   void userLogged() async {
-    await _authenticationRepository.userLogged().then((firebaseUser) {
-      _firebaseUser.sink.add(firebaseUser);
+    await _authenticationRepository.userLogged().then((firebaseUser) async {
       if (firebaseUser != null) {
+        _firebaseUser.sink.add(firebaseUser);
         _userSystem(firebaseUser.uid);
+        _fetchEnterprisesByUser(firebaseUser.uid);
       } else {
+        _firebaseUser.sink.add(null);
         _user.sink.add(null);
+        _enterprise.add(null);
       }
     });
-  }
-
-  /// Get all the user's data
-  void _userSystem(String uid) async {
-    await _authenticationRepository
-        .userSystem(uid)
-        .then((user) => _user.sink.add(user));
   }
 
   /// Log-in function
   void logIn() async {
     _logging.sink.add(true);
     await _authenticationRepository.logIn(_email.value, _password.value).then(
-        (response) {
+        (response) async {
       _firebaseUser.sink.add(response);
       _userSystem(response.uid);
+      _fetchEnterprisesByUser(response.uid);
       _logging.sink.add(false);
     }, onError: (error) {
       _logging.sink.add(false);
       _message.sink.add('Usuario o contraseña inválida.');
+    });
+  }
+
+  /// Get all the user's data
+  void _userSystem(String uid) async {
+    await _authenticationRepository.userSystem(uid).then((user) {
+      _user.sink.add(user);
+    }, onError: (error) {
+      _user.sink.add(null);
+      _message.sink.add(error.toString());
+    });
+  }
+
+  /// Fetch the enterprise where the user works
+  void _fetchEnterprisesByUser(String userId) async {
+    await _authenticationRepository.fetchEnterprisesByUser(userId).then(
+        (enterpriseList) {
+      if (enterpriseList.length > 0) {
+        _enterprise.sink.add(enterpriseList[0]);
+      } else {
+        _enterprise.sink.add(null);
+        _message.sink.add(
+            'Lo sentimos, su usuario no se encuentra vinculado a una empresa.');
+      }
+    }, onError: (error) {
+      _enterprise.sink.add(null);
+      _message.sink.add(error.toString());
     });
   }
 
@@ -90,6 +131,8 @@ class AuthenticationBloc extends Object
     _message.close();
     _firebaseUser.close();
     _user.close();
+    _enterprise.close();
+    _validUser.close();
   }
 }
 

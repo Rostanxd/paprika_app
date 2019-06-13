@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:paprika_app/authentication/ui/screens/index.dart';
@@ -48,14 +47,14 @@ class MyApp extends StatelessWidget {
     ]);
 
     return StreamBuilder(
-      stream: authenticationBloc.firebaseUser,
-      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+      stream: authenticationBloc.validUser,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return loadingPage();
             break;
           default:
-            if (snapshot.hasData) {
+            if (snapshot.hasData && snapshot.data) {
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 routes: <String, WidgetBuilder>{},

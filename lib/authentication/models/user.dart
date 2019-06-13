@@ -6,9 +6,10 @@ class User extends Object {
   String role;
   String roleName;
 
-  User(this.id, this.firstName, this.lastName, this.age, this.role, this.roleName);
+  User(this.id, this.firstName, this.lastName, this.age, this.role,
+      this.roleName);
 
-  User.fromJson(String documentId, Map<String, dynamic> json){
+  User.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
     this.firstName = json['first_name'];
     this.lastName = json['last_name'];
@@ -16,4 +17,12 @@ class User extends Object {
     this.role = json['role'];
     this.roleName = json['role_name'];
   }
+
+  @override
+  String toString() {
+    return 'User{id: $id, firstName: $firstName, lastName: $lastName, '
+        'age: $age, role: $role, roleName: $roleName}';
+  }
+
+
 }
