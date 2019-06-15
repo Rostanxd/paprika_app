@@ -23,6 +23,10 @@ class _CheckOutState extends State<CheckOut> {
   @override
   void initState() {
     _cashReceivedCtrl.text = widget.cashBloc.cashReceived.value.toString();
+
+    /// Setting the invoice process status to false
+    widget.cashBloc.changeProcessStatus(false);
+
     super.initState();
   }
 

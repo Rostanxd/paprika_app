@@ -40,24 +40,4 @@ class Enterprise extends Object {
         'modificationUser: $modificationUser}';
   }
 
-
-}
-
-class EnterprisesUsers extends Object {
-  String enterpriseId;
-  String userId;
-  String state;
-  DateTime creationDate;
-  String creationUser;
-  DateTime modificationDate;
-  String modificationUser;
-
-  EnterprisesUsers(this.enterpriseId, this.userId, this.state, this.creationDate,
-      this.creationUser, this.modificationDate, this.modificationUser);
-
-  EnterprisesUsers.fromFireJson(String documentId, Map<String, dynamic> json){
-    this.enterpriseId = json['enterpriseId'];
-    this.userId = json['userId'];
-    this.state = json['state'];
-  }
 }

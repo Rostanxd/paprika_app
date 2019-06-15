@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
-import 'package:paprika_app/authentication/ui/screens/index.dart';
+import 'package:paprika_app/authentication/ui/screens/login_page.dart';
 import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 
 class RootPage extends StatefulWidget {

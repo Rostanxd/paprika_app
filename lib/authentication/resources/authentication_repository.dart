@@ -15,9 +15,6 @@ class AuthenticationRepository {
   Future<User> userSystem(String uid) =>
       _authenticationFirebaseApi.userSystem(uid);
 
-  Future<List<Enterprise>> fetchEnterprisesByUser(String userId) =>
-      _authenticationFirebaseApi.fetchEnterprisesByUser(userId);
-
   Future<Enterprise> fetchEnterprise(String id) =>
       _authenticationFirebaseApi.fetchEnterprise(id);
 

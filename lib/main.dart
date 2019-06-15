@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:paprika_app/authentication/ui/screens/index.dart';
+import 'package:paprika_app/authentication/ui/screens/login_page.dart';
 import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';

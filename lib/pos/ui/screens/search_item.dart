@@ -35,6 +35,9 @@ class _SearchItemState extends State<SearchItem> {
       }
     });
 
+    /// Presentation
+    widget.cashBloc.changePresentation();
+
     super.initState();
   }
 
@@ -48,12 +51,30 @@ class _SearchItemState extends State<SearchItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: Icon(Icons.menu), onPressed: () {
-          widget.scaffoldKey.currentState.openDrawer();
-        }),
-        title: Text(''),
+        leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              widget.scaffoldKey.currentState.openDrawer();
+            }),
+        title: Text(
+            'POS'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[
+          StreamBuilder(
+            stream: widget.cashBloc.itemPresentation,
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              if (snapshot.hasError || !snapshot.hasData)
+                Container(
+                  child: null,
+                );
+              return IconButton(
+                icon: Icon(snapshot.data == 'L' ? Icons.apps : Icons.list),
+                onPressed: () {
+                  widget.cashBloc.changePresentation();
+                },
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
@@ -140,14 +161,24 @@ class _SearchItemState extends State<SearchItem> {
 
     return StreamBuilder<List<Item>>(
       stream: widget.cashBloc.itemsByCategory,
-      builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
-        if (snapshot.hasError)
+      builder: (BuildContext context, AsyncSnapshot<List<Item>> snapItemList) {
+        if (snapItemList.hasError)
           return Center(
-            child: Text(snapshot.error),
+            child: Text(snapItemList.error),
           );
 
-        if (snapshot.hasData) {
-          return _customScrollView(category, snapshot.data);
+        if (snapItemList.hasData) {
+          return StreamBuilder(
+              stream: widget.cashBloc.itemPresentation,
+              builder: (BuildContext context,
+                  AsyncSnapshot<String> snapPresentation) {
+                if (snapPresentation.hasError || !snapPresentation.hasData)
+                  return Container(
+                    child: null,
+                  );
+                return _loadingByPresentation(
+                    snapPresentation.data, category, snapItemList.data);
+              });
         }
 
         return Center(
@@ -157,61 +188,93 @@ class _SearchItemState extends State<SearchItem> {
     );
   }
 
-  Widget _customScrollView(Category category, List<Item> data) {
+  Widget _loadingByPresentation(
+      String presentation, Category category, List<Item> data) {
+    /// Loading a widget list for the custom scroll presentation
     List<Widget> _itemsWidget = List<Widget>();
-    _itemsWidget.addAll(data.map((i) => _itemPreview(i)));
+    _itemsWidget.addAll(data.map((i) => _itemPreview(presentation, i)));
+    _itemsWidget.add(_createAndAddItem(presentation, category));
 //    _itemsWidget.add(_searchAndAddItem(category));
-    _itemsWidget.add(_createAndAddItem(category));
 
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverGrid(
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 150.0,
-          ),
-          delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
+    return presentation == 'L'
+        ? ListView.separated(
+            separatorBuilder: (context, index) => Divider(
+                  color: Colors.grey,
+                ),
+            itemCount: _itemsWidget.length,
+            itemBuilder: (BuildContext context, int index) {
               return _itemsWidget[index];
-            },
-            childCount: _itemsWidget.length,
-          ),
-        ),
-      ],
-    );
+            })
+        : CustomScrollView(
+            slivers: <Widget>[
+              SliverGrid(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 150.0,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    return _itemsWidget[index];
+                  },
+                  childCount: _itemsWidget.length,
+                ),
+              ),
+            ],
+          );
   }
 
-  Widget _itemPreview(Item item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        InkWell(
-          child: Container(
-            height: 100,
-            child: Card(
-              semanticContainer: true,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: item.representation == 'I'
-                  ? Image.network(
-                      item.imagePath,
-                      fit: BoxFit.fill,
-                    )
-                  : Container(
-                      color: Color(item.colorCode),
+  Widget _itemPreview(String presentation, Item item) {
+    return presentation == 'L'
+        ? ListTile(
+            leading: item.representation == 'I'
+                ? Container(
+                    height: 75,
+                    width: 75,
+                    child: Image(image: NetworkImage(item.imagePath)),
+                  )
+                : Container(
+                    height: 75,
+                    width: 75,
+                    child: null,
+                    color: Color(item.colorCode),
+                  ),
+            title: Text('${item.name} / \$ ${item.price}'),
+            subtitle: Text(item.description),
+            onTap: () {
+              widget.cashBloc.addItemToInvoice(item);
+            },
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              InkWell(
+                child: Container(
+                  height: 100,
+                  child: Card(
+                    semanticContainer: true,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: item.representation == 'I'
+                        ? Image.network(
+                            item.imagePath,
+                            fit: BoxFit.fill,
+                          )
+                        : Container(
+                            color: Color(item.colorCode),
+                          ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
+                    elevation: 5,
+                    margin: EdgeInsets.all(10),
+                  ),
+                ),
+                onTap: () {
+                  widget.cashBloc.addItemToInvoice(item);
+                },
               ),
-              elevation: 5,
-              margin: EdgeInsets.all(10),
-            ),
-          ),
-          onTap: () {
-            widget.cashBloc.addItemToInvoice(item);
-          },
-        ),
-        Container(margin: EdgeInsets.only(top: 5.0), child: Text(item.name)),
-      ],
-    );
+              Container(
+                  margin: EdgeInsets.only(top: 5.0), child: Text(item.name)),
+            ],
+          );
   }
 
   /*
@@ -247,48 +310,75 @@ class _SearchItemState extends State<SearchItem> {
   }
   */
 
-  Widget _createAndAddItem(Category category) {
-    return InkWell(
-      child: Container(
-        child: Card(
-          color: Color(_rootBloc.submitColor.value),
-          semanticContainer: true,
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                  width: 150,
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  )),
-              Container(
-                margin: EdgeInsets.all(10.0),
-                child: Text(
-                  'Crear Item',
-                  style: TextStyle(color: Colors.white),
+  Widget _createAndAddItem(String presentation, Category category) {
+    return presentation == 'L'
+        ? ListTile(
+            leading: Container(
+              height: 75,
+              width: 75,
+              child: Icon(
+                Icons.add,
+                size: 40,
+              ),
+            ),
+            title: Text(
+              'Agregar un nuevo item',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(_rootBloc.primaryColor.value)),
+            ),
+            subtitle: Text('Te permite crear un item vinculado disrectamente '
+                'a esta categoría.'),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ItemDetail(
+                            category: category,
+                          )));
+            },
+          )
+        : InkWell(
+            child: Container(
+              child: Card(
+                color: Color(_rootBloc.submitColor.value),
+                semanticContainer: true,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                        width: 150,
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        )),
+                    Container(
+                      margin: EdgeInsets.all(10.0),
+                      child: Text(
+                        'Crear Item',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-          elevation: 5,
-          margin: EdgeInsets.all(10),
-        ),
-      ),
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ItemDetail(
-                      category: category,
-                    )));
-      },
-    );
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                elevation: 5,
+                margin: EdgeInsets.all(10),
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ItemDetail(
+                            category: category,
+                          )));
+            },
+          );
   }
 }
 

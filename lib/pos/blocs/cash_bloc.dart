@@ -24,6 +24,7 @@ class CashBloc extends BlocBase {
   final _message = BehaviorSubject<String>();
   final _customerNumberOfInvoices = BehaviorSubject<int>();
   final _customerLastInvoice = BehaviorSubject<Invoice>();
+  final _itemPresentation = BehaviorSubject<String>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
   final CrmRepository _crmRepository = CrmRepository();
   final SalesRepository _salesRepository = SalesRepository();
@@ -71,6 +72,8 @@ class CashBloc extends BlocBase {
 
   Observable<Invoice> get customerLasInvoice => _customerLastInvoice.stream;
 
+  Observable<String> get itemPresentation => _itemPresentation.stream;
+
   /// Functions
   Function(int) get changeIndex => _index.add;
 
@@ -85,6 +88,8 @@ class CashBloc extends BlocBase {
   Function(double) get changeInvoiceChange => _invoiceChange.add;
 
   Function(String) get changeMessage => _message.add;
+
+  Function(bool) get changeProcessStatus => _processed.add;
 
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
@@ -254,6 +259,13 @@ class CashBloc extends BlocBase {
         .then((invoice) => _customerLastInvoice.sink.add(invoice));
   }
 
+  void changePresentation() {
+    _itemPresentation.sink.add(
+        _itemPresentation == null || _itemPresentation.value == 'L'
+            ? 'I'
+            : 'L');
+  }
+
   @override
   void dispose() {
     _index.close();
@@ -271,5 +283,6 @@ class CashBloc extends BlocBase {
     _message.close();
     _customerNumberOfInvoices.close();
     _customerLastInvoice.close();
+    _itemPresentation.close();
   }
 }

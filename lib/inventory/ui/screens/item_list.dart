@@ -115,7 +115,10 @@ Widget _itemListStreamBuilder(ItemListBloc _itemListBloc) {
           child: Text(snapshot.error),
         );
       return snapshot.hasData
-          ? ListView.builder(
+          ? ListView.separated(
+              separatorBuilder: (context, index) => Divider(
+                    color: Colors.grey,
+                  ),
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   child: ListTile(

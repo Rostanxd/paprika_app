@@ -30,9 +30,6 @@ class AuthenticationBloc extends Object
 
   Stream<bool> get validUser => Observable.combineLatest3(
       firebaseUser, user, enterprise, (a, b, c) {
-        print(a);
-        print(b);
-        print(c);
         if (a != null && b != null && c != null){
           return true;
         } else {
@@ -61,7 +58,6 @@ class AuthenticationBloc extends Object
       if (firebaseUser != null) {
         _firebaseUser.sink.add(firebaseUser);
         _userSystem(firebaseUser.uid);
-        _fetchEnterprisesByUser(firebaseUser.uid);
       } else {
         _firebaseUser.sink.add(null);
         _user.sink.add(null);
@@ -77,7 +73,6 @@ class AuthenticationBloc extends Object
         (response) async {
       _firebaseUser.sink.add(response);
       _userSystem(response.uid);
-      _fetchEnterprisesByUser(response.uid);
       _logging.sink.add(false);
     }, onError: (error) {
       _logging.sink.add(false);
@@ -89,25 +84,9 @@ class AuthenticationBloc extends Object
   void _userSystem(String uid) async {
     await _authenticationRepository.userSystem(uid).then((user) {
       _user.sink.add(user);
+      _enterprise.sink.add(user.enterprise);
     }, onError: (error) {
       _user.sink.add(null);
-      _message.sink.add(error.toString());
-    });
-  }
-
-  /// Fetch the enterprise where the user works
-  void _fetchEnterprisesByUser(String userId) async {
-    await _authenticationRepository.fetchEnterprisesByUser(userId).then(
-        (enterpriseList) {
-      if (enterpriseList.length > 0) {
-        _enterprise.sink.add(enterpriseList[0]);
-      } else {
-        _enterprise.sink.add(null);
-        _message.sink.add(
-            'Lo sentimos, su usuario no se encuentra vinculado a una empresa.');
-      }
-    }, onError: (error) {
-      _enterprise.sink.add(null);
       _message.sink.add(error.toString());
     });
   }
@@ -117,6 +96,7 @@ class AuthenticationBloc extends Object
     await _authenticationRepository.signOut().then((v) {
       _firebaseUser.sink.add(null);
       _user.sink.add(null);
+      _enterprise.sink.add(null);
       _message.sink.add(null);
       _email.sink.add(null);
       _password.sink.add(null);

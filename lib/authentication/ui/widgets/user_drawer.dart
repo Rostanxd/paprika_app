@@ -4,7 +4,6 @@ import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/inventory/ui/screens/items_main_configuration.dart';
-import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 
 class UserDrawer extends StatefulWidget {
   @override
@@ -41,41 +40,58 @@ class _UserDrawerState extends State<UserDrawer> {
   Widget _header() {
     return DrawerHeader(
       child: Container(
-        child: Row(
+        child: Column(
           children: <Widget>[
-            Container(
-                height: 60.0,
-                width: 60.0,
-                margin: EdgeInsets.only(left: 10.0, right: 20.0),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage('assets/img/user_one.jpg')))),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+            Row(
               children: <Widget>[
                 Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 20.0),
                   child: Text(
-                    '${_user.firstName} ${_user.lastName}',
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                    _authenticationBloc.user.value.enterprise.name
+                        .toUpperCase(),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                   ),
-                ),
-                Container(
-                  child: Text(
-                    _firebaseUser.email,
-                    style: TextStyle(color: Colors.white, fontSize: 14.0),
-                  ),
-                ),
-                Container(
-                  child: Text(
-                    '${_user.roleName}',
-                    style: TextStyle(color: Colors.white, fontSize: 14.0),
-                  ),
-                ),
+                )
               ],
-            )
+            ),
+            Row(
+              children: <Widget>[
+                Container(
+                    height: 60.0,
+                    width: 60.0,
+                    margin: EdgeInsets.only(left: 10.0, right: 20.0),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: AssetImage('assets/img/user_chef.jpg')))),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      child: Text(
+                        '${_user.firstName} ${_user.lastName}',
+                        style: TextStyle(color: Colors.black, fontSize: 16.0),
+                      ),
+                    ),
+                    Container(
+                      child: Text(
+                        _firebaseUser.email,
+                        style: TextStyle(color: Colors.black, fontSize: 14.0),
+                      ),
+                    ),
+                    Container(
+                      child: Text(
+                        '${_user.role.name}',
+                        style: TextStyle(color: Colors.black, fontSize: 14.0),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ],
         ),
       ),
@@ -83,7 +99,7 @@ class _UserDrawerState extends State<UserDrawer> {
           shape: BoxShape.rectangle,
           image: DecorationImage(
               fit: BoxFit.cover,
-              image: AssetImage('assets/img/drawer_image.jpg'))),
+              image: AssetImage('assets/img/cookin_drawer_bg.jpg'))),
     );
   }
 
@@ -98,8 +114,6 @@ class _UserDrawerState extends State<UserDrawer> {
       leading: Icon(Icons.shopping_cart),
       onTap: () {
         Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CashPage()));
       },
     ));
 
@@ -114,7 +128,7 @@ class _UserDrawerState extends State<UserDrawer> {
     ));
 
     /// Adding options by the profile
-    if (_user.role != '02') {
+    if (_user.role.id != '02') {
       _listChildren.add(ListTile(
         title: Text('Configuración'),
         leading: Icon(Icons.settings),
@@ -128,8 +142,6 @@ class _UserDrawerState extends State<UserDrawer> {
       title: Text('Salir'),
       leading: Icon(Icons.exit_to_app),
       onTap: () {
-        print('userDrawer: click button!');
-
         /// Hidden the user drawer
         Navigator.pop(context);
 
