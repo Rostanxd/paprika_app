@@ -1,21 +1,25 @@
+import 'package:paprika_app/authentication/models/enterprise.dart';
+
 class Role extends Object {
-  String id;
+  String systemId;
   String name;
+  Enterprise enterprise;
 
-  Role(this.id, this.name);
+  Role(this.systemId, this.name, this.enterprise);
 
-  Role.fromFireJson(String documentId, Map<String, dynamic> json){
-    this.id = documentId;
+  Role.fromFireJson(String documentId, Map<String, dynamic> json) {
+    this.systemId = json['systemId'];
     this.name = json['name'];
   }
 
   Map<String, dynamic> toFireJson() => {
-    'name': this.name
-  };
+        'systemId': this.systemId,
+        'name': this.name,
+        'enterpriseId': this.enterprise.id
+      };
 
   @override
   String toString() {
-    return 'Role{id: $id, name: $name}';
+    return 'Role{sistemId: $systemId, name: $name, enterprise: $enterprise}';
   }
-
 }

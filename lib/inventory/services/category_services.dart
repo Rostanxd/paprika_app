@@ -15,11 +15,13 @@ class CategoryApi {
     return _category;
   }
 
-  Future<List<Category>> fetchCategories() async {
+  Future<List<Category>> fetchCategories(String enterpriseId) async {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
-        .orderBy('order', descending: false)
+        .orderBy('order')
+        .where('enterpriseId', isEqualTo: enterpriseId)
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((data) {
       _categoryList.addAll(data.documents
@@ -28,17 +30,22 @@ class CategoryApi {
     return _categoryList;
   }
 
-  Future<List<Category>> fetchCategoriesByName(String name) async {
+  Future<List<Category>> fetchCategoriesByName(
+      String enterpriseId, String name) async {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
         .orderBy('name')
-        .orderBy('order', descending: true)
+        .orderBy('order', descending: false)
         .where('name', isGreaterThanOrEqualTo: name)
+        .where('enterpriseId', isEqualTo: enterpriseId)
         .getDocuments()
         .then((data) {
-      _categoryList.addAll(data.documents
-          .map((c) => Category.fromFireJson(c.documentID, c.data)));
+      _categoryList.addAll(data.documents.map((c) {
+        if (c.data['state'] == 'A' || c.data['state'] == 'I') {
+          return Category.fromFireJson(c.documentID, c.data);
+        }
+      }));
     });
 
     return _categoryList;

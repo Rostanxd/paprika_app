@@ -41,7 +41,7 @@ class AuthenticationBloc extends Object
 
   Observable<String> get message => _message.stream;
 
-  Observable<Enterprise> get enterprise => _enterprise.stream;
+  ValueObservable<Enterprise> get enterprise => _enterprise.stream;
 
   ValueObservable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
 

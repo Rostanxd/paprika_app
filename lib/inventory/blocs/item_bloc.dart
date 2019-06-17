@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart' as ip;
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/item.dart';
@@ -11,6 +12,7 @@ import 'package:paprika_app/utils/fieldTypeValidators.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ItemBloc extends BlocBase {
+  final _enterprise = BehaviorSubject<Enterprise>();
   final _item = BehaviorSubject<Item>();
   final _stateBool = BehaviorSubject<bool>();
   final _name = BehaviorSubject<String>();
@@ -32,6 +34,8 @@ class ItemBloc extends BlocBase {
   InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
+  Observable<Enterprise> get enterprise => _enterprise.stream;
+
   ValueObservable<Item> get item => _item.stream;
 
   ValueObservable<String> get name => _name.stream;
@@ -123,7 +127,8 @@ class ItemBloc extends BlocBase {
           _categoryList.value.firstWhere((c) => c.id == _categoryId.value),
           _measureList.value.firstWhere((m) => m.id == _measureId.value),
           _representation.value,
-          _sku.value);
+          _sku.value,
+          _enterprise.value);
 
       await _inventoryRepository.updateItem(item).then((v) {
         _message.sink.add('Item actualizado con éxito');
@@ -133,7 +138,9 @@ class ItemBloc extends BlocBase {
 
   void fetchCategories() async {
     _categoryList.sink.add(null);
-    await _inventoryRepository.fetchCategories().then((data) {
+    await _inventoryRepository
+        .fetchCategories(_enterprise.value.id)
+        .then((data) {
       _categoryList.sink.add(data);
     });
   }
@@ -175,6 +182,8 @@ class ItemBloc extends BlocBase {
 
   Function(String) get changeSku => _sku.add;
 
+  Function(Enterprise) get changeEnterprise => _enterprise.add;
+
   void loadImage() async {
     await ip.ImagePicker.pickImage(source: ip.ImageSource.camera).then((img) {
       if (img != null) {
@@ -211,7 +220,8 @@ class ItemBloc extends BlocBase {
           _categoryList.value.firstWhere((c) => c.id == _categoryId.value),
           _measureList.value.firstWhere((m) => m.id == measureId.value),
           _representation.value,
-          _sku.value);
+          _sku.value,
+          _enterprise.value);
 
       await _inventoryRepository.createItem(item).then((document) {
         _message.sink.add('Item creado con éxito!');
@@ -279,6 +289,7 @@ class ItemBloc extends BlocBase {
 
   @override
   void dispose() {
+    _enterprise.close();
     _item.close();
     _stateBool.close();
     _name.close();

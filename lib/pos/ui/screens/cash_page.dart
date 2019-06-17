@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
+import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class CashPage extends StatefulWidget {
 }
 
 class _CashPageState extends State<CashPage> {
+  AuthenticationBloc _authenticationBloc;
   CashBloc _cashBloc;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -38,6 +41,13 @@ class _CashPageState extends State<CashPage> {
             });
     });
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    _cashBloc.changeEnterprise(_authenticationBloc.enterprise.value);
+    super.didChangeDependencies();
   }
 
   @override

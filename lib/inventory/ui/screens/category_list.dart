@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
+import 'package:paprika_app/models/transaction.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/inventory/blocs/category_list_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -12,6 +14,7 @@ class CategoryList extends StatefulWidget {
 
 class _CategoryListState extends State<CategoryList> {
   RootBloc _rootBloc;
+  AuthenticationBloc _authenticationBloc;
   CategoryListBloc _categoryListBloc;
 
   @override
@@ -24,6 +27,8 @@ class _CategoryListState extends State<CategoryList> {
   @override
   void didChangeDependencies() {
     _rootBloc = BlocProvider.of<RootBloc>(context);
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    _categoryListBloc.changeEnterprise(_authenticationBloc.enterprise.value);
     super.didChangeDependencies();
   }
 
@@ -114,35 +119,45 @@ Widget _itemListStreamBuilder(CategoryListBloc _categoryListBloc) {
         return Center(
           child: Text(snapshot.error.toString()),
         );
-      return snapshot.hasData
-          ? ListView.separated(
-              separatorBuilder: (context, index) => Divider(
-                    color: Colors.grey,
-                  ),
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                    child: ListTile(
-                  title: Text(
-                    snapshot.data[index].name,
-                  ),
-                  subtitle:
-                      Text('Orden: ${snapshot.data[index].order.toString()}'),
-                  trailing: Icon(Icons.navigate_next),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CategoryDetail(
-                                  category: snapshot.data[index],
-                                )));
+      switch (snapshot.connectionState) {
+        case ConnectionState.waiting:
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        default:
+          return snapshot.hasData && snapshot.data.length > 0
+              ? ListView.separated(
+                  separatorBuilder: (context, index) => Divider(
+                        color: Colors.grey,
+                      ),
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                        child: ListTile(
+                      title: Text(
+                        snapshot.data[index].name,
+                      ),
+                      subtitle: Text(
+                          'Orden: ${snapshot.data[index].order.toString()} - '
+                          'Estado: ${Transaction.stateName(snapshot.data[index].state)}'),
+                      trailing: Icon(Icons.navigate_next),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CategoryDetail(
+                                      category: snapshot.data[index],
+                                    )));
+                      },
+                    ));
                   },
-                ));
-              },
-              itemCount: snapshot.data.length,
-            )
-          : Center(
-              child: CircularProgressIndicator(),
-            );
+                  itemCount: snapshot.data.length,
+                )
+              : Center(
+                  child: Container(
+                    child: Text('No has registrado aún una categoría!'),
+                  ),
+                );
+      }
     },
   );
 }

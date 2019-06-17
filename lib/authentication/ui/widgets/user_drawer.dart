@@ -128,7 +128,7 @@ class _UserDrawerState extends State<UserDrawer> {
     ));
 
     /// Adding options by the profile
-    if (_user.role.id != '02') {
+    if (_user.role.systemId != '02') {
       _listChildren.add(ListTile(
         title: Text('Configuración'),
         leading: Icon(Icons.settings),

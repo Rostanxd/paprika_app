@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 
@@ -13,6 +14,7 @@ class Invoice extends Object {
   String creationUser;
   DateTime creationDate;
   List<InvoiceLine> detail;
+  Enterprise enterprise;
 
   Invoice(
       this.customer,
@@ -23,7 +25,8 @@ class Invoice extends Object {
       this.total,
       this.detail,
       this.creationUser,
-      this.creationDate);
+      this.creationDate,
+      this.enterprise);
 
   Invoice.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
@@ -45,7 +48,8 @@ class Invoice extends Object {
         'taxes': this.taxes,
         'total': this.total,
         'creationUser': this.creationUser,
-        'creationDate': Timestamp.fromDate(this.creationDate)
+        'creationDate': Timestamp.fromDate(this.creationDate),
+        'enterpriseId': this.enterprise.id
       };
 
   @override
@@ -53,10 +57,9 @@ class Invoice extends Object {
     return 'Invoice{id: $id, customer: $customer, quantity: $quantity, '
         'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
         'total: $total, creationUser: $creationUser, '
-        'creationDate: $creationDate, detail: $detail}';
+        'creationDate: $creationDate, detail: $detail, '
+        'enterprise: $enterprise}';
   }
-
-
 }
 
 class InvoiceLine extends Object {

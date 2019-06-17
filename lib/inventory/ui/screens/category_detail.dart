@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/inventory/blocs/category_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -16,15 +17,10 @@ class CategoryDetail extends StatefulWidget {
 
 class _CategoryDetailState extends State<CategoryDetail> {
   RootBloc _rootBloc;
+  AuthenticationBloc _authenticationBloc;
   CategoryBloc _categoryBloc;
   TextEditingController _nameCtrl = TextEditingController();
   TextEditingController _orderCtrl = TextEditingController();
-
-  @override
-  void didChangeDependencies() {
-    _rootBloc = BlocProvider.of<RootBloc>(context);
-    super.didChangeDependencies();
-  }
 
   @override
   void initState() {
@@ -41,7 +37,11 @@ class _CategoryDetailState extends State<CategoryDetail> {
                 content: Text(message),
                 actions: <Widget>[
                   FlatButton(
-                    child: Text('Cerrar'),
+                    child: Text(
+                      'Cerrar',
+                      style:
+                          TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -62,6 +62,16 @@ class _CategoryDetailState extends State<CategoryDetail> {
     }
 
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _rootBloc = BlocProvider.of<RootBloc>(context);
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+
+    /// Adding the enterprise to the stream
+    _categoryBloc.changeEnterprise(_authenticationBloc.enterprise.value);
+    super.didChangeDependencies();
   }
 
   @override

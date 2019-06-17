@@ -1,3 +1,4 @@
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
 
@@ -15,6 +16,7 @@ class Item extends Object {
   Category category;
   Measure measure;
   String sku;
+  Enterprise enterprise;
 
   Item(
       this.id,
@@ -29,7 +31,8 @@ class Item extends Object {
       this.category,
       this.measure,
       this.representation,
-      this.sku);
+      this.sku,
+      this.enterprise);
 
   Item.fromFireJson(String documentId, Map<String, dynamic> json) {
     var _cost = json['cost'];
@@ -50,19 +53,20 @@ class Item extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
-    'state': this.state,
-    'name': this.name,
-    'description': this.description,
-    'cost': this.cost,
-    'price': this.price,
-    'payVat': this.payVat,
-    'colorCode': this.colorCode.toString(),
-    'imagePath': this.imagePath,
-    'representation': this.representation,
-    'sku': this.sku,
-    'categoryId': this.category.id,
-    'measureId': this.measure.id,
-  };
+        'state': this.state,
+        'name': this.name,
+        'description': this.description,
+        'cost': this.cost,
+        'price': this.price,
+        'payVat': this.payVat,
+        'colorCode': this.colorCode.toString(),
+        'imagePath': this.imagePath,
+        'representation': this.representation,
+        'sku': this.sku,
+        'categoryId': this.category.id,
+        'measureId': this.measure.id,
+        'enterpriseId': this.enterprise.id
+      };
 
   Item.fromJson(Map<String, dynamic> json) {
     var _cost = json['cost'];
@@ -85,9 +89,9 @@ class Item extends Object {
   String toString() {
     return 'Item{id: $id, state: $state, name: $name, '
         'description: $description, cost: $cost, price: $price, '
-        'payVat: $payVat, '
-        'representation: $representation, tagColor: $colorCode, '
-        'imagePath: $imagePath, category: ${category.toString()}, '
-        'measureId: ${measure.toString()}, sku: $sku}';
+        'payVat: $payVat, representation: $representation, '
+        'colorCode: $colorCode, imagePath: $imagePath, '
+        'category: $category, measure: $measure, sku: $sku, '
+        'enterprise: $enterprise}';
   }
 }

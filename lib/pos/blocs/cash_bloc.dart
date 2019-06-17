@@ -1,3 +1,4 @@
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/category.dart';
@@ -9,6 +10,7 @@ import 'package:paprika_app/inventory/resources/inventory_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CashBloc extends BlocBase {
+  final _enterprise = BehaviorSubject<Enterprise>();
   final _index = BehaviorSubject<int>();
   final _items = BehaviorSubject<List<Item>>();
   final _invoice = BehaviorSubject<Invoice>();
@@ -43,7 +45,8 @@ class CashBloc extends BlocBase {
   Observable<List<Item>> get itemsBySearch => _itemSearch
           .debounce(Duration(milliseconds: 500))
           .switchMap((terms) async* {
-        yield await _inventoryRepository.fetchItemsByName(terms);
+        yield await _inventoryRepository.fetchItemsByName(
+            _enterprise.value.id, terms);
       });
 
   Observable<List<Customer>> get customersBySearch {
@@ -74,6 +77,8 @@ class CashBloc extends BlocBase {
 
   Observable<String> get itemPresentation => _itemPresentation.stream;
 
+  Observable<Enterprise> get enterprise => _enterprise.stream;
+
   /// Functions
   Function(int) get changeIndex => _index.add;
 
@@ -91,6 +96,8 @@ class CashBloc extends BlocBase {
 
   Function(bool) get changeProcessStatus => _processed.add;
 
+  Function(Enterprise) get changeEnterprise => _enterprise.add;
+
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
     await _inventoryRepository.fetchItemsByCategory(categoryId).then((data) {
@@ -99,7 +106,9 @@ class CashBloc extends BlocBase {
   }
 
   void fetchCategories() async {
-    await _inventoryRepository.fetchCategories().then((data) {
+    await _inventoryRepository
+        .fetchCategories(_enterprise.value.id)
+        .then((data) {
       _categories.sink.add(data);
       _index.sink.add(0);
     });
@@ -137,9 +146,10 @@ class CashBloc extends BlocBase {
       total = double.parse(total.toStringAsFixed(2));
 
       invoice = Invoice(null, quantity, discount, subtotal, taxes, total,
-          List<InvoiceLine>(), '', DateTime.now());
+          List<InvoiceLine>(), '', DateTime.now(), _enterprise.value);
     } else {
-      invoice = Invoice(null, 0, 0, 0, 0, 0, null, '', DateTime.now());
+      invoice = Invoice(
+          null, 0, 0, 0, 0, 0, null, '', DateTime.now(), _enterprise.value);
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -221,7 +231,8 @@ class CashBloc extends BlocBase {
         _invoice.value.total,
         _invoiceDetail.value,
         user,
-        DateTime.now());
+        DateTime.now(),
+        _enterprise.value);
 
     if (newInvoice.detail.length == 0) {
       return _message.sink.add('No hay items en la factura.');
@@ -284,5 +295,6 @@ class CashBloc extends BlocBase {
     _customerNumberOfInvoices.close();
     _customerLastInvoice.close();
     _itemPresentation.close();
+    _enterprise.close();
   }
 }

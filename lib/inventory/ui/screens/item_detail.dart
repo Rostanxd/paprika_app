@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/inventory/blocs/item_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -7,10 +8,12 @@ import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 
 class ItemDetail extends StatefulWidget {
+  final Enterprise enterprise;
   final Item item;
   final Category category;
 
-  const ItemDetail({Key key, this.item, this.category}) : super(key: key);
+  const ItemDetail({Key key, this.item, this.category, this.enterprise})
+      : super(key: key);
 
   @override
   _ItemDetailState createState() => _ItemDetailState();
@@ -51,7 +54,11 @@ class _ItemDetailState extends State<ItemDetail> {
                 content: Text(message),
                 actions: <Widget>[
                   FlatButton(
-                    child: Text('Cerrar'),
+                    child: Text(
+                      'Cerrar',
+                      style:
+                          TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -67,6 +74,9 @@ class _ItemDetailState extends State<ItemDetail> {
         Navigator.pop(context);
       }
     });
+
+    /// Adding the enterprise to the stream
+    _itemBloc.changeEnterprise(widget.enterprise);
 
     /// Calling the functions to get all categories and measures
     _itemBloc.fetchCategories();
@@ -181,7 +191,7 @@ class _ItemDetailState extends State<ItemDetail> {
                                       'Estás seguro de querer eliminar este item ?'),
                                   actions: <Widget>[
                                     FlatButton(
-                                      child: Text('Sí, eliminarlo'),
+                                      child: Text('Sí, eliminarlo', style: TextStyle(color: Colors.black),),
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
@@ -249,8 +259,7 @@ class _ItemDetailState extends State<ItemDetail> {
   }
 
   /// Widgets
-  Widget
-  _infoCard() {
+  Widget _infoCard() {
     return Container(
       margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0, right: 5.0),
       child: Card(

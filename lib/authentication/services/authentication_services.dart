@@ -27,11 +27,12 @@ class AuthenticationFirebaseApi {
       /// Looking the role data
       await Firestore.instance
           .collection('roles')
-          .document(userDocument['roleId'])
-          .get()
-          .then((roleDocument) {
-        user.role =
-            Role.fromFireJson(roleDocument.documentID, roleDocument.data);
+          .where('enterpriseId', isEqualTo: userDocument['enterpriseId'])
+          .where('systemId', isEqualTo: userDocument['systemId'])
+          .getDocuments()
+          .then((roleDocuments) {
+        user.role = Role.fromFireJson(roleDocuments.documents[0].documentID,
+            roleDocuments.documents[0].data);
       });
 
       /// Looking the enterprise data

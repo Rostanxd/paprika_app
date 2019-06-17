@@ -34,12 +34,13 @@ class ItemApi {
     return item;
   }
 
-  Future<List<Item>> fetchItemsByName(String name) async {
+  Future<List<Item>> fetchItemsByName(String enterpriseId, String name) async {
     List<Item> _itemList = List<Item>();
 
     /// Loading the items by category
     await Firestore.instance
         .collection('items')
+        .where('enterpriseId', isEqualTo: enterpriseId)
         .where('name', isGreaterThanOrEqualTo: name)
         .getDocuments()
         .then((data) => _itemList.addAll(data.documents

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/inventory/blocs/item_list_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -13,6 +14,7 @@ class ItemList extends StatefulWidget {
 
 class _ItemListState extends State<ItemList> {
   RootBloc _rootBloc;
+  AuthenticationBloc _authenticationBloc;
   ItemListBloc _itemListBloc;
 
   @override
@@ -25,6 +27,8 @@ class _ItemListState extends State<ItemList> {
   @override
   void didChangeDependencies() {
     _rootBloc = BlocProvider.of<RootBloc>(context);
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    _itemListBloc.changeEnterprise(_authenticationBloc.enterprise.value);
     super.didChangeDependencies();
   }
 
@@ -38,12 +42,14 @@ class _ItemListState extends State<ItemList> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-              showSearch(context: context, delegate: DataSearch(_itemListBloc));
+              showSearch(
+                  context: context,
+                  delegate: DataSearch(_itemListBloc, _authenticationBloc));
             },
           ),
         ],
       ),
-      body: _itemListStreamBuilder(_itemListBloc),
+      body: _itemListStreamBuilder(_authenticationBloc, _itemListBloc),
       floatingActionButton: FloatingActionButton(
           backgroundColor: Color(_rootBloc.primaryColor.value),
           child: Icon(
@@ -52,16 +58,21 @@ class _ItemListState extends State<ItemList> {
           ),
           onPressed: () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => ItemDetail()));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ItemDetail(
+                          enterprise: _authenticationBloc.enterprise.value,
+                        )));
           }),
     );
   }
 }
 
 class DataSearch extends SearchDelegate<String> {
+  final AuthenticationBloc _authenticationBloc;
   final ItemListBloc _itemListBloc;
 
-  DataSearch(this._itemListBloc);
+  DataSearch(this._itemListBloc, this._authenticationBloc);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -89,7 +100,7 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return _itemListStreamBuilder(_itemListBloc);
+    return _itemListStreamBuilder(_authenticationBloc, _itemListBloc);
   }
 
   @override
@@ -102,20 +113,28 @@ class DataSearch extends SearchDelegate<String> {
             'Ingrese su búsqueda.',
             style: TextStyle(fontSize: 16.0),
           ));
-    return _itemListStreamBuilder(_itemListBloc);
+    return _itemListStreamBuilder(_authenticationBloc, _itemListBloc);
   }
 }
 
-Widget _itemListStreamBuilder(ItemListBloc _itemListBloc) {
+Widget _itemListStreamBuilder(
+    AuthenticationBloc _authenticationBloc, ItemListBloc _itemListBloc) {
   return StreamBuilder(
     stream: _itemListBloc.itemsBySearch,
     builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
       if (snapshot.hasError)
         return Center(
-          child: Text(snapshot.error),
+          child: Text(snapshot.error.toString()),
         );
-      return snapshot.hasData
-          ? ListView.separated(
+      switch (snapshot.connectionState) {
+        case ConnectionState.waiting:
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+          break;
+        default:
+          if (snapshot.hasData && snapshot.data.length > 0) {
+            return ListView.separated(
               separatorBuilder: (context, index) => Divider(
                     color: Colors.grey,
                   ),
@@ -146,16 +165,23 @@ Widget _itemListStreamBuilder(ItemListBloc _itemListBloc) {
                         context,
                         MaterialPageRoute(
                             builder: (context) => ItemDetail(
+                                  enterprise:
+                                      _authenticationBloc.enterprise.value,
                                   item: snapshot.data[index],
                                 )));
                   },
                 );
               },
               itemCount: snapshot.data.length,
-            )
-          : Center(
-              child: CircularProgressIndicator(),
             );
+          } else {
+            return Center(
+              child: Container(
+                child: Text('No has ingresado aún items al sistema!'),
+              ),
+            );
+          }
+      }
     },
   );
 }

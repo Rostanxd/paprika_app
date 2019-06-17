@@ -1,3 +1,4 @@
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/resources/inventory_repository.dart';
@@ -9,6 +10,7 @@ class CategoryBloc extends BlocBase {
   final _stateBool = BehaviorSubject<bool>();
   final _order = BehaviorSubject<int>();
   final _message = BehaviorSubject<String>();
+  final _enterprise = BehaviorSubject<Enterprise>();
   InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
@@ -21,6 +23,8 @@ class CategoryBloc extends BlocBase {
   ValueObservable<String> get messenger => _message.stream;
 
   ValueObservable<bool> get stateBool => _stateBool.stream;
+
+  Observable<Enterprise> get enterprise => _enterprise.stream;
 
   /// Functions
   void fetchCategoryById(String id) async {
@@ -39,7 +43,7 @@ class CategoryBloc extends BlocBase {
   void updateCategory() async {
     if (_validateFormCategory()) {
       Category category = Category(_category.value.id, _name.value,
-          _stateBool.value ? 'A' : 'I', _order.value);
+          _stateBool.value ? 'A' : 'I', _order.value, _enterprise.value);
 
       await _inventoryRepository.updateCategory(category).then((v) {
         _message.sink.add('Categoría actualizada con éxito');
@@ -51,8 +55,8 @@ class CategoryBloc extends BlocBase {
 
   void createCategory() async {
     if (_validateFormCategory()) {
-      Category category =
-          Category('', _name.value, _stateBool.value ? 'A' : 'I', _order.value);
+      Category category = Category('', _name.value,
+          _stateBool.value ? 'A' : 'I', _order.value, _enterprise.value);
 
       _inventoryRepository.createCategory(category).then((document) {
         _message.sink.add('Categoría creada con éxito');
@@ -68,6 +72,8 @@ class CategoryBloc extends BlocBase {
   Function(String) get changeName => _name.add;
 
   Function(bool) get changeStateBool => _stateBool.add;
+
+  Function(Enterprise) get changeEnterprise => _enterprise.add;
 
   void changeOrder(String newOrder) {
     if (!isNumeric(newOrder))
@@ -105,5 +111,6 @@ class CategoryBloc extends BlocBase {
     _stateBool.close();
     _order.close();
     _message.close();
+    _enterprise.close();
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
+import 'package:paprika_app/inventory/ui/screens/category_detail.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -19,21 +21,13 @@ class SearchItem extends StatefulWidget {
 }
 
 class _SearchItemState extends State<SearchItem> {
+  AuthenticationBloc _authenticationBloc;
   RootBloc _rootBloc;
-  List<BottomNavigationBarItem> _bottomNavigationBarItemList =
-      List<BottomNavigationBarItem>();
 
   @override
   void initState() {
-    /// Getting all the categories
-    widget.cashBloc.fetchCategories();
-
-    /// Listeners to update pages and bottom navigation bars
-    widget.cashBloc.categories.listen((data) {
-      if (data != null) {
-        _loadBottomNavBars(data);
-      }
-    });
+    /// Setting the index to "0"
+    widget.cashBloc.changeIndex(0);
 
     /// Presentation
     widget.cashBloc.changePresentation();
@@ -43,12 +37,16 @@ class _SearchItemState extends State<SearchItem> {
 
   @override
   void didChangeDependencies() {
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     _rootBloc = BlocProvider.of<RootBloc>(context);
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+    /// Getting all the categories
+    widget.cashBloc.fetchCategories();
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -56,8 +54,7 @@ class _SearchItemState extends State<SearchItem> {
             onPressed: () {
               widget.scaffoldKey.currentState.openDrawer();
             }),
-        title: Text(
-            'POS'),
+        title: Text('POS'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[
           StreamBuilder(
@@ -85,41 +82,98 @@ class _SearchItemState extends State<SearchItem> {
         ],
       ),
       body: Center(
-        child: StreamBuilder<int>(
-            stream: widget.cashBloc.index,
-            builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-              if (snapshot.hasError) print(snapshot.error);
-              return snapshot.hasData
-                  ? _loadItemsByCategory(
-                      widget.cashBloc.categories.value[snapshot.data])
-                  : CircularProgressIndicator();
+        child: StreamBuilder(
+            stream: widget.cashBloc.categories,
+            builder: (BuildContext context,
+                AsyncSnapshot<List<Category>> snapCategories) {
+              if (snapCategories.hasError)
+                return Container(
+                  child: Text(snapCategories.error.toString()),
+                );
+              if (!snapCategories.hasData || snapCategories.data.length == 0)
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20.0),
+                      child: Text(
+                        'No has generado categorías aún...',
+                      ),
+                    ),
+                    RaisedButton(
+                      color: Color(_rootBloc.primaryColor.value),
+                      child: Text(
+                        'Crear categoría',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CategoryDetail()));
+                      },
+                    ),
+                  ],
+                );
+              return StreamBuilder<int>(
+                  stream: widget.cashBloc.index,
+                  builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                    if (snapshot.hasError) print(snapshot.error);
+                    return snapshot.hasData
+                        ? _loadItemsByCategory(
+                            widget.cashBloc.categories.value[snapshot.data])
+                        : CircularProgressIndicator();
+                  });
             }),
       ),
-      bottomNavigationBar: StreamBuilder<int>(
-        stream: widget.cashBloc.index,
-        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (snapshot.hasError) print(snapshot.error.toString());
-          return Container(
-            child: snapshot.hasData
-                ? BottomNavigationBar(
-                    items: _bottomNavigationBarItemList,
-                    currentIndex: snapshot.data,
-                    fixedColor: Colors.deepPurple,
-                    elevation: 5.0,
-                    showUnselectedLabels: true,
-                    unselectedItemColor: Colors.grey,
-                    onTap: (index) {
-                      _loadPageByCategory(index);
+      bottomNavigationBar: StreamBuilder(
+          stream: widget.cashBloc.categories,
+          builder: (BuildContext context,
+              AsyncSnapshot<List<Category>> snapCategories) {
+            if (snapCategories.hasError)
+              return Container(
+                child: Text(''),
+              );
+
+            if (!snapCategories.hasData || snapCategories.data.length == 0)
+              return Container(
+                child: Text(''),
+              );
+
+            return snapCategories.data.length >= 2
+                ? StreamBuilder<int>(
+                    stream: widget.cashBloc.index,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<int> snapshot) {
+                      if (snapshot.hasError) print(snapshot.error.toString());
+                      return snapshot.hasData
+                          ? BottomNavigationBar(
+                              items: _loadBottomNavBars(snapCategories.data),
+                              currentIndex: snapshot.data,
+                              fixedColor: Color(_rootBloc.primaryColor.value),
+                              elevation: 5.0,
+                              showUnselectedLabels: true,
+                              unselectedItemColor: Colors.grey,
+                              onTap: (index) {
+                                _loadPageByCategory(index);
+                              },
+                            )
+                          : LinearProgressIndicator();
                     },
                   )
-                : LinearProgressIndicator(),
-          );
-        },
-      ),
+                : Container(
+                    margin: EdgeInsets.only(left: 20.0, bottom: 20.0),
+                    child: Text(snapCategories.data[0].name),
+                  );
+          }),
     );
   }
 
-  void _loadBottomNavBars(List<Category> _categoryList) {
+  List<BottomNavigationBarItem> _loadBottomNavBars(
+      List<Category> _categoryList) {
+    List<BottomNavigationBarItem> _bottomNavigationBarItemList =
+        List<BottomNavigationBarItem>();
+
     _bottomNavigationBarItemList.clear();
 
     /// Adding the categories to the bottom bar
@@ -132,6 +186,8 @@ class _SearchItemState extends State<SearchItem> {
     _bottomNavigationBarItemList.add(
         BottomNavigationBarItem(icon: Icon(Icons.add), title: Text('Nuevo')));
     */
+
+    return _bottomNavigationBarItemList;
   }
 
   void _loadPageByCategory(int index) {
@@ -334,6 +390,7 @@ class _SearchItemState extends State<SearchItem> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => ItemDetail(
+                            enterprise: _authenticationBloc.enterprise.value,
                             category: category,
                           )));
             },
@@ -375,6 +432,7 @@ class _SearchItemState extends State<SearchItem> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => ItemDetail(
+                            enterprise: _authenticationBloc.enterprise.value,
                             category: category,
                           )));
             },
