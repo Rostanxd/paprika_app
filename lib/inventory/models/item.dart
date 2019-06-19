@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
@@ -94,4 +95,38 @@ class Item extends Object {
         'category: $category, measure: $measure, sku: $sku, '
         'enterprise: $enterprise}';
   }
+}
+
+class ItemMeasuresPrice extends Object {
+  Item item;
+  Measure measure;
+  double price;
+  bool editable;
+  DateTime creationDate;
+  String creationUser;
+
+  ItemMeasuresPrice(this.item, this.measure, this.price, this.editable,
+      this.creationDate, this.creationUser);
+
+  ItemMeasuresPrice.fromFireJson(
+      Item item, Measure measure, Map<String, dynamic> json) {
+    this.item = item;
+    this.measure = measure;
+    this.price = json['price'];
+    this.editable = json['editable'];
+    this.creationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['creationDate'].seconds * 1000);
+    this.creationUser = json['creationUser'];
+  }
+
+  Map<String, dynamic> toFireJson() => {
+        'itemId': this.item.id,
+        'measureId': this.measure.id,
+        'price': this.price,
+        'editable': this.editable,
+        'creationDate': this.creationDate != null
+            ? Timestamp.fromDate(this.creationDate)
+            : Timestamp(0, 0),
+        'creationUser': this.creationUser,
+      };
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/inventory/models/item.dart';
+import 'package:paprika_app/inventory/models/measure.dart';
 
 class Invoice extends Object {
   String id;
@@ -66,6 +67,7 @@ class InvoiceLine extends Object {
   String invoiceId;
   String lineId;
   Item item;
+  Measure dispatchMeasure;
   double discountRate;
   double discountValue;
   double quantity;
@@ -77,8 +79,8 @@ class InvoiceLine extends Object {
       this.subtotal, this.taxes, this.total);
 
   InvoiceLine.fromFireJson(String documentId, Map<String, dynamic> json) {
-    this.invoiceId = json['lineId'];
     this.lineId = documentId;
+    this.invoiceId = json['invoiceId'];
     this.discountRate = json['discountRate'];
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
@@ -97,6 +99,7 @@ class InvoiceLine extends Object {
   Map<String, dynamic> toFireJson() => {
         'invoiceId': this.invoiceId,
         'itemId': this.item.id,
+        'dispatchMeasureId': this.dispatchMeasure.id,
         'discountRate': this.discountRate,
         'discountValue': this.discountValue,
         'quantity': this.quantity,

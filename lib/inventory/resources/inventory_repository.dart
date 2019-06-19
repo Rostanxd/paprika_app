@@ -19,6 +19,10 @@ class InventoryRepository {
 
   Future<DocumentReference> createItem(Item item) => _itemApi.createItem(item);
 
+  Future<DocumentReference> createMeasurementConversion(
+          MeasurementConversion measurementConversion) =>
+      _measureApi.createMeasurementConversion(measurementConversion);
+
   Future<Category> fetchCategoryById(String id) =>
       _categoryApi.fetchCategoryById(id);
 
@@ -45,4 +49,11 @@ class InventoryRepository {
       _categoryApi.createCategory(category);
 
   Future<List<Measure>> fetchMeasures() => _measureApi.fetchMeasures();
+
+  Future<MeasurementConversion> fetchMeasureConversionById(String documentId) =>
+      _measureApi.fetchMeasurementConversionById(documentId);
+
+  Future<double> fetchMeasurementConversionValue(
+          String measureIdFrom, String measureIdTo) =>
+      _measureApi.fetchMeasurementConversionValue(measureIdFrom, measureIdTo);
 }
