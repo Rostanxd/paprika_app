@@ -48,12 +48,14 @@ class ItemApi {
     return _itemList;
   }
 
-  Future<List<Item>> fetchItemsByCategory(String categoryId) async {
+  Future<List<Item>> fetchItemsByCategory(
+      String enterpriseId, String categoryId) async {
     List<Item> _itemList = List<Item>();
 
     /// Loading the items by category
     await Firestore.instance
         .collection('items')
+        .where('enterpriseId', isEqualTo: enterpriseId)
         .where('categoryId', isEqualTo: categoryId)
         .where('state', isEqualTo: 'A')
         .getDocuments()

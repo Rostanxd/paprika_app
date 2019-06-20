@@ -32,8 +32,9 @@ class InventoryRepository {
   Future<List<Item>> fetchItemsByName(String enterpriseId, String name) =>
       _itemApi.fetchItemsByName(enterpriseId, name);
 
-  Future<List<Item>> fetchItemsByCategory(String categoryId) =>
-      _itemApi.fetchItemsByCategory(categoryId);
+  Future<List<Item>> fetchItemsByCategory(
+          String enterpriseId, String categoryId) =>
+      _itemApi.fetchItemsByCategory(enterpriseId, categoryId);
 
   Future<List<Category>> fetchCategories(String enterpriseId) =>
       _categoryApi.fetchCategories(enterpriseId);
@@ -56,4 +57,7 @@ class InventoryRepository {
   Future<double> fetchMeasurementConversionValue(
           String measureIdFrom, String measureIdTo) =>
       _measureApi.fetchMeasurementConversionValue(measureIdFrom, measureIdTo);
+
+  Future<void> updateMeasure(Measure measure) =>
+      _measureApi.updateMeasure(measure);
 }

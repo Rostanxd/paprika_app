@@ -29,6 +29,13 @@ class MeasureApi {
         .add(measureConversion.toFireJson());
   }
 
+  Future<void> updateMeasure(Measure measure) async {
+    await Firestore.instance
+        .collection('measures')
+        .document(measure.id)
+        .updateData(measure.toFireJson());
+  }
+
   Future<List<Measure>> fetchMeasures() async {
     List<Measure> _measureList = List<Measure>();
 

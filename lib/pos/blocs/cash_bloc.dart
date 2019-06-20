@@ -100,7 +100,9 @@ class CashBloc extends BlocBase {
 
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
-    await _inventoryRepository.fetchItemsByCategory(categoryId).then((data) {
+    await _inventoryRepository
+        .fetchItemsByCategory(_enterprise.value.id, categoryId)
+        .then((data) {
       _items.sink.add(data);
     });
   }

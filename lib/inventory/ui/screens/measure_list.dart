@@ -67,7 +67,7 @@ class _MeasureListState extends State<MeasureList> {
                     );
                   },
                   separatorBuilder: (context, index) => Divider(
-                        color: Color(_rootBloc.primaryColor.value),
+                        color: Colors.grey,
                       ),
                   itemCount: snapshot.data.length);
           }
