@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 //import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/inventory/blocs/measure_list_bloc.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
+import 'package:paprika_app/inventory/ui/screens/measure_detail.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
@@ -64,6 +65,14 @@ class _MeasureListState extends State<MeasureList> {
                     return ListTile(
                       title: Text(snapshot.data[index].name),
                       trailing: Icon(Icons.navigate_next),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MeasureDetail(
+                                      measure: snapshot.data[index],
+                                    )));
+                      },
                     );
                   },
                   separatorBuilder: (context, index) => Divider(
@@ -79,7 +88,10 @@ class _MeasureListState extends State<MeasureList> {
             Icons.add,
             color: Colors.white,
           ),
-          onPressed: () {}),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => MeasureDetail()));
+          }),
     );
   }
 }

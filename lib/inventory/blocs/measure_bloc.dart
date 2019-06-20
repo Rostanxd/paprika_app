@@ -2,6 +2,7 @@ import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
 import 'package:paprika_app/inventory/resources/inventory_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
+import 'package:paprika_app/utils/fieldTypeValidators.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MeasureBloc extends BlocBase {
@@ -10,6 +11,12 @@ class MeasureBloc extends BlocBase {
   final _name = BehaviorSubject<String>();
   final _standard = BehaviorSubject<bool>();
   final _message = BehaviorSubject<String>();
+  final _measureList = BehaviorSubject<List<Measure>>();
+  final _measureIdConversion = BehaviorSubject<String>();
+  final _value = BehaviorSubject<double>();
+  final _measurementConversionList =
+      BehaviorSubject<List<MeasurementConversion>>();
+  final _measurementConversion = BehaviorSubject<MeasurementConversion>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
 
   /// Observables
@@ -23,7 +30,33 @@ class MeasureBloc extends BlocBase {
 
   Observable<String> get messenger => _message.stream;
 
+  ValueObservable<List<Measure>> get measureList => _measureList.stream;
+
+  ValueObservable<String> get measureIdConversion => _measureIdConversion.stream;
+
+  Stream<bool> get selectMeasure =>
+      Observable.combineLatest2(_measureIdConversion, _measureList, (a, b) {
+        if (a != null && b != null) return true;
+        return false;
+      });
+
   /// Functions
+  Function(String) get changeName => _name.add;
+
+  Function(String) get changeMessage => _message.add;
+
+  Function(String) get changeMeasure => _measureIdConversion.add;
+
+  Function(MeasurementConversion) get changeMeasurementConversion =>
+      _measurementConversion.add;
+
+  void changeConversionValue(String newPrice) {
+    if (newPrice.isEmpty) return _value.addError('Por favor ingrese el precio');
+    if (!FieldTypeValidators.stringIsNumeric(newPrice))
+      return _value.addError('Por favor ingrese un número válido');
+    return _value.sink.add(double.parse(newPrice));
+  }
+
   void fetchMeasure(String measureId) async {
     _name.sink.add(null);
     _standard.sink.add(null);
@@ -32,6 +65,22 @@ class MeasureBloc extends BlocBase {
       _measure.sink.add(measure);
       _name.sink.add(measure.name);
       _standard.sink.add(measure.standard);
+    });
+  }
+
+  void fetchMeasurementConversions(Measure measure) async {
+    _measurementConversionList.sink.add(null);
+    await _inventoryRepository
+        .fetchMeasurementConversionByFrom(measure)
+        .then((list) {
+      _measurementConversionList.sink.add(list);
+    });
+  }
+
+  void fetchMeasureList() async {
+    _measureList.sink.add(null);
+    await _inventoryRepository.fetchMeasures().then((data){
+      _measureList.sink.add(data);
     });
   }
 
@@ -62,6 +111,11 @@ class MeasureBloc extends BlocBase {
     _measure.close();
     _name.close();
     _standard.close();
+    _measureList.close();
+    _value.close();
+    _measureIdConversion.close();
+    _measurementConversionList.close();
+    _measurementConversion.close();
     _message.close();
   }
 }

@@ -58,6 +58,10 @@ class InventoryRepository {
           String measureIdFrom, String measureIdTo) =>
       _measureApi.fetchMeasurementConversionValue(measureIdFrom, measureIdTo);
 
+  Future<List<MeasurementConversion>> fetchMeasurementConversionByFrom(
+          Measure measureFrom) =>
+      _measureApi.fetchMeasurementConversionByFrom(measureFrom);
+
   Future<void> updateMeasure(Measure measure) =>
       _measureApi.updateMeasure(measure);
 }

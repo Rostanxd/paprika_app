@@ -73,7 +73,7 @@ class MeasureApi {
         .document(measureIdFrom)
         .get()
         .then((docSnapshot) =>
-            Measure.fromFireJson(docSnapshot.documentID, docSnapshot.data));
+        Measure.fromFireJson(docSnapshot.documentID, docSnapshot.data));
 
     /// Getting the object measure "to"
     measureTo = await Firestore.instance
@@ -81,13 +81,50 @@ class MeasureApi {
         .document(measureIdTo)
         .get()
         .then((docSnapshot) =>
-            Measure.fromFireJson(docSnapshot.documentID, docSnapshot.data));
+        Measure.fromFireJson(docSnapshot.documentID, docSnapshot.data));
 
     return MeasurementConversion(measureFrom, measureTo, value);
   }
 
-  Future<double> fetchMeasurementConversionValue(
-      String measureIdFrom, String measureIdTo) async {
+  Future<List<MeasurementConversion>> fetchMeasurementConversionByFrom(
+      Measure measureFrom) async {
+    List<MeasurementConversion> measurementConversionList =
+    List<MeasurementConversion>();
+    Measure measureTo;
+    String measureIdTo;
+    double value;
+
+    /// Looking for the measurement conversion's data
+    await Firestore.instance
+        .collection('measurement_conversion')
+        .where('measureIdFrom', isEqualTo: measureFrom.id)
+        .getDocuments()
+        .then((docSnapshot) {
+      measureIdTo = null;
+      measureTo = null;
+      value = 0.0;
+
+      /// Reading the result
+      docSnapshot.documents.forEach((measurementConversion) async {
+        /// Getting the measure id "To"
+        measureIdTo = measurementConversion.data['measureIdTo'];
+        value = measurementConversion.data['value'];
+
+        /// Looking for measure "to" data
+        await fetchMeasureById(measureIdTo)
+            .then((measure) => measureTo = measure);
+
+        /// Creating the object Measurement Conversion and adding to the list
+        measurementConversionList.add(
+            MeasurementConversion(measureFrom, measureTo, value));
+      });
+    });
+
+    return measurementConversionList;
+  }
+
+  Future<double> fetchMeasurementConversionValue(String measureIdFrom,
+      String measureIdTo) async {
     /// Looking for the measurement conversion's data
     return await Firestore.instance
         .collection('measurement_conversion')
