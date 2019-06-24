@@ -339,7 +339,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Container(
-                      width: 150.0,
+                      width: 200.0,
                       child: Center(
                         child: Text(
                           'A',
@@ -348,23 +348,18 @@ class _MeasureDetailState extends State<MeasureDetail> {
                       ),
                     ),
                     Container(
-                      width: 150.0,
+                      width: 200.0,
                       child: Center(
                         child: Text(
-                          'Valor',
+                          'U/C',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                     Container(
-                      width: 200.0,
-                      child: Center(
-                        child: Text(
-                          'Acciones',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    )
+                      width: 100.0,
+                      child: null,
+                    ),
                   ],
                 ),
               ),
@@ -374,51 +369,60 @@ class _MeasureDetailState extends State<MeasureDetail> {
               Container(
                 height: 200.0,
                 margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-                child: StreamBuilder(builder: (BuildContext context,
-                    AsyncSnapshot<List<MeasurementConversion>> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return Center(
-                        child: CircularProgressIndicator(
-                          backgroundColor: Color(_rootBloc.primaryColor.value),
-                        ),
-                      );
-                      break;
-                    default:
-                      if (!snapshot.hasData || snapshot.data == null)
-                        return Center(
-                          child: Text('No existen conversiones registradas.'),
-                        );
-
-                      return ListView.separated(
-                          itemBuilder: (context, index) {
-                            return Row(
-                              children: <Widget>[
-                                Container(
-                                  child:
-                                      Text(snapshot.data[index].measureTo.name),
-                                ),
-                                Container(
-                                  child: Text(
-                                      snapshot.data[index].value.toString()),
-                                ),
-                                RaisedButton(
-                                  child: Icon(Icons.edit),
-                                  onPressed: () {},
-                                ),
-                                RaisedButton(
-                                  child: Icon(Icons.delete_forever),
-                                  onPressed: () {},
-                                ),
-                              ],
+                child: StreamBuilder(
+                    stream: _measureBloc.measurementConversionList,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<MeasurementConversion>> snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Center(
+                            child: CircularProgressIndicator(
+                              backgroundColor:
+                                  Color(_rootBloc.primaryColor.value),
+                            ),
+                          );
+                          break;
+                        default:
+                          if (!snapshot.hasData ||
+                              snapshot.data == null ||
+                              snapshot.data.length == 0)
+                            return Center(
+                              child:
+                                  Text('No existen conversiones registradas.'),
                             );
-                          },
-                          separatorBuilder: (context, index) => Divider(
-                                color: Colors.green,
-                              ),
-                          itemCount: snapshot.data.length);
-                  }
-                }),
+
+                          return ListView.separated(
+                              itemBuilder: (context, index) {
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Container(
+                                      width: 200.0,
+                                      child: Center(
+                                          child: Text(snapshot
+                                              .data[index].measureTo.name)),
+                                    ),
+                                    Container(
+                                      width: 200.0,
+                                      child: Center(
+                                        child: Text(snapshot.data[index].value
+                                            .toString()),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 100.0,
+                                      child: Center(
+                                        child: Icon(Icons.settings, size: 14,),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                              separatorBuilder: (context, index) => Divider(),
+                              itemCount: snapshot.data.length);
+                      }
+                    }),
               ),
               Divider(),
               Row(
@@ -475,6 +479,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                   style: TextStyle(color: Color(_rootBloc.primaryColor.value)),
                 ),
                 onPressed: () {
+                  _measureBloc.createMeasurementConversion();
                   Navigator.pop(context);
                 },
               ),
@@ -525,14 +530,16 @@ class _MeasureDetailState extends State<MeasureDetail> {
                       errorText: snapshot.error != null
                           ? snapshot.error.toString()
                           : ''),
-                  onChanged: (m) {},
+                  onChanged: (m) {
+                    _measureBloc.changeMeasurementIdConversion(m);
+                  },
                 );
               }),
           StreamBuilder(
               stream: _measureBloc.name,
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 return TextField(
-                  onChanged: _measureBloc.changeName,
+                  onChanged: _measureBloc.changeConversionValue,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     BlacklistingTextInputFormatter(

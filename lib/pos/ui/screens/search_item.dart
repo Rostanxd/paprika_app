@@ -383,7 +383,7 @@ class _SearchItemState extends State<SearchItem> {
                   fontWeight: FontWeight.bold,
                   color: Color(_rootBloc.primaryColor.value)),
             ),
-            subtitle: Text('Te permite crear un item vinculado disrectamente '
+            subtitle: Text('Permite crear un item vinculado directamente '
                 'a esta categoría.'),
             onTap: () {
               Navigator.push(

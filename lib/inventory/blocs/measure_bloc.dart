@@ -32,7 +32,11 @@ class MeasureBloc extends BlocBase {
 
   ValueObservable<List<Measure>> get measureList => _measureList.stream;
 
-  ValueObservable<String> get measureIdConversion => _measureIdConversion.stream;
+  ValueObservable<String> get measureIdConversion =>
+      _measureIdConversion.stream;
+
+  Observable<List<MeasurementConversion>> get measurementConversionList =>
+      _measurementConversionList.stream;
 
   Stream<bool> get selectMeasure =>
       Observable.combineLatest2(_measureIdConversion, _measureList, (a, b) {
@@ -49,6 +53,9 @@ class MeasureBloc extends BlocBase {
 
   Function(MeasurementConversion) get changeMeasurementConversion =>
       _measurementConversion.add;
+
+  Function(String) get changeMeasurementIdConversion =>
+      _measureIdConversion.add;
 
   void changeConversionValue(String newPrice) {
     if (newPrice.isEmpty) return _value.addError('Por favor ingrese el precio');
@@ -69,7 +76,6 @@ class MeasureBloc extends BlocBase {
   }
 
   void fetchMeasurementConversions(Measure measure) async {
-    _measurementConversionList.sink.add(null);
     await _inventoryRepository
         .fetchMeasurementConversionByFrom(measure)
         .then((list) {
@@ -79,9 +85,31 @@ class MeasureBloc extends BlocBase {
 
   void fetchMeasureList() async {
     _measureList.sink.add(null);
-    await _inventoryRepository.fetchMeasures().then((data){
+    await _inventoryRepository.fetchMeasures().then((data) {
       _measureList.sink.add(data);
     });
+  }
+
+  void createMeasure() async {
+    if (_validateFormMeasure()) {
+      Measure measure = Measure(
+          _measure.value.id, _name.value, _standard.value, _enterprise.value);
+
+      await _inventoryRepository
+          .createMeasure(measure)
+          .then((v) => _message.sink.add('Medida creada con éxito'));
+    }
+  }
+
+  void createMeasurementConversion() async {
+    if (_measureIdConversion.value.isNotEmpty || _value.value != 0.0) {
+      await _inventoryRepository.createMeasurementConversion(
+          MeasurementConversion(
+              _measure.value,
+              _measureList.value
+                  .firstWhere((m) => m.id == _measureIdConversion.value),
+              _value.value));
+    }
   }
 
   void updateMeasure() async {

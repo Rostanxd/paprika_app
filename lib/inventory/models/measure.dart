@@ -53,4 +53,10 @@ class MeasurementConversion extends Object {
         'measureIdTo': this.measureTo.id,
         'value': this.value
       };
+
+  @override
+  String toString() {
+    return 'MeasurementConversion{id: $id, measureFrom: $measureFrom, '
+        'measureTo: $measureTo, value: $value}';
+  }
 }

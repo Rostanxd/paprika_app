@@ -62,6 +62,9 @@ class InventoryRepository {
           Measure measureFrom) =>
       _measureApi.fetchMeasurementConversionByFrom(measureFrom);
 
+  Future<DocumentReference> createMeasure(Measure measure) =>
+      _measureApi.createMeasure(measure);
+
   Future<void> updateMeasure(Measure measure) =>
       _measureApi.updateMeasure(measure);
 }
