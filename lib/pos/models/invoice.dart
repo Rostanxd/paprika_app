@@ -7,11 +7,17 @@ import 'package:paprika_app/inventory/models/measure.dart';
 class Invoice extends Object {
   String id;
   Customer customer;
+  String state;
+  String documentType;
+  DateTime dateTime;
+  String note;
   double quantity;
   double discount;
   double subtotal;
   double taxes;
   double total;
+  String modificationUser;
+  DateTime modificationDate;
   String creationUser;
   DateTime creationDate;
   List<InvoiceLine> detail;

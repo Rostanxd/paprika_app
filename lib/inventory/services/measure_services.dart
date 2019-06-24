@@ -36,6 +36,14 @@ class MeasureApi {
         .updateData(measure.toFireJson());
   }
 
+  Future<void> updateMeasurementConversion(
+      MeasurementConversion measurementConversion) async {
+    await Firestore.instance
+        .collection('measurements_conversions')
+        .document(measurementConversion.id)
+        .updateData(measurementConversion.toFireJson());
+  }
+
   Future<List<Measure>> fetchMeasures() async {
     List<Measure> _measureList = List<Measure>();
 
@@ -83,7 +91,7 @@ class MeasureApi {
         .then((docSnapshot) =>
             Measure.fromFireJson(docSnapshot.documentID, docSnapshot.data));
 
-    return MeasurementConversion(measureFrom, measureTo, value);
+    return MeasurementConversion(documentId, measureFrom, measureTo, value);
   }
 
   Future<List<MeasurementConversion>> fetchMeasurementConversionByFrom(

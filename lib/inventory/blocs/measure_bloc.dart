@@ -28,6 +28,8 @@ class MeasureBloc extends BlocBase {
 
   ValueObservable<bool> get standard => _standard.stream;
 
+  Observable<double> get value => _value.stream;
+
   Observable<String> get messenger => _message.stream;
 
   ValueObservable<List<Measure>> get measureList => _measureList.stream;
@@ -38,6 +40,9 @@ class MeasureBloc extends BlocBase {
   Observable<List<MeasurementConversion>> get measurementConversionList =>
       _measurementConversionList.stream;
 
+  Observable<MeasurementConversion> get measureConversion =>
+      _measurementConversion.stream;
+
   Stream<bool> get selectMeasure =>
       Observable.combineLatest2(_measureIdConversion, _measureList, (a, b) {
         if (a != null && b != null) return true;
@@ -45,11 +50,15 @@ class MeasureBloc extends BlocBase {
       });
 
   /// Functions
+  Function(Enterprise) get changeEnterprise => _enterprise.add;
+
+  Function(Measure) get changeMeasure => _measure.add;
+
   Function(String) get changeName => _name.add;
 
   Function(String) get changeMessage => _message.add;
 
-  Function(String) get changeMeasure => _measureIdConversion.add;
+  Function(String) get changeMeasureIdConversion => _measureIdConversion.add;
 
   Function(MeasurementConversion) get changeMeasurementConversion =>
       _measurementConversion.add;
@@ -76,11 +85,15 @@ class MeasureBloc extends BlocBase {
   }
 
   void fetchMeasurementConversions(Measure measure) async {
-    await _inventoryRepository
-        .fetchMeasurementConversionByFrom(measure)
-        .then((list) {
-      _measurementConversionList.sink.add(list);
-    });
+    if (measure != null) {
+      await _inventoryRepository
+          .fetchMeasurementConversionByFrom(measure)
+          .then((list) {
+        _measurementConversionList.sink.add(list);
+      });
+    } else {
+      _measurementConversionList.sink.add(null);
+    }
   }
 
   void fetchMeasureList() async {
@@ -92,12 +105,17 @@ class MeasureBloc extends BlocBase {
 
   void createMeasure() async {
     if (_validateFormMeasure()) {
-      Measure measure = Measure(
-          _measure.value.id, _name.value, _standard.value, _enterprise.value);
+      Measure measure =
+          Measure('', _name.value, _standard.value, _enterprise.value);
 
-      await _inventoryRepository
-          .createMeasure(measure)
-          .then((v) => _message.sink.add('Medida creada con éxito'));
+      await _inventoryRepository.createMeasure(measure).then((document) {
+        _message.sink.add('Medida creada con éxito');
+        fetchMeasure(document.documentID);
+      }, onError: (error) {
+        _message.sink.add('Error: ${error.toString()}');
+      });
+    } else {
+      _message.sink.add('Lo sentimos hay campos por llenar');
     }
   }
 
@@ -105,10 +123,26 @@ class MeasureBloc extends BlocBase {
     if (_measureIdConversion.value.isNotEmpty || _value.value != 0.0) {
       await _inventoryRepository.createMeasurementConversion(
           MeasurementConversion(
+              '',
               _measure.value,
               _measureList.value
                   .firstWhere((m) => m.id == _measureIdConversion.value),
               _value.value));
+      fetchMeasurementConversions(_measure.value);
+    }
+  }
+
+  void updateMeasurementConversion() async {
+    if (_measureIdConversion.value.isNotEmpty || _value.value != 0.0) {
+      await _inventoryRepository.updateMeasurementConversion(
+          MeasurementConversion(
+              _measurementConversion.value.id,
+              _measure.value,
+              _measureList.value
+                  .firstWhere((m) => m.id == _measureIdConversion.value),
+              _value.value));
+
+      fetchMeasurementConversions(_measure.value);
     }
   }
 
@@ -120,6 +154,8 @@ class MeasureBloc extends BlocBase {
       await _inventoryRepository.updateMeasure(measure).then((v) {
         _message.sink.add('Medida actualizada con éxito!');
       });
+    } else {
+      _message.sink.add('Lo sentimos hay campos por llenar');
     }
   }
 

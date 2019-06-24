@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/inventory/blocs/measure_bloc.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -7,8 +8,10 @@ import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class MeasureDetail extends StatefulWidget {
   final Measure measure;
+  final Enterprise enterprise;
 
-  const MeasureDetail({Key key, this.measure}) : super(key: key);
+  const MeasureDetail({Key key, this.measure, this.enterprise})
+      : super(key: key);
 
   @override
   _MeasureDetailState createState() => _MeasureDetailState();
@@ -55,13 +58,18 @@ class _MeasureDetailState extends State<MeasureDetail> {
     });
 
     /// Default values
-    _measureBloc.changeMeasure('');
+    _measureBloc.changeEnterprise(widget.enterprise);
+    _measureBloc.changeMeasureIdConversion(null);
 
     /// Loading measure data, if we are updating
     if (widget.measure != null) {
       _measureBloc.fetchMeasure(widget.measure.id);
       _measureBloc.fetchMeasurementConversions(widget.measure);
       _nameCtrl.text = widget.measure.name;
+    } else {
+      _measureBloc.changeMeasure(null);
+      _measureBloc.fetchMeasurementConversions(null);
+      _nameCtrl.text = '';
     }
 
     super.initState();
@@ -95,11 +103,6 @@ class _MeasureDetailState extends State<MeasureDetail> {
                   if (snapshot.hasError)
                     return Center(
                       child: Text(snapshot.error.toString()),
-                    );
-
-                  if (!snapshot.hasData || snapshot.data == null)
-                    return Center(
-                      child: Text('No hay datos'),
                     );
 
                   return ListView(
@@ -207,7 +210,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                   if (_measureBloc.measure.value != null) {
                     _measureBloc.updateMeasure();
                   } else {
-                    /// Space for create the measure.
+                    _measureBloc.createMeasure();
                   }
                 }),
           )
@@ -410,11 +413,41 @@ class _MeasureDetailState extends State<MeasureDetail> {
                                             .toString()),
                                       ),
                                     ),
-                                    Container(
-                                      width: 100.0,
-                                      child: Center(
-                                        child: Icon(Icons.settings, size: 14,),
+                                    InkWell(
+                                      child: Container(
+                                        width: 100.0,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.settings,
+                                            size: 14,
+                                          ),
+                                        ),
                                       ),
+                                      onTap: () {
+                                        /// To know that we are updating
+                                        _measureBloc
+                                            .changeMeasurementConversion(
+                                                snapshot.data[index]);
+
+                                        /// To update the combo in the dialog
+                                        _measureBloc
+                                            .changeMeasurementIdConversion(
+                                                snapshot
+                                                    .data[index].measureTo.id);
+
+                                        /// To update the value in the dialog
+                                        _measureBloc.changeConversionValue(
+                                            snapshot.data[index].value
+                                                .toString());
+
+                                        /// Updating the text editing control
+                                        _valueCtrl.text = snapshot
+                                            .data[index].value
+                                            .toString();
+
+                                        /// Calling the modal
+                                        _callModalConversions();
+                                      },
                                     ),
                                   ],
                                 );
@@ -432,19 +465,38 @@ class _MeasureDetailState extends State<MeasureDetail> {
                     margin: EdgeInsets.only(
                       right: 10.0,
                     ),
-                    child: RaisedButton(
-                      onPressed: () {
-                        /// Setting null the value of the stream.
-                        _measureBloc.changeMeasurementConversion(null);
+                    child: StreamBuilder(
+                      stream: _measureBloc.measure,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Measure> snapshot) {
+                        return snapshot.hasData
+                            ? RaisedButton(
+                                onPressed: () {
+                                  /// Setting null the value of the stream.
+                                  _measureBloc
+                                      .changeMeasurementConversion(null);
+                                  _measureBloc
+                                      .changeMeasurementIdConversion('');
+                                  _measureBloc.changeConversionValue('0.0');
 
-                        /// Calling the show dialog
-                        _callModalConversions();
+                                  /// Calling the show dialog
+                                  _callModalConversions();
+                                },
+                                child: Text(
+                                  'Nuevo',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                color: Color(_rootBloc.primaryColor.value),
+                              )
+                            : RaisedButton(
+                                onPressed: () {},
+                                child: Text(
+                                  'Nuevo',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                color: Colors.grey,
+                              );
                       },
-                      child: Text(
-                        'Nuevo',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      color: Color(_rootBloc.primaryColor.value),
                     ),
                   )
                 ],
@@ -473,14 +525,33 @@ class _MeasureDetailState extends State<MeasureDetail> {
                   Navigator.pop(context);
                 },
               ),
-              FlatButton(
-                child: Text(
-                  'Guardar',
-                  style: TextStyle(color: Color(_rootBloc.primaryColor.value)),
-                ),
-                onPressed: () {
-                  _measureBloc.createMeasurementConversion();
-                  Navigator.pop(context);
+              StreamBuilder(
+                stream: _measureBloc.measureConversion,
+                builder: (BuildContext context,
+                    AsyncSnapshot<MeasurementConversion> snapshot) {
+                  return snapshot.hasData
+                      ? FlatButton(
+                          child: Text(
+                            'Actualizar',
+                            style: TextStyle(
+                                color: Color(_rootBloc.primaryColor.value)),
+                          ),
+                          onPressed: () {
+                            _measureBloc.updateMeasurementConversion();
+                            Navigator.pop(context);
+                          },
+                        )
+                      : FlatButton(
+                          child: Text(
+                            'Guardar',
+                            style: TextStyle(
+                                color: Color(_rootBloc.primaryColor.value)),
+                          ),
+                          onPressed: () {
+                            _measureBloc.createMeasurementConversion();
+                            Navigator.pop(context);
+                          },
+                        );
                 },
               ),
             ],
@@ -536,8 +607,8 @@ class _MeasureDetailState extends State<MeasureDetail> {
                 );
               }),
           StreamBuilder(
-              stream: _measureBloc.name,
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              stream: _measureBloc.value,
+              builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
                 return TextField(
                   onChanged: _measureBloc.changeConversionValue,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),

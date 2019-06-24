@@ -38,7 +38,7 @@ class MeasurementConversion extends Object {
   Measure measureTo;
   double value;
 
-  MeasurementConversion(this.measureFrom, this.measureTo, this.value);
+  MeasurementConversion(this.id, this.measureFrom, this.measureTo, this.value);
 
   MeasurementConversion.fromFireJson(String documentId, Measure measureFrom,
       Measure measureTo, Map<String, dynamic> json) {

@@ -67,4 +67,8 @@ class InventoryRepository {
 
   Future<void> updateMeasure(Measure measure) =>
       _measureApi.updateMeasure(measure);
+
+  Future<void> updateMeasurementConversion(
+          MeasurementConversion measurementConversion) =>
+      _measureApi.updateMeasurementConversion(measurementConversion);
 }

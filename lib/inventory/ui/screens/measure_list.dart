@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-//import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
+import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/inventory/blocs/measure_list_bloc.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
 import 'package:paprika_app/inventory/ui/screens/measure_detail.dart';
@@ -14,26 +13,27 @@ class MeasureList extends StatefulWidget {
 
 class _MeasureListState extends State<MeasureList> {
   RootBloc _rootBloc;
-
-//  AuthenticationBloc _authenticationBloc;
+  AuthenticationBloc _authenticationBloc;
   MeasureListBloc _measureListBloc;
 
   @override
   void initState() {
     _measureListBloc = MeasureListBloc();
-    _measureListBloc.fetchMeasures();
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     _rootBloc = BlocProvider.of<RootBloc>(context);
-//    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+    /// Fetching the measures
+    _measureListBloc.fetchMeasures();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Listado de medidas'),
@@ -70,6 +70,8 @@ class _MeasureListState extends State<MeasureList> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => MeasureDetail(
+                                      enterprise:
+                                          _authenticationBloc.enterprise.value,
                                       measure: snapshot.data[index],
                                     )));
                       },
@@ -89,8 +91,12 @@ class _MeasureListState extends State<MeasureList> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => MeasureDetail()));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => MeasureDetail(
+                          enterprise: _authenticationBloc.enterprise.value,
+                        )));
           }),
     );
   }
