@@ -2,7 +2,8 @@ class Transaction extends Object {
   static const stateList = [
     {'A': 'Activo'},
     {'I': 'Inactivo'},
-    {'E': 'Eliminado'}
+    {'E': 'Eliminado'},
+    {'P': 'Procesado'}
   ];
 
   static String stateName(String state) {

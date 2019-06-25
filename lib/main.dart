@@ -80,21 +80,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{},
       home: Scaffold(
-        body: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
-                child: Text(
-                  'Paprika',
-                  style: TextStyle(fontSize: 50.0),
-                ),
-              ),
-              CircularProgressIndicator(),
-            ],
-          ),
+        body: Stack(
+          alignment: Alignment(0.0, 0.5),
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/img/loading_screen.jpg'),
+                      fit: BoxFit.fill)),
+            ),
+            CircularProgressIndicator(
+              backgroundColor: Color(rootBloc.secondaryColor.value),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  Color(rootBloc.primaryColor.value)),
+            ),
+          ],
         ),
       ),
     );

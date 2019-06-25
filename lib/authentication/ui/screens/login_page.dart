@@ -56,57 +56,57 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
-      body: ListView(
-        children: <Widget>[
-          Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      width: 300,
-                      margin: EdgeInsets.only(top: 50.0),
-                      child: Text(
-                        'Paprika',
-                        style: TextStyle(
-                            fontSize: 40.0, fontWeight: FontWeight.bold),
+      body: Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/img/login_background.jpg'),
+                fit: BoxFit.fill)),
+        child: ListView(
+          children: <Widget>[
+            Center(
+              child: Container(
+                height: 500.0,
+                width: 400.0,
+                margin: EdgeInsets.only(top: 50.0),
+                child: Card(
+                  color: Colors.yellow[600],
+                  elevation: 5.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            width: 300,
+                            child: Image(
+                                image: AssetImage(
+                                    'assets/img/paprika_banner.png')),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      Form(
+                          child: Column(
+                        children: <Widget>[
+                          SizedBox(height: 20.0),
+                          _emailField(),
+                          SizedBox(height: 20.0),
+                          _passwordField(),
+                          SizedBox(height: 50.0),
+                          _streamButtonSubmit(),
+                          SizedBox(height: 20.0),
+//                    _signInButton(),
+                        ],
+                      )),
+                    ],
+                  ),
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      width: 300,
-                      margin: EdgeInsets.only(top: 10.0, bottom: 20.0),
-                      child: Text('Demo',
-                          style: TextStyle(
-                              fontSize: 36.0, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-                Form(
-                    child: Column(
-                  children: <Widget>[
-                    _emailField(),
-                    SizedBox(height: 20.0),
-                    _passwordField(),
-                    SizedBox(height: 50.0),
-                    _streamButtonSubmit(),
-                    SizedBox(height: 20.0),
-                    _signInButton(),
-                  ],
-                )),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                 labelStyle: TextStyle(
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey),
+                    color: Colors.deepOrangeAccent),
                 focusedBorder: UnderlineInputBorder(
                     borderSide:
                         BorderSide(color: Color(_rootBloc.primaryColor.value))),
@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                 labelStyle: TextStyle(
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey),
+                    color: Colors.deepOrangeAccent),
                 focusedBorder: UnderlineInputBorder(
                     borderSide:
                         BorderSide(color: Color(_rootBloc.primaryColor.value))),
@@ -187,8 +187,8 @@ class _LoginPageState extends State<LoginPage> {
                 color: snapshot.data != null
                     ? snapshot.data
                         ? Color(_rootBloc.primaryColor.value)
-                        : Colors.grey
-                    : Colors.grey,
+                        : Colors.deepOrange[400]
+                    : Colors.deepOrange[400],
                 elevation: 7.0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +224,10 @@ class _LoginPageState extends State<LoginPage> {
             ? Container(
                 height: 40.0,
                 color: Colors.transparent,
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(_rootBloc.primaryColor.value)),
+                ),
               )
             : _submitButton();
       },
