@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:paprika_app/authentication/ui/screens/login_page.dart';
-import 'package:paprika_app/pos/ui/screens/cash_page.dart';
+import 'package:paprika_app/pos/ui/screens/index.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 
@@ -30,6 +32,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// Device's information
+    rootBloc.fetchDeviceInfo(Platform.isAndroid);
+
     /// To get the app's colors
     rootBloc.fetchColors();
 
@@ -58,7 +63,7 @@ class MyApp extends StatelessWidget {
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 routes: <String, WidgetBuilder>{},
-                home: CashPage(),
+                home: PosHomePage(),
               );
             } else {
               return MaterialApp(

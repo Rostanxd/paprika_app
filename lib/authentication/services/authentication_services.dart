@@ -54,11 +54,4 @@ class AuthenticationFirebaseApi {
     await FirebaseAuth.instance.signOut();
   }
 
-  Future<Enterprise> fetchEnterprise(String id) async {
-    return await Firestore.instance
-        .collection('enterprises')
-        .document(id)
-        .get()
-        .then((e) => Enterprise.fromFireJson(e.documentID, e.data));
-  }
 }

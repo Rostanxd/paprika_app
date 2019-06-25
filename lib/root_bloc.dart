@@ -1,7 +1,13 @@
+import 'package:device_info/device_info.dart';
+import 'package:paprika_app/authentication/models/device.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RootBloc implements BlocBase {
+  final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
+  final _androidDeviceInfo = BehaviorSubject<AndroidDeviceInfo>();
+  final _iosDeviceInfo = BehaviorSubject<IosDeviceInfo>();
+  final _device = BehaviorSubject<Device>();
   final _darkPrimaryColor = BehaviorSubject<int>();
   final _primaryColor = BehaviorSubject<int>();
   final _secondaryColor = BehaviorSubject<int>();
@@ -9,6 +15,8 @@ class RootBloc implements BlocBase {
   final _submitColor = BehaviorSubject<int>();
 
   /// Observables
+  ValueObservable<Device> get device => _device.stream;
+
   ValueObservable<int> get darkPrimaryColor => _darkPrimaryColor.stream;
 
   ValueObservable<int> get primaryColor => _primaryColor.stream;
@@ -18,6 +26,45 @@ class RootBloc implements BlocBase {
   ValueObservable<int> get tertiaryColor => _tertiaryColor.stream;
 
   ValueObservable<int> get submitColor => _submitColor.stream;
+
+  /// Functions
+  void fetchDeviceInfo(bool isAndroid) async {
+    Device device;
+    if (isAndroid) {
+      await _deviceInfoPlugin.androidInfo.then((info) {
+        _androidDeviceInfo.sink.add(info);
+        device = Device(
+            info.androidId,
+            '',
+            'Android',
+            info.version.sdkInt.toString(),
+            info.model,
+            info.product,
+            info.isPhysicalDevice.toString(),
+            '',
+            '',
+            '',
+            '');
+      });
+    } else {
+      await _deviceInfoPlugin.iosInfo.then((info) {
+        _iosDeviceInfo.sink.add(info);
+        device = Device(
+            info.identifierForVendor,
+            '',
+            'iOS',
+            info.systemVersion,
+            info.model,
+            '',
+            info.isPhysicalDevice.toString(),
+            '',
+            '',
+            '',
+            '');
+      });
+    }
+    _device.sink.add(device);
+  }
 
   void fetchColors() {
     _darkPrimaryColor.sink.add(0xFFBF360C);
@@ -29,6 +76,9 @@ class RootBloc implements BlocBase {
 
   @override
   void dispose() {
+    _androidDeviceInfo.close();
+    _iosDeviceInfo.close();
+    _device.close();
     _darkPrimaryColor.close();
     _primaryColor.close();
     _secondaryColor.close();

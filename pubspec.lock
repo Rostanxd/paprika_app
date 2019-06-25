@@ -71,6 +71,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
+  device_info:
+    dependency: "direct main"
+    description:
+      name: device_info
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0+2"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -256,4 +263,4 @@ packages:
     version: "2.1.16"
 sdks:
   dart: ">=2.2.0 <3.0.0"
-  flutter: ">=1.2.0 <2.0.0"
+  flutter: ">=1.5.0 <2.0.0"

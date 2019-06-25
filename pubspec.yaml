@@ -24,6 +24,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
+  # To provide detailed information about the device
+  device_info: ^0.4.0+2
+
   # To implement RxDart and use BLoC Pattern
   rxdart: ^0.21.0
 
