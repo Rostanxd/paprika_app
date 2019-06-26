@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/authentication/resources/authentication_repository.dart';
@@ -16,6 +17,7 @@ class AuthenticationBloc extends Object
   final _firebaseUser = BehaviorSubject<FirebaseUser>();
   final _user = BehaviorSubject<User>();
   final _enterprise = BehaviorSubject<Enterprise>();
+  final _branch = BehaviorSubject<Branch>();
   final _validUser = BehaviorSubject<bool>();
   final AuthenticationRepository _authenticationRepository =
       AuthenticationRepository();
@@ -112,6 +114,7 @@ class AuthenticationBloc extends Object
     _firebaseUser.close();
     _user.close();
     _enterprise.close();
+    _branch.close();
     _validUser.close();
   }
 }
