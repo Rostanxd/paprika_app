@@ -1,3 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:paprika_app/authentication/models/role.dart';
+import 'package:paprika_app/authentication/models/user.dart';
+
 class Enterprise extends Object {
   String id;
   String ruc;
@@ -26,10 +30,12 @@ class Enterprise extends Object {
     this.name = json['name'];
     this.state = json['state'];
     this.address = json['address'];
-//    this.creationDate = json['creationDate'];
-//    this.creationUser = json['creationUser'];
-//    this.modificationDate = json['modificationDate'];
-//    this.modificationUser = json ['modificationUser'];
+    this.creationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['creationDate'].seconds * 1000);
+    this.creationUser = json['creationuser'];
+    this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['modificationDate'].seconds * 1000);
+    this.modificationUser = json['modificationUser'];
   }
 
   @override
@@ -39,5 +45,52 @@ class Enterprise extends Object {
         'creationUser: $creationUser, modificationDate: $modificationDate, '
         'modificationUser: $modificationUser}';
   }
+}
 
+class EnterpriseUser extends Object {
+  String id;
+  Enterprise enterprise;
+  User user;
+  Role role;
+  String state;
+  DateTime creationDate;
+  String creationUser;
+  DateTime modificationDate;
+  String modificationUser;
+
+  EnterpriseUser(
+      this.id,
+      this.enterprise,
+      this.user,
+      this.role,
+      this.state,
+      this.creationDate,
+      this.creationUser,
+      this.modificationDate,
+      this.modificationUser);
+
+  EnterpriseUser.fromFireJson(String documentId, Enterprise enterprise,
+      User user, Role role, Map<String, dynamic> json) {
+    this.id = documentId;
+    this.enterprise = enterprise;
+    this.user = user;
+    this.role = role;
+    this.creationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['creationDate'].seconds * 1000);
+    this.creationUser = json['creationuser'];
+    this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['modificationDate'].seconds * 1000);
+    this.modificationUser = json['modificationUser'];
+  }
+
+  Map<String, dynamic> toFireJson() => {
+        'enterpriseId': this.enterprise.id,
+        'userId': this.user.id,
+        'roleId': this.role.systemId,
+        'state': this.state,
+        'creationDate': Timestamp.fromDate(this.creationDate),
+        'creationUser': this.creationUser,
+        'modificationDate': Timestamp.fromDate(this.modificationDate),
+        'modificationUser': this.modificationUser,
+      };
 }
