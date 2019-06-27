@@ -47,8 +47,7 @@ class _UserDrawerState extends State<UserDrawer> {
                 Container(
                   margin: EdgeInsets.only(top: 10.0, bottom: 20.0),
                   child: Text(
-                    _authenticationBloc.user.value.enterprise.name
-                        .toUpperCase(),
+                    _authenticationBloc.enterprise.value.name.toUpperCase(),
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                   ),
@@ -84,7 +83,7 @@ class _UserDrawerState extends State<UserDrawer> {
                     ),
                     Container(
                       child: Text(
-                        '${_user.role.name}',
+                        '${_authenticationBloc.role.value.name}',
                         style: TextStyle(color: Colors.black, fontSize: 14.0),
                       ),
                     ),
@@ -128,7 +127,7 @@ class _UserDrawerState extends State<UserDrawer> {
     ));
 
     /// Adding options by the profile
-    if (_user.role.systemId != '02') {
+    if (_authenticationBloc.role.value.systemId != '02') {
       _listChildren.add(ListTile(
         title: Text('Configuración'),
         leading: Icon(Icons.settings),

@@ -1,10 +1,12 @@
 class Role extends Object {
+  String id;
   String systemId;
   String name;
 
   Role(this.systemId, this.name);
 
   Role.fromFireJson(String documentId, Map<String, dynamic> json) {
+    this.id = documentId;
     this.systemId = json['systemId'];
     this.name = json['name'];
   }
@@ -16,6 +18,6 @@ class Role extends Object {
 
   @override
   String toString() {
-    return 'Role{sistemId: $systemId, name: $name}';
+    return 'Role{id: $id, systemId: $systemId, name: $name}';
   }
 }

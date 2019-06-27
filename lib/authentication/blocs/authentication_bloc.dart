@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
+import 'package:paprika_app/authentication/models/role.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/authentication/resources/authentication_repository.dart';
 import 'package:rxdart/rxdart.dart';
@@ -17,6 +18,8 @@ class AuthenticationBloc extends Object
   final _firebaseUser = BehaviorSubject<FirebaseUser>();
   final _user = BehaviorSubject<User>();
   final _enterprise = BehaviorSubject<Enterprise>();
+  final _enterpriseList = BehaviorSubject<List<Enterprise>>();
+  final _role = BehaviorSubject<Role>();
   final _branch = BehaviorSubject<Branch>();
   final _validUser = BehaviorSubject<bool>();
   final AuthenticationRepository _authenticationRepository =
@@ -30,9 +33,18 @@ class AuthenticationBloc extends Object
   Stream<bool> get submitValid =>
       Observable.combineLatest2(email, password, (a, b) => true);
 
-  Stream<bool> get validUser => Observable.combineLatest3(
-      firebaseUser, user, enterprise, (a, b, c) {
-        if (a != null && b != null && c != null){
+  Stream<bool> get validUser =>
+      Observable.combineLatest2(firebaseUser, user, (a, b) {
+        if (a != null && b != null) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+
+  Stream<bool> get enterpriseRole =>
+      Observable.combineLatest2(enterprise, _role, (a, b) {
+        if (a != null && b != null) {
           return true;
         } else {
           return false;
@@ -45,14 +57,20 @@ class AuthenticationBloc extends Object
 
   ValueObservable<Enterprise> get enterprise => _enterprise.stream;
 
+  Observable<List<Enterprise>> get enterpriseList => _enterpriseList.stream;
+
   ValueObservable<FirebaseUser> get firebaseUser => _firebaseUser.stream;
 
   ValueObservable<User> get user => _user.stream;
+
+  ValueObservable<Role> get role => _role.stream;
 
   /// Functions
   Function(String) get changeEmail => _email.sink.add;
 
   Function(String) get changePassword => _password.sink.add;
+
+  Function(Enterprise) get changeEnterprise => _enterprise.add;
 
   /// Function to check is the user is logged or not
   void userLogged() async {
@@ -86,11 +104,24 @@ class AuthenticationBloc extends Object
   void _userSystem(String uid) async {
     await _authenticationRepository.userSystem(uid).then((user) {
       _user.sink.add(user);
-      _enterprise.sink.add(user.enterprise);
     }, onError: (error) {
       _user.sink.add(null);
       _message.sink.add(error.toString());
     });
+  }
+
+  void fetchEnterprisesByUser() async {
+    await _authenticationRepository
+        .fetchEnterprisesByUser(_user.value)
+        .then((enterprises) => _enterpriseList.sink.add(enterprises));
+  }
+
+  void fetchUserRole() async {
+    await _authenticationRepository
+        .fetchRoleByEnterpriseUser(_enterprise.value, user.value)
+        .then((role) {
+          _role.sink.add(role);
+        });
   }
 
   /// Function to log-out
@@ -99,6 +130,7 @@ class AuthenticationBloc extends Object
       _firebaseUser.sink.add(null);
       _user.sink.add(null);
       _enterprise.sink.add(null);
+      _role.sink.add(null);
       _message.sink.add(null);
       _email.sink.add(null);
       _password.sink.add(null);
@@ -114,6 +146,8 @@ class AuthenticationBloc extends Object
     _firebaseUser.close();
     _user.close();
     _enterprise.close();
+    _enterpriseList.close();
+    _role.close();
     _branch.close();
     _validUser.close();
   }

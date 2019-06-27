@@ -11,7 +11,7 @@ class EnterpriseFirebaseApi {
         .then((e) => Enterprise.fromFireJson(e.documentID, e.data));
   }
 
-  Future<List<Enterprise>> fetchEnterpriseByUser(User user) async {
+  Future<List<Enterprise>> fetchEnterprisesByUser(User user) async {
     String enterpriseId;
     List<Enterprise> enterpriseList = List<Enterprise>();
     List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
