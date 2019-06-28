@@ -8,6 +8,7 @@ class DeviceFirebaseApi {
 
   Future<DocumentReference> createDevice(Device device) async {
     return await Firestore.instance
+        .document(device.id)
         .collection('devices')
         .add(device.toFireJson());
   }
@@ -19,26 +20,22 @@ class DeviceFirebaseApi {
         .updateData(device.toFireJson());
   }
 
-  Future<Device> fetchDeviceByInternalId(String id) async {
-    String id;
+  Future<Device> fetchDeviceById(String id) async {
     Branch deviceBranch;
-    List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
+    DocumentSnapshot docDevice;
     Map<String, dynamic> data = Map<String, dynamic>();
 
     await Firestore.instance
         .collection('devices')
-        .where('internalId', isEqualTo: id)
-        .limit(1)
-        .getDocuments()
-        .then((docs) => docSnapshotList = docs.documents);
+        .document(id)
+        .get()
+        .then((doc) => docDevice = doc);
 
-    await Future.forEach((docSnapshotList), (document) async {
-      id = document.documentID;
-      data = document.data;
-      await _branchFirebaseApi
-          .fetchBranchById(document.data['branchId'])
-          .then((branch) => deviceBranch = branch);
-    });
+    if (!docDevice.exists) return null;
+
+    await _branchFirebaseApi
+        .fetchBranchById(docDevice.data['branchId'])
+        .then((branch) => deviceBranch = branch);
 
     return Device.fromFireJson(id, deviceBranch, data);
   }

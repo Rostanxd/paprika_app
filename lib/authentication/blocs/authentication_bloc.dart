@@ -144,6 +144,12 @@ class AuthenticationBloc extends Object
     });
   }
 
+  Future<void> fetchDeviceBranch(String idDevice) async {
+    await _authenticationRepository.fetchDeviceInfo(idDevice).then((device) {
+
+    });
+  }
+
   /// Function to log-out
   void userLogOut() async {
     await _authenticationRepository.signOut().then((v) {
