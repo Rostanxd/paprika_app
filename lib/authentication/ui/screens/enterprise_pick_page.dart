@@ -26,9 +26,6 @@ class _EnterprisePickPageState extends State<EnterprisePickPage> {
     _rootBloc = widget.rootBloc;
     _authenticationBloc = widget.authenticationBloc;
 
-    /// Fetching enterprises by user
-    _authenticationBloc.fetchEnterprisesByUser();
-
     super.initState();
   }
 

@@ -23,32 +23,11 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     _rootBloc = widget.rootBloc;
     _authenticationBloc = widget.authenticationBloc;
-
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    /// Control the message in the dialog
-    _authenticationBloc.message.listen((message) {
-      if (message != null)
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Inicio de sesión'),
-                content: Text(message),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Cerrar'),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
-    });
     super.didChangeDependencies();
   }
 

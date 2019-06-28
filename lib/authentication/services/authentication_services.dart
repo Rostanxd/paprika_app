@@ -21,27 +21,6 @@ class AuthenticationFirebaseApi {
         .then((userDocument) async {
       /// Loading the user data.
       user = User.fromFireJson(userDocument.documentID, userDocument.data);
-
-//      /// Looking the role data
-//      await Firestore.instance
-//          .collection('roles')
-//          .where('enterpriseId', isEqualTo: userDocument['enterpriseId'])
-//          .where('systemId', isEqualTo: userDocument['systemId'])
-//          .getDocuments()
-//          .then((roleDocuments) {
-//        user.role = Role.fromFireJson(roleDocuments.documents[0].documentID,
-//            roleDocuments.documents[0].data);
-//      });
-//
-//      /// Looking the enterprise data
-//      await Firestore.instance
-//          .collection('enterprises')
-//          .document(userDocument['enterpriseId'])
-//          .get()
-//          .then((enterpriseDocument) {
-//        user.enterprise = Enterprise.fromFireJson(
-//            enterpriseDocument.documentID, enterpriseDocument.data);
-//      });
     });
 
     /// returning the user

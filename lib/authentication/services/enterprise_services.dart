@@ -20,6 +20,7 @@ class EnterpriseFirebaseApi {
     await Firestore.instance
         .collection('enterprises_users')
         .where('userId', isEqualTo: user.id)
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((docs) {
       docSnapshotList.addAll(docs.documents);
@@ -28,10 +29,11 @@ class EnterpriseFirebaseApi {
     /// Reading each doc snapshot to get the enterprise data
     await Future.forEach(docSnapshotList, (doc) async {
       enterpriseId = doc.data['enterpriseId'];
-
-      await fetchEnterprise(enterpriseId).then((e) {
-        enterpriseList.add(e);
-      });
+      if (doc.data['roleId'] != '') {
+        await fetchEnterprise(enterpriseId).then((e) {
+          enterpriseList.add(e);
+        });
+      }
     });
 
     return enterpriseList;

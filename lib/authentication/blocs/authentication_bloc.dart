@@ -34,8 +34,8 @@ class AuthenticationBloc extends Object
       Observable.combineLatest2(email, password, (a, b) => true);
 
   Stream<bool> get validUser =>
-      Observable.combineLatest2(firebaseUser, user, (a, b) {
-        if (a != null && b != null) {
+      Observable.combineLatest3(firebaseUser, user, enterpriseList, (a, b, c) {
+        if (a != null && b != null && c != null) {
           return true;
         } else {
           return false;
@@ -73,26 +73,29 @@ class AuthenticationBloc extends Object
   Function(Enterprise) get changeEnterprise => _enterprise.add;
 
   /// Function to check is the user is logged or not
-  void userLogged() async {
+  Future<void> userLogged() async {
     await _authenticationRepository.userLogged().then((firebaseUser) async {
       if (firebaseUser != null) {
         _firebaseUser.sink.add(firebaseUser);
-        _userSystem(firebaseUser.uid);
+        await _userSystem(firebaseUser.uid);
+        await _fetchEnterprisesByUser();
       } else {
         _firebaseUser.sink.add(null);
         _user.sink.add(null);
         _enterprise.add(null);
+        _enterpriseList.add(null);
       }
     });
   }
 
   /// Log-in function
-  void logIn() async {
+  Future<void> logIn() async {
     _logging.sink.add(true);
     await _authenticationRepository.logIn(_email.value, _password.value).then(
         (response) async {
       _firebaseUser.sink.add(response);
-      _userSystem(response.uid);
+      await _userSystem(response.uid);
+      await _fetchEnterprisesByUser();
       _logging.sink.add(false);
     }, onError: (error) {
       _logging.sink.add(false);
@@ -101,7 +104,7 @@ class AuthenticationBloc extends Object
   }
 
   /// Get all the user's data
-  void _userSystem(String uid) async {
+  Future<void> _userSystem(String uid) async {
     await _authenticationRepository.userSystem(uid).then((user) {
       _user.sink.add(user);
     }, onError: (error) {
@@ -110,18 +113,35 @@ class AuthenticationBloc extends Object
     });
   }
 
-  void fetchEnterprisesByUser() async {
+  Future<void> _fetchEnterprisesByUser() async {
     await _authenticationRepository
         .fetchEnterprisesByUser(_user.value)
-        .then((enterprises) => _enterpriseList.sink.add(enterprises));
+        .then((enterprises) async {
+      /// Check if the user no have enterprise assigned
+      if (enterprises.length == 0) {
+        return _message.sink
+            .add('Lo sentimos, su usuario no tiene empresas asignadas.');
+      }
+
+      /// Add the enterprise list to the stream
+      _enterpriseList.sink.add(enterprises);
+
+      /// Check if the user have only one enterprise assigned
+      if (enterprises.length == 1) {
+        _enterprise.sink.add(enterprises[0]);
+
+        /// Fetch the user's role in this only one enterprise
+        await fetchUserRole();
+      }
+    });
   }
 
-  void fetchUserRole() async {
+  Future<void> fetchUserRole() async {
     await _authenticationRepository
         .fetchRoleByEnterpriseUser(_enterprise.value, user.value)
         .then((role) {
-          _role.sink.add(role);
-        });
+      _role.sink.add(role);
+    });
   }
 
   /// Function to log-out
@@ -130,6 +150,7 @@ class AuthenticationBloc extends Object
       _firebaseUser.sink.add(null);
       _user.sink.add(null);
       _enterprise.sink.add(null);
+      _enterpriseList.sink.add(null);
       _role.sink.add(null);
       _message.sink.add(null);
       _email.sink.add(null);

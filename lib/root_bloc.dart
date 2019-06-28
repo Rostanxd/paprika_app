@@ -44,7 +44,8 @@ class RootBloc implements BlocBase {
             '',
             '',
             '',
-            '');
+            '',
+            null);
       });
     } else {
       await _deviceInfoPlugin.iosInfo.then((info) {
@@ -60,7 +61,8 @@ class RootBloc implements BlocBase {
             '',
             '',
             '',
-            '');
+            '',
+            null);
       });
     }
     _device.sink.add(device);

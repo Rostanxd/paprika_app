@@ -20,6 +20,7 @@ class RoleFirebaseApi {
         .collection('enterprises_users')
         .where('enterpriseId', isEqualTo: enterprise.id)
         .where('userId', isEqualTo: user.id)
+        .where('state', isEqualTo: 'A')
         .limit(1)
         .getDocuments()
         .then((docs) => docSnapshotList.addAll(docs.documents));
