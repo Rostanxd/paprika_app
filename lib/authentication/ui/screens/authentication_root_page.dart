@@ -7,7 +7,7 @@ import 'package:paprika_app/authentication/ui/screens/login_page.dart';
 import 'package:paprika_app/home_page.dart';
 import 'package:paprika_app/root_bloc.dart';
 
-class AuthenticationRootPage extends StatefulWidget {
+class AuthenticationRootPage extends StatelessWidget {
   final RootBloc rootBloc;
   final AuthenticationBloc authenticationBloc;
 
@@ -16,20 +16,11 @@ class AuthenticationRootPage extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AuthenticationRootPageState createState() => _AuthenticationRootPageState();
-}
-
-class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
-  RootBloc _rootBloc;
-  AuthenticationBloc _authenticationBloc;
-
-  @override
-  void initState() {
-    _rootBloc = widget.rootBloc;
-    _authenticationBloc = widget.authenticationBloc;
+  Widget build(BuildContext context) {
+    print('building');
 
     /// Control the message in the dialog
-    _authenticationBloc.message.listen((message) {
+    authenticationBloc.message.listen((message) {
       if (message != null)
         showDialog(
             context: context,
@@ -48,18 +39,14 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
               );
             });
     });
-    super.initState();
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return _streamBuilderUserValid();
   }
 
   /// Stream builder to check is the user is valid
   Widget _streamBuilderUserValid() {
     return StreamBuilder<bool>(
-      stream: _authenticationBloc.validUser,
+      stream: authenticationBloc.validUser,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -68,11 +55,11 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
           default:
             if (snapshot.hasData && snapshot.data) {
               return _streamBuilderEnterpriseRole(
-                  _authenticationBloc.user.value);
+                  authenticationBloc.user.value);
             } else {
               return LoginPage(
-                rootBloc: _rootBloc,
-                authenticationBloc: _authenticationBloc,
+                rootBloc: rootBloc,
+                authenticationBloc: authenticationBloc,
               );
             }
         }
@@ -83,21 +70,21 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
   /// Stream builder to let the user pick a enterprise or not.
   Widget _streamBuilderEnterpriseRole(User user) {
     return StreamBuilder<bool>(
-        stream: _authenticationBloc.enterpriseRole,
+        stream: authenticationBloc.enterpriseRole,
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
               return EnterprisePickPage(
-                rootBloc: _rootBloc,
-                authenticationBloc: _authenticationBloc,
+                rootBloc: rootBloc,
+                authenticationBloc: authenticationBloc,
                 user: user,
               );
             default:
               return snapshot.hasData && snapshot.data
                   ? _streamBuilderBranchDevice()
                   : EnterprisePickPage(
-                      rootBloc: _rootBloc,
-                      authenticationBloc: _authenticationBloc,
+                      rootBloc: rootBloc,
+                      authenticationBloc: authenticationBloc,
                       user: user,
                     );
           }
@@ -107,21 +94,25 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
   /// Stream to check if the device have a branch assigned
   Widget _streamBuilderBranchDevice() {
     return StreamBuilder<bool>(
-      stream: _authenticationBloc.deviceBranch,
+      stream: authenticationBloc.deviceBranch,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return BranchPickPage(
-              rootBloc: _rootBloc,
-              authenticationBloc: _authenticationBloc,
+              rootBloc: rootBloc,
+              authenticationBloc: authenticationBloc,
             );
           default:
             return snapshot.hasData && snapshot.data
-                ? HomePage()
+                ? MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    routes: <String, WidgetBuilder>{},
+                    home: HomePage(),
+                  )
                 : BranchPickPage(
-              rootBloc: _rootBloc,
-              authenticationBloc: _authenticationBloc,
-            );
+                    rootBloc: rootBloc,
+                    authenticationBloc: authenticationBloc,
+                  );
         }
       },
     );
@@ -139,9 +130,9 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
                     fit: BoxFit.fill)),
           ),
           CircularProgressIndicator(
-            backgroundColor: Color(_rootBloc.secondaryColor.value),
+            backgroundColor: Color(rootBloc.secondaryColor.value),
             valueColor: AlwaysStoppedAnimation<Color>(
-                Color(_rootBloc.primaryColor.value)),
+                Color(rootBloc.primaryColor.value)),
           ),
         ],
       ),

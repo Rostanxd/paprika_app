@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
+import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/inventory/ui/screens/items_main_configuration.dart';
@@ -111,6 +112,24 @@ class _UserDrawerState extends State<UserDrawer> {
     _listChildren.add(ListTile(
       title: Text('POS'),
       leading: Icon(Icons.shopping_cart),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => CashPage()));
+      },
+    ));
+
+    _listChildren.add(ListTile(
+      title: Text('Pedidos'),
+      leading: Icon(Icons.add_shopping_cart),
+      onTap: () {
+        Navigator.pop(context);
+      },
+    ));
+
+    _listChildren.add(ListTile(
+      title: Text('Recetas'),
+      leading: Icon(Icons.book),
       onTap: () {
         Navigator.pop(context);
       },
