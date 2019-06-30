@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
 
 class Device extends Object {
@@ -8,10 +9,10 @@ class Device extends Object {
   String model;
   String name;
   String isPhysic;
-  String userCreated;
-  String dateCreated;
-  String userUpdated;
-  String dateUpdated;
+  String creationUser;
+  DateTime creationDate;
+  String modificationUser;
+  DateTime modificationDate;
   Branch branch;
 
   Device(
@@ -22,10 +23,10 @@ class Device extends Object {
       this.model,
       this.name,
       this.isPhysic,
-      this.userCreated,
-      this.dateCreated,
-      this.userUpdated,
-      this.dateUpdated,
+      this.creationUser,
+      this.creationDate,
+      this.modificationUser,
+      this.modificationDate,
       this.branch);
 
   Device.fromFireJson(
@@ -37,10 +38,12 @@ class Device extends Object {
     this.model = json['model'];
     this.name = json['name'];
     this.isPhysic = json['isPhysic'];
-    this.userCreated = json['userCreated'];
-    this.dateCreated = json['dateCreated'];
-    this.userUpdated = json['userUpdated'];
-    this.dateUpdated = json['dateUpdated'];
+    this.creationUser = json['creationUser'];
+    this.creationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['creationDate'].seconds * 1000);
+    this.modificationUser = json['modificationUser'];
+    this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['modificationDate'].seconds * 1000);
     this.branch = branch;
   }
 
@@ -51,10 +54,10 @@ class Device extends Object {
         'model': this.model,
         'name': this.name,
         'isPhysic': this.isPhysic,
-        'userCreated': this.userCreated,
-        'dateCreated': this.dateCreated,
-        'userUpdated': this.userUpdated,
-        'dateUpdated': this.dateUpdated,
+        'creationUser': this.creationUser,
+        'creationDate': Timestamp.fromDate(this.creationDate),
+        'modificationUser': this.modificationUser,
+        'modificationDate': Timestamp.fromDate(this.modificationDate),
         'branchId': this.branch.id,
       };
 
@@ -62,8 +65,8 @@ class Device extends Object {
   String toString() {
     return 'Device{id: $id, state: $state, os: $os, version: $version, '
         'model: $model, name: $name, isPhysic: $isPhysic, '
-        'userCreated: $userCreated, dateCreated: $dateCreated, '
-        'userUpdated: $userUpdated, dateUpdated: $dateUpdated, '
+        'creationUser: $creationUser, creationDate: $creationDate, '
+        'modificationUser: $modificationUser, modificationDate: $modificationDate, '
         'branch: $branch}';
   }
 }

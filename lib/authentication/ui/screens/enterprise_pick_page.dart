@@ -111,11 +111,6 @@ class _EnterprisePickPageState extends State<EnterprisePickPage> {
                                     if (snapshot.hasError)
                                       return Text(snapshot.error.toString());
 
-                                    if (snapshot.data.length == 1) {
-                                      _authenticationBloc
-                                          .changeEnterprise(snapshot.data[0]);
-                                    }
-
                                     return ListView.separated(
                                         itemBuilder: (context, index) {
                                           return ListTile(

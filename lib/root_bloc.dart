@@ -1,6 +1,5 @@
 import 'package:device_info/device_info.dart';
 import 'package:paprika_app/authentication/models/device.dart';
-import 'package:paprika_app/authentication/resources/authentication_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -14,8 +13,6 @@ class RootBloc implements BlocBase {
   final _secondaryColor = BehaviorSubject<int>();
   final _tertiaryColor = BehaviorSubject<int>();
   final _submitColor = BehaviorSubject<int>();
-  final AuthenticationRepository _authenticationRepository =
-      AuthenticationRepository();
 
   /// Observables
   ValueObservable<Device> get device => _device.stream;
@@ -33,23 +30,23 @@ class RootBloc implements BlocBase {
   /// Functions
   Function(Device) get changeDevice => _device.add;
 
-  void fetchDeviceInfo(bool isAndroid) async {
+  Future<void> fetchDeviceInfo(bool isAndroid) async {
     Device device;
     if (isAndroid) {
       await _deviceInfoPlugin.androidInfo.then((info) {
         _androidDeviceInfo.sink.add(info);
         device = Device(
             info.androidId,
-            '',
+            'A',
             'Android',
             info.version.sdkInt.toString(),
             info.model,
             info.product,
             info.isPhysicalDevice.toString(),
             '',
+            DateTime.now(),
             '',
-            '',
-            '',
+            DateTime.now(),
             null);
       });
     } else {
@@ -57,32 +54,18 @@ class RootBloc implements BlocBase {
         _iosDeviceInfo.sink.add(info);
         device = Device(
             info.identifierForVendor,
-            '',
+            'A',
             'iOS',
             info.systemVersion,
             info.model,
             '',
             info.isPhysicalDevice.toString(),
             '',
+            DateTime.now(),
             '',
-            '',
-            '',
+            DateTime.now(),
             null);
       });
-    }
-
-    /// Check if we have register the device
-    Device deviceExist =
-        await _authenticationRepository.fetchDeviceInfo(device.id);
-
-    /// If the device exist in the data base, we update the attributes.
-    /// Otherwise, we create the device.
-    if (deviceExist != null) {
-      /// We take the branch office saved on the bd.
-      device.branch = deviceExist.branch;
-      await _authenticationRepository.updateDeviceInfo(device);
-    } else {
-      await _authenticationRepository.createDevice(device);
     }
 
     _device.sink.add(device);

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/models/user.dart';
+import 'package:paprika_app/authentication/ui/screens/branch_pick_page.dart';
 import 'package:paprika_app/authentication/ui/screens/enterprise_pick_page.dart';
 import 'package:paprika_app/authentication/ui/screens/login_page.dart';
-import 'package:paprika_app/pos/ui/screens/cash_page.dart';
+import 'package:paprika_app/home_page.dart';
 import 'package:paprika_app/root_bloc.dart';
 
 class AuthenticationRootPage extends StatefulWidget {
   final RootBloc rootBloc;
   final AuthenticationBloc authenticationBloc;
 
-  const AuthenticationRootPage({Key key, this.rootBloc, this.authenticationBloc})
+  const AuthenticationRootPage(
+      {Key key, this.rootBloc, this.authenticationBloc})
       : super(key: key);
 
   @override
@@ -78,6 +80,7 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
     );
   }
 
+  /// Stream builder to let the user pick a enterprise or not.
   Widget _streamBuilderEnterpriseRole(User user) {
     return StreamBuilder<bool>(
         stream: _authenticationBloc.enterpriseRole,
@@ -91,14 +94,37 @@ class _AuthenticationRootPageState extends State<AuthenticationRootPage> {
               );
             default:
               return snapshot.hasData && snapshot.data
-                  ? CashPage()
+                  ? _streamBuilderBranchDevice()
                   : EnterprisePickPage(
-                rootBloc: _rootBloc,
-                authenticationBloc: _authenticationBloc,
-                user: user,
-              );
+                      rootBloc: _rootBloc,
+                      authenticationBloc: _authenticationBloc,
+                      user: user,
+                    );
           }
         });
+  }
+
+  /// Stream to check if the device have a branch assigned
+  Widget _streamBuilderBranchDevice() {
+    return StreamBuilder<bool>(
+      stream: _authenticationBloc.deviceBranch,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return BranchPickPage(
+              rootBloc: _rootBloc,
+              authenticationBloc: _authenticationBloc,
+            );
+          default:
+            return snapshot.hasData && snapshot.data
+                ? HomePage()
+                : BranchPickPage(
+              rootBloc: _rootBloc,
+              authenticationBloc: _authenticationBloc,
+            );
+        }
+      },
+    );
   }
 
   Widget loadingPage() {

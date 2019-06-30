@@ -32,7 +32,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// Device's information
-    rootBloc.fetchDeviceInfo(Platform.isAndroid);
+    rootBloc.fetchDeviceInfo(Platform.isAndroid).then((v) {
+      /// Updating device in the authentication bloc
+      authenticationBloc.changeDevice(rootBloc.device.value);
+    });
 
     /// To get the app's colors
     rootBloc.fetchColors();

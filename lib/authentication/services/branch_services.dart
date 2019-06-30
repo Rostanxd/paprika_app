@@ -7,7 +7,6 @@ class BranchFirebaseApi {
   EnterpriseFirebaseApi _enterpriseFirebaseApi = EnterpriseFirebaseApi();
 
   Future<Branch> fetchBranchById(String id) async {
-    String id;
     String enterpriseId;
     Enterprise enterprise;
     Map<String, dynamic> data;
@@ -18,7 +17,6 @@ class BranchFirebaseApi {
         .document(id)
         .get()
         .then((document) {
-      id = document.documentID;
       enterpriseId = document.data['enterpriseId'];
       data = document.data;
     });
@@ -31,11 +29,12 @@ class BranchFirebaseApi {
     return Branch.fromFireJson(id, enterprise, data);
   }
 
-  Future<Branch> fetchBranchesByEnterprise(Enterprise enterprise) async {
+  Future<List<Branch>> fetchBranchesByEnterprise(Enterprise enterprise) async {
     List<Branch> branches = List<Branch>();
-    return await Firestore.instance
+    await Firestore.instance
         .collection('branches')
         .where('enterpriseId', isEqualTo: enterprise.id)
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((documents) {
       documents.documents.forEach((docBranch) {
@@ -43,5 +42,7 @@ class BranchFirebaseApi {
             docBranch.documentID, enterprise, docBranch.data));
       });
     });
+
+    return branches;
   }
 }
