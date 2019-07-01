@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:paprika_app/authentication/models/enterprise.dart';
+import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
@@ -21,7 +21,7 @@ class Invoice extends Object {
   String creationUser;
   DateTime creationDate;
   List<InvoiceLine> detail;
-  Enterprise enterprise;
+  Branch branch;
 
   Invoice(
       this.customer,
@@ -33,9 +33,10 @@ class Invoice extends Object {
       this.detail,
       this.creationUser,
       this.creationDate,
-      this.enterprise);
+      this.branch);
 
-  Invoice.fromFireJson(String documentId, Map<String, dynamic> json) {
+  Invoice.fromFireJson(String documentId, Branch branch,
+      Customer customer, Map<String, dynamic> json) {
     this.id = documentId;
     this.quantity = json['quantity'];
     this.discount = json['discount'];
@@ -45,6 +46,8 @@ class Invoice extends Object {
     this.creationUser = json['creationUser'];
     this.creationDate = DateTime.fromMillisecondsSinceEpoch(
         json['creationDate'].seconds * 1000);
+    this.branch = branch;
+    this.customer = customer;
   }
 
   Map<String, dynamic> toFireJson() => {
@@ -56,7 +59,7 @@ class Invoice extends Object {
         'total': this.total,
         'creationUser': this.creationUser,
         'creationDate': Timestamp.fromDate(this.creationDate),
-        'enterpriseId': this.enterprise.id
+        'branchId': this.branch.id
       };
 
   @override
@@ -65,7 +68,7 @@ class Invoice extends Object {
         'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
         'total: $total, creationUser: $creationUser, '
         'creationDate: $creationDate, detail: $detail, '
-        'enterprise: $enterprise}';
+        'branch: ${branch.toString()}';
   }
 }
 
@@ -84,9 +87,11 @@ class InvoiceLine extends Object {
   InvoiceLine(this.item, this.discountRate, this.discountValue, this.quantity,
       this.subtotal, this.taxes, this.total);
 
-  InvoiceLine.fromFireJson(String documentId, Map<String, dynamic> json) {
+  InvoiceLine.fromFireJson(
+      String documentId, Item item, Map<String, dynamic> json) {
     this.lineId = documentId;
     this.invoiceId = json['invoiceId'];
+    this.item = item;
     this.discountRate = json['discountRate'];
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];

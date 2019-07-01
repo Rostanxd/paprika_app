@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:paprika_app/authentication/models/branch.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
 
@@ -46,23 +48,25 @@ class CustomerApi {
         .where('customerId', isEqualTo: customerId)
         .getDocuments()
         .then((querySnapshot) {
-          numberTickets = querySnapshot.documents.length;
+      numberTickets = querySnapshot.documents.length;
     });
     return numberTickets;
   }
 
-  Future<Invoice> customerLastInvoice(String customerId) async {
+  Future<Invoice> customerLastInvoice(
+      Enterprise enterprise, Branch branch, Customer customer) async {
     List<Invoice> invoiceList = List<Invoice>();
     Invoice invoice;
     await Firestore.instance
         .collection('invoices')
-        .where('customerId', isEqualTo: customerId)
+        .where('enterpriseId', isEqualTo: enterprise.id)
+        .where('customerId', isEqualTo: customer.id)
         .orderBy('creationDate', descending: true)
         .limit(1)
         .getDocuments()
         .then((querySnapshot) {
-      querySnapshot.documents.forEach(
-          (i) => invoiceList.add(Invoice.fromFireJson(i.documentID, i.data)));
+      querySnapshot.documents.forEach((i) => invoiceList
+          .add(Invoice.fromFireJson(i.documentID, branch, customer, i.data)));
     });
     if (invoiceList.length == 0) return invoice;
     return invoice = invoiceList[0];

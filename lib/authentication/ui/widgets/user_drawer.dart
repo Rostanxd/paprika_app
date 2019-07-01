@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
-import 'package:paprika_app/pos/ui/screens/cash_page.dart';
+import 'package:paprika_app/home_page.dart';
+import 'package:paprika_app/pos/ui/screens/order_home_page.dart';
+import 'package:paprika_app/pos/ui/screens/pos_home_page.dart';
+import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/inventory/ui/screens/items_main_configuration.dart';
@@ -16,12 +19,15 @@ class _UserDrawerState extends State<UserDrawer> {
 
   FirebaseUser _firebaseUser;
 
+  RootBloc _rootBloc;
+
   AuthenticationBloc _authenticationBloc;
 
   User _user;
 
   @override
   void didChangeDependencies() {
+    _rootBloc = BlocProvider.of<RootBloc>(context);
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     super.didChangeDependencies();
   }
@@ -110,12 +116,27 @@ class _UserDrawerState extends State<UserDrawer> {
     _listChildren.add(_header());
 
     _listChildren.add(ListTile(
+      title: Text('Home'),
+      leading: Icon(Icons.home),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                      rootBloc: _rootBloc,
+                      authenticationBloc: _authenticationBloc,
+                    )));
+      },
+    ));
+
+    _listChildren.add(ListTile(
       title: Text('POS'),
       leading: Icon(Icons.shopping_cart),
       onTap: () {
         Navigator.pop(context);
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CashPage()));
+            context, MaterialPageRoute(builder: (context) => PosHomePage()));
       },
     ));
 
@@ -124,6 +145,8 @@ class _UserDrawerState extends State<UserDrawer> {
       leading: Icon(Icons.add_shopping_cart),
       onTap: () {
         Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => OrderHomePage()));
       },
     ));
 

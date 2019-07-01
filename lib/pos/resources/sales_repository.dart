@@ -25,4 +25,13 @@ class SalesRepository {
 
   Future<OpeningCashDrawer> fetchOpenedCashDrawerOfDevice(Device device) =>
       _cashDrawerFirebaseApi.fetchOpenedCashDrawerOfDevice(device);
+
+  Future<List<Invoice>> fetchDocumentByEnterprise(
+          Branch branch,
+          String documentType,
+          Timestamp fromDate,
+          Timestamp toDate,
+          String state) =>
+      _invoiceApi.fetchDocumentsBy(
+          branch, documentType, fromDate, toDate, state);
 }

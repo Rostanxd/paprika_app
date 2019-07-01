@@ -7,6 +7,10 @@ import 'package:paprika_app/pos/ui/screens/search_item.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
+  final String documentType;
+
+  const CashPage({Key key, this.documentType}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _CashPageState();
 }

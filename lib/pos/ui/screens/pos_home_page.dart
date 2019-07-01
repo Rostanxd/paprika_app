@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
-import 'package:paprika_app/pos/blocs/pos_home_page_bloc.dart';
+import 'package:paprika_app/pos/blocs/pos_home_bloc.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
@@ -12,11 +12,11 @@ class PosHomePage extends StatefulWidget {
 
 class _PosHomePageState extends State<PosHomePage> {
   RootBloc _rootBloc;
-  PosHomePageBloc _posHomePageBloc;
+  PosHomeBloc _posHomePageBloc;
 
   @override
   void initState() {
-    _posHomePageBloc = PosHomePageBloc();
+    _posHomePageBloc = PosHomeBloc();
     super.initState();
   }
 

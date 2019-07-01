@@ -17,8 +17,6 @@ class AuthenticationRootPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('building');
-
     /// Control the message in the dialog
     authenticationBloc.message.listen((message) {
       if (message != null)
@@ -107,7 +105,10 @@ class AuthenticationRootPage extends StatelessWidget {
                 ? MaterialApp(
                     debugShowCheckedModeBanner: false,
                     routes: <String, WidgetBuilder>{},
-                    home: HomePage(),
+                    home: HomePage(
+                      rootBloc: rootBloc,
+                      authenticationBloc: authenticationBloc,
+                    ),
                   )
                 : BranchPickPage(
                     rootBloc: rootBloc,

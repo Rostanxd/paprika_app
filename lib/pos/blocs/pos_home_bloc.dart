@@ -6,7 +6,7 @@ import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
-class PosHomePageBloc extends BlocBase {
+class PosHomeBloc extends BlocBase {
   final _enterprise = BehaviorSubject<Enterprise>();
   final _branch = BehaviorSubject<Branch>();
   final _openedCashDrawer = BehaviorSubject<OpeningCashDrawer>();

@@ -1,3 +1,4 @@
+import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
@@ -11,6 +12,7 @@ import 'package:rxdart/rxdart.dart';
 
 class CashBloc extends BlocBase {
   final _enterprise = BehaviorSubject<Enterprise>();
+  final _branch = BehaviorSubject<Branch>();
   final _index = BehaviorSubject<int>();
   final _items = BehaviorSubject<List<Item>>();
   final _invoice = BehaviorSubject<Invoice>();
@@ -148,10 +150,10 @@ class CashBloc extends BlocBase {
       total = double.parse(total.toStringAsFixed(2));
 
       invoice = Invoice(null, quantity, discount, subtotal, taxes, total,
-          List<InvoiceLine>(), '', DateTime.now(), _enterprise.value);
+          List<InvoiceLine>(), '', DateTime.now(), _branch.value);
     } else {
-      invoice = Invoice(
-          null, 0, 0, 0, 0, 0, null, '', DateTime.now(), _enterprise.value);
+      invoice =
+          Invoice(null, 0, 0, 0, 0, 0, null, '', DateTime.now(), _branch.value);
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -234,7 +236,7 @@ class CashBloc extends BlocBase {
         _invoiceDetail.value,
         user,
         DateTime.now(),
-        _enterprise.value);
+        _branch.value);
 
     if (newInvoice.detail.length == 0) {
       return _message.sink.add('No hay items en la factura.');
@@ -268,7 +270,7 @@ class CashBloc extends BlocBase {
         .then((number) => _customerNumberOfInvoices.sink.add(number));
 
     await _crmRepository
-        .customerLastInvoice(customer.customerId)
+        .customerLastInvoice(_enterprise.value, _branch.value, customer)
         .then((invoice) => _customerLastInvoice.sink.add(invoice));
   }
 
@@ -298,5 +300,6 @@ class CashBloc extends BlocBase {
     _customerLastInvoice.close();
     _itemPresentation.close();
     _enterprise.close();
+    _branch.close();
   }
 }
