@@ -25,7 +25,7 @@ class _PosHomePageState extends State<PosHomePage> {
     _rootBloc = BlocProvider.of<RootBloc>(context);
 
     /// Fetching opened cash drawer with this device
-//    _posHomePageBloc.fetchOpenedCashDrawer(_rootBloc.device.value);
+    _posHomePageBloc.fetchOpenedCashDrawer(_rootBloc.device.value);
 
     super.didChangeDependencies();
   }

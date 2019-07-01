@@ -12,6 +12,8 @@ class OrderHomeBloc extends BlocBase {
   final _orders = BehaviorSubject<List<Invoice>>();
   final _fromDate = BehaviorSubject<DateTime>();
   final _toDate = BehaviorSubject<DateTime>();
+  final _branchSelectedId = BehaviorSubject<String>();
+  final _orderSelected = BehaviorSubject<Invoice>();
   final SalesRepository _salesRepository = SalesRepository();
 
   /// Observables
@@ -25,6 +27,10 @@ class OrderHomeBloc extends BlocBase {
 
   ValueObservable<DateTime> get toDate => _toDate.stream;
 
+  ValueObservable<String> get branchSelectedId => _branchSelectedId.stream;
+
+  ValueObservable<Invoice> get orderSelected => _orderSelected.stream;
+
   /// Functions
   Function(Enterprise) get changeEnterprise => _enterprise.add;
 
@@ -34,12 +40,16 @@ class OrderHomeBloc extends BlocBase {
 
   Function(DateTime) get changeToDate => _toDate.add;
 
-  Future<void> fetchOrders(DateTime fromDate, DateTime toDate) async {
-    Timestamp fromDateTimeStamp = Timestamp.fromDate(fromDate);
-    Timestamp toDateTimeStamp = Timestamp.fromDate(toDate);
+  Function(String) get changeBranchSelectedId => _branchSelectedId.add;
+
+  Function(Invoice) get changeOrderSelected => _orderSelected.add;
+
+  Future<void> fetchOrders() async {
+    Timestamp fromDateTimeStamp = Timestamp.fromDate(_fromDate.value);
+    Timestamp toDateTimeStamp = Timestamp.fromDate(_fromDate.value);
     await _salesRepository
         .fetchDocumentByEnterprise(
-            _branch.value, 'O', fromDateTimeStamp, toDateTimeStamp, 'P')
+            _branch.value, 'O', fromDateTimeStamp, toDateTimeStamp, 'A')
         .then((os) => _orders.sink.add(os));
   }
 
@@ -50,5 +60,7 @@ class OrderHomeBloc extends BlocBase {
     _orders.close();
     _fromDate.close();
     _toDate.close();
+    _branchSelectedId.close();
+    _orderSelected.close();
   }
 }

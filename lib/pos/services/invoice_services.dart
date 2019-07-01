@@ -25,6 +25,7 @@ class InvoiceApi {
 
   Future<List<Invoice>> fetchDocumentsBy(Branch branch, String documentType,
       Timestamp fromDate, Timestamp toDate, String state) async {
+    Invoice invoice;
     Customer customer;
     List<Invoice> invoices = List<Invoice>();
     List<DocumentSnapshot> invoiceDocSnapshots = List<DocumentSnapshot>();
@@ -35,8 +36,8 @@ class InvoiceApi {
         .where('branchId', isEqualTo: branch.id)
         .where('documentType', isEqualTo: documentType)
         .where('state', isEqualTo: state)
-        .where('dateTime', isGreaterThanOrEqualTo: fromDate)
-        .where('dateTime', isLessThanOrEqualTo: toDate)
+//        .where('dateTime', isGreaterThanOrEqualTo: fromDate)
+//        .where('dateTime', isLessThanOrEqualTo: toDate)
         .getDocuments()
         .then((documents) => invoiceDocSnapshots = documents.documents);
 
@@ -44,11 +45,14 @@ class InvoiceApi {
     await Future.forEach(invoiceDocSnapshots, (document) async {
       customer =
           await _customerApi.fetchCustomerById(document.data['customerId']);
-      await fetchInvoiceDetail(document.data['invoiceId']);
+
+      invoice = Invoice.fromFireJson(
+          document.documentID, branch, customer, document.data);
+
+      invoice.detail = await fetchInvoiceDetail(invoice);
 
       /// Loading the invoice to the list
-      invoices.add(Invoice.fromFireJson(
-          document.documentID, branch, customer, document.data));
+      invoices.add(invoice);
     });
 
     return invoices;

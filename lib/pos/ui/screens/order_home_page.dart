@@ -15,8 +15,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
   RootBloc _rootBloc;
   AuthenticationBloc _authenticationBloc;
   OrderHomeBloc _orderHomeBloc;
-  DateTime _fromDate;
-  DateTime _toDate;
+  DateTime _fromDefaultDate = DateTime.now();
+  List<DropdownMenuItem<String>> _branchesDropDownItems =
+      List<DropdownMenuItem<String>>();
 
   TextEditingController _fromDateCtrl = TextEditingController();
   TextEditingController _toDateCtrl = TextEditingController();
@@ -29,9 +30,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
         initialDate: _orderHomeBloc.fromDate.value.toString().isNotEmpty &&
                 _orderHomeBloc.fromDate.value != null
             ? _orderHomeBloc.fromDate.value
-            : DateTime(_now.year - 17),
-        firstDate: DateTime(1900),
-        lastDate: DateTime(_now.year - 17));
+            : _fromDefaultDate,
+        firstDate: DateTime(_now.year - 3),
+        lastDate: DateTime(_now.year + 1));
 
     if (picked != null) {
       _orderHomeBloc.changeFromDate(picked);
@@ -45,9 +46,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
         initialDate: _orderHomeBloc.toDate.value.toString().isNotEmpty &&
                 _orderHomeBloc.toDate.value != null
             ? _orderHomeBloc.toDate.value
-            : DateTime(_now.year - 17),
-        firstDate: DateTime(1900),
-        lastDate: DateTime(_now.year - 17));
+            : _fromDefaultDate,
+        firstDate: DateTime(_now.year - 3),
+        lastDate: DateTime(_now.year + 1));
 
     if (picked != null) {
       _orderHomeBloc.changeToDate(picked);
@@ -57,8 +58,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
   @override
   void initState() {
     _orderHomeBloc = OrderHomeBloc();
-    _fromDate = DateTime.now();
-    _toDate = DateTime.now();
+    _orderHomeBloc.changeOrderSelected(null);
     super.initState();
   }
 
@@ -71,8 +71,25 @@ class _OrderHomePageState extends State<OrderHomePage> {
     _orderHomeBloc.changeEnterprise(_authenticationBloc.enterprise.value);
     _orderHomeBloc.changeBranch(_authenticationBloc.branch.value);
 
+    /// Loading the branches to the dropdown item
+    _branchesDropDownItems.clear();
+    _branchesDropDownItems.add(DropdownMenuItem(
+      value: '',
+      child: Text('Todos'),
+    ));
+
+    _authenticationBloc.branchList.value
+        .forEach((b) => _branchesDropDownItems.add(DropdownMenuItem(
+              value: b.id,
+              child: Text(b.name),
+            )));
+
+    _orderHomeBloc.changeBranchSelectedId(_authenticationBloc.branch.value.id);
+
     /// Getting the orders
-    _orderHomeBloc.fetchOrders(_fromDate, _toDate);
+    _orderHomeBloc.changeFromDate(DateTime.now().subtract(Duration(days: 7)));
+    _orderHomeBloc.changeToDate(DateTime.now());
+    _orderHomeBloc.fetchOrders();
 
     super.didChangeDependencies();
   }
@@ -83,14 +100,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
       appBar: AppBar(
         title: Text('Pedidos realizados'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              _callModalFilter();
-            },
-          ),
-        ],
+        actions: <Widget>[],
       ),
       drawer: UserDrawer(),
       body: Row(
@@ -116,7 +126,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
 
   Widget _orderList() {
     return Container(
-      margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 10.0, right: 10.0),
+      margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 10.0, right: 5.0),
       child: Card(
         elevation: 5.0,
         child: Column(
@@ -134,55 +144,66 @@ class _OrderHomePageState extends State<OrderHomePage> {
                         TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
                 Container(
-                    height: 500.0,
-                    margin: EdgeInsets.only(top: 10.0, left: 10.0),
-                    child: StreamBuilder(
-                        stream: _orderHomeBloc.orders,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<List<Invoice>> snapshot) {
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.waiting:
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Color(_rootBloc.primaryColor.value)),
-                                ),
-                              );
-                            default:
-                              if (snapshot.hasError)
-                                return Center(
-                                  child: Text(snapshot.error.toString()),
-                                );
-
-                              if (!snapshot.hasData ||
-                                  snapshot.data.length == 0)
-                                return Center(
-                                  child: Text('No se han encontrado ordenes'),
-                                );
-
-                              return ListView.separated(
-                                  itemBuilder: (context, index) {
-                                    return ListTile(
-                                      title: Text(
-                                          'Fecha: ${snapshot.data[index].dateTime.toIso8601String()}'),
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) {
-                                    return Divider(
-                                      color: Colors.grey,
-                                    );
-                                  },
-                                  itemCount: snapshot.data.length);
-                          }
-                        })),
+                  margin: EdgeInsets.only(top: 10.0, right: 10.0),
+                  child: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        _callModalFilter();
+                      }),
+                ),
               ],
             ),
+            Container(
+                height: 500.0,
+                margin: EdgeInsets.only(left: 10.0),
+                child: StreamBuilder(
+                    stream: _orderHomeBloc.orders,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Invoice>> snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(_rootBloc.primaryColor.value)),
+                            ),
+                          );
+                        default:
+                          if (snapshot.hasError)
+                            return Center(
+                              child: Text(snapshot.error.toString()),
+                            );
+
+                          if (!snapshot.hasData || snapshot.data.length == 0)
+                            return Center(
+                              child: Text('No se han encontrado ordenes'),
+                            );
+
+                          return ListView.separated(
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                leading: Icon(Icons.collections_bookmark),
+                                title: Text(
+                                    '${snapshot.data[index].customer.lastName} '
+                                    '${snapshot.data[index].customer.firstName}'),
+                                subtitle: Text(
+                                    'Fecha: ${snapshot.data[index].dateTime.toString()}'),
+                                onTap: () {
+                                  _orderHomeBloc.changeOrderSelected(
+                                      snapshot.data[index]);
+                                },
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return Divider(
+                                color: Colors.grey,
+                              );
+                            },
+                            itemCount: snapshot.data.length,
+                          );
+                      }
+                    })),
           ],
         ),
       ),
@@ -191,7 +212,401 @@ class _OrderHomePageState extends State<OrderHomePage> {
 
   Widget _orderDetail() {
     return Container(
-      child: null,
+      margin: EdgeInsets.only(left: 5.0, top: 10.0, bottom: 10.0, right: 10.0),
+      child: Card(
+        elevation: 5.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: Text(
+                    'Detalle del pedido',
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, right: 10.0),
+                  child: PopupMenuButton<String>(itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.edit),
+                            Container(
+                                margin: EdgeInsets.only(left: 10.0),
+                                child: Text('Editar')),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                          child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.delete,
+                            color: Colors.redAccent,
+                          ),
+                          Container(
+                              margin: EdgeInsets.only(left: 10.0),
+                              child: Text(
+                                'Eliminar',
+                                style: TextStyle(color: Colors.redAccent),
+                              )),
+                        ],
+                      )),
+                    ];
+                  }),
+                ),
+              ],
+            ),
+            Container(
+                margin: EdgeInsets.only(top: 10.0, left: 10.0),
+                child: StreamBuilder(
+                    stream: _orderHomeBloc.orderSelected,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Invoice> snapshot) {
+                      if (snapshot.hasError)
+                        return Container(
+                          height: 500,
+                          child: Center(
+                            child: Text(snapshot.error.toString()),
+                          ),
+                        );
+
+                      if (snapshot.data == null)
+                        return Container(
+                          height: 500,
+                          child: Center(
+                            child: Text('Por favor seleccione un pedido'),
+                          ),
+                        );
+
+                      return Center(
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  child: Text(
+                                    'Datos del cliente',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(
+                                            _rootBloc.primaryColor.value)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Divider(),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Nombres',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                      '${snapshot.data.customer.lastName} '
+                                      '${snapshot.data.customer.firstName}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Celular',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                      '${snapshot.data.customer.cellphoneOne}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Teléfono',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                      '${snapshot.data.customer.telephoneOne}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(top: 20.0),
+                                  child: Text(
+                                    'Pedido',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(
+                                            _rootBloc.primaryColor.value)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Divider(),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Fecha entrega',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                      '${snapshot.data.dateTime.toString()}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Unidades',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                      '${snapshot.data.quantity.toString()}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Total \$',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child:
+                                      Text('${snapshot.data.total.toString()}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  child: Text(
+                                    'Nota',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(left: 10.0, top: 10.0),
+                                  width: 300.0,
+                                  child: Text('${snapshot.data.note}'),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(top: 20.0),
+                                  child: Text(
+                                    'Detalle',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(
+                                            _rootBloc.primaryColor.value)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Divider(),
+                            Container(
+                              margin: EdgeInsets.only(left: 10.0, right: 20.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                    width: 120.0,
+                                    margin: EdgeInsets.only(bottom: 10.0),
+                                    child: Center(
+                                      child: Text(
+                                        'Item',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 80.0,
+                                    margin: EdgeInsets.only(bottom: 10.0),
+                                    child: Center(
+                                      child: Text(
+                                        'Cantidad',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 80.0,
+                                    margin: EdgeInsets.only(bottom: 10.0),
+                                    child: Center(
+                                      child: Text(
+                                        'Precio',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 80.0,
+                                    margin: EdgeInsets.only(bottom: 10.0),
+                                    child: Center(
+                                      child: Text(
+                                        '% Dcto.',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 80.0,
+                                    margin: EdgeInsets.only(bottom: 10.0),
+                                    child: Center(
+                                      child: Text(
+                                        'Total',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 200.0,
+                              margin: EdgeInsets.only(left: 10.0, right: 20.0),
+                              padding: EdgeInsets.only(top: 5.0),
+                              decoration: BoxDecoration(
+                                  border: Border(
+                                      top: BorderSide(color: Colors.grey),
+                                      bottom: BorderSide(color: Colors.grey))),
+                              child: snapshot.data.detail == null ||
+                                      snapshot.data.detail.length == 0
+                                  ? Center(
+                                      child: Text('No hay datos'),
+                                    )
+                                  : ListView.separated(
+                                      itemBuilder: (context, index) {
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Container(
+                                              width: 120.0,
+                                              child: Text(snapshot.data
+                                                  .detail[index].item.name),
+                                            ),
+                                            Container(
+                                              width: 80.0,
+                                              child: Center(
+                                                child: Text(snapshot
+                                                    .data.detail[index].quantity
+                                                    .toString()),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 80.0,
+                                              child: Center(
+                                                child: Text(snapshot.data
+                                                    .detail[index].item.price
+                                                    .toString()),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 80.0,
+                                              child: Center(
+                                                child: Text(snapshot.data
+                                                    .detail[index].discountRate
+                                                    .toString()),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 80.0,
+                                              child: Center(
+                                                child: Text(snapshot
+                                                    .data.detail[index].total
+                                                    .toString()),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                      separatorBuilder: (context, item) {
+                                        return Divider(
+                                          color: Colors.grey,
+                                        );
+                                      },
+                                      itemCount: snapshot.data.detail.length),
+                            )
+                          ],
+                        ),
+                      );
+                    })),
+          ],
+        ),
+      ),
     );
   }
 
@@ -220,6 +635,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 ),
                 onPressed: () {
                   Navigator.pop(context);
+                  _orderHomeBloc.fetchOrders();
                 },
               ),
             ],
@@ -234,12 +650,49 @@ class _OrderHomePageState extends State<OrderHomePage> {
           Row(
             children: <Widget>[
               Container(
-                margin: EdgeInsets.only(left: 20.0),
+                margin: EdgeInsets.only(left: 10.0),
+                child: Icon(Icons.local_convenience_store),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 20.0, bottom: 10.0),
+                width: 300.0,
+                child: StreamBuilder(
+                    stream: _orderHomeBloc.branchSelectedId,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return DropdownButtonFormField(
+                        value: snapshot.data,
+                        items: _branchesDropDownItems,
+                        decoration: InputDecoration(
+                            labelText: 'Sucursal',
+                            labelStyle: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color(_rootBloc.primaryColor.value)),
+                            ),
+                            errorText: snapshot.hasError
+                                ? snapshot.error.toString()
+                                : ''),
+                        onChanged: (b) {
+                          _orderHomeBloc.changeBranchSelectedId(b);
+                        },
+                      );
+                    }),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(left: 10.0),
                 child: Icon(Icons.calendar_today),
               ),
               Container(
                 margin: EdgeInsets.only(left: 20.0, bottom: 10.0),
-                width: MediaQuery.of(context).size.width * 0.3,
+                width: 300.0,
                 child: StreamBuilder(
                     stream: _orderHomeBloc.fromDate,
                     builder: (BuildContext context,
@@ -276,12 +729,12 @@ class _OrderHomePageState extends State<OrderHomePage> {
           Row(
             children: <Widget>[
               Container(
-                margin: EdgeInsets.only(left: 20.0),
+                margin: EdgeInsets.only(left: 10.0),
                 child: Icon(Icons.calendar_today),
               ),
               Container(
                 margin: EdgeInsets.only(left: 20.0, bottom: 10.0),
-                width: MediaQuery.of(context).size.width * 0.3,
+                width: 300,
                 child: StreamBuilder(
                     stream: _orderHomeBloc.toDate,
                     builder: (BuildContext context,

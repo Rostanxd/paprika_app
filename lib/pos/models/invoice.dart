@@ -38,6 +38,10 @@ class Invoice extends Object {
   Invoice.fromFireJson(String documentId, Branch branch,
       Customer customer, Map<String, dynamic> json) {
     this.id = documentId;
+    this.documentType = json['documentType'];
+    this.state = json['state'];
+    this.dateTime = DateTime.fromMillisecondsSinceEpoch(
+        json['dateTime'].seconds * 1000);
     this.quantity = json['quantity'];
     this.discount = json['discount'];
     this.subtotal = json['subtotal'];
@@ -46,6 +50,9 @@ class Invoice extends Object {
     this.creationUser = json['creationUser'];
     this.creationDate = DateTime.fromMillisecondsSinceEpoch(
         json['creationDate'].seconds * 1000);
+    this.modificationUser = json['modificationUser'];
+    this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
+        json['modificationDate'].seconds * 1000);
     this.branch = branch;
     this.customer = customer;
   }

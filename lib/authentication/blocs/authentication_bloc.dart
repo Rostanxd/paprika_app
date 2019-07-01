@@ -82,7 +82,7 @@ class AuthenticationBloc extends Object
 
   ValueObservable<Branch> get branch => _branch.stream;
 
-  Observable<List<Branch>> get branchList => _branchList.stream;
+  ValueObservable<List<Branch>> get branchList => _branchList.stream;
 
   /// Functions
   Function(String) get changeEmail => _email.sink.add;
