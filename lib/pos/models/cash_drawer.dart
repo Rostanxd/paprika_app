@@ -10,6 +10,7 @@ class CashDrawer extends Object {
 
   CashDrawer.fromFireBase(
       String documentId, Branch branch, Map<String, dynamic> json) {
+    this.id = documentId;
     this.branch = branch;
     this.state = json['state'];
     this.name = json['name'];
@@ -90,9 +91,11 @@ class OpeningCashDrawer extends Object {
         DateTime.fromMillisecondsSinceEpoch(json['openingDate'].seconds * 1000);
     this.openingUser = json['openingUser'];
     this.state = json['state'];
-    this.closingDate =
-        DateTime.fromMillisecondsSinceEpoch(json['closingDate'].seconds * 1000);
-    this.closingUser = json['closingUser'];
+    this.closingDate = json['closingDate'] != null
+        ? DateTime.fromMillisecondsSinceEpoch(
+            json['closingDate'].seconds * 1000)
+        : null;
+    this.closingUser = json['closingUser'] != null ? json['closingUser'] : '';
   }
 
   Map<String, dynamic> toFireJson() => {

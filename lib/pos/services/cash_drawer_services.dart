@@ -66,7 +66,7 @@ class CashDrawerFirebaseApi {
       data = doc.data;
 
       await fetchCashDrawerById(cashDrawerId)
-          .then((cashDrawer) => cashDrawer = cashDrawer);
+          .then((cd) => cashDrawer = cd);
     });
 
     return OpeningCashDrawer.fromFireJson(id, cashDrawer, device, data);

@@ -38,9 +38,11 @@ class PosHomeBloc extends BlocBase {
   Function(User) get changeUser => _user.add;
 
   Future<void> fetchOpenedCashDrawer(Device device) async {
-    await _salesRepository
-        .fetchOpenedCashDrawerOfDevice(device)
-        .then((data) => _openedCashDrawer.sink.add(data));
+    await _salesRepository.fetchOpenedCashDrawerOfDevice(device).then((data) {
+      _openedCashDrawer.sink.add(data);
+
+      if (data != null) _cashDrawerSelected.sink.add(data.cashDrawer);
+    });
   }
 
   Future<void> fetchCashDrawerAvailable() async {
