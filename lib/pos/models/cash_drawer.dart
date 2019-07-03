@@ -78,6 +78,9 @@ class OpeningCashDrawer extends Object {
   DateTime closingDate;
   String closingUser;
 
+  OpeningCashDrawer(this.cashDrawer, this.device, this.openingDate,
+      this.openingUser, this.state, this.closingDate, this.closingUser);
+
   OpeningCashDrawer.fromFireJson(String documentId, CashDrawer cashDrawer,
       Device device, Map<String, dynamic> json) {
     this.id = documentId;

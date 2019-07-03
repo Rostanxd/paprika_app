@@ -3,10 +3,10 @@ import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
+import 'package:paprika_app/pos/models/cash_drawer.dart';
 
 class Invoice extends Object {
   String id;
-  Customer customer;
   String state;
   String documentType;
   DateTime dateTime;
@@ -21,7 +21,9 @@ class Invoice extends Object {
   String creationUser;
   DateTime creationDate;
   List<InvoiceLine> detail;
+  Customer customer;
   Branch branch;
+  CashDrawer cashDrawer;
 
   Invoice(
       this.customer,
@@ -33,15 +35,16 @@ class Invoice extends Object {
       this.detail,
       this.creationUser,
       this.creationDate,
-      this.branch);
+      this.branch,
+      this.cashDrawer);
 
-  Invoice.fromFireJson(String documentId, Branch branch,
-      Customer customer, Map<String, dynamic> json) {
+  Invoice.fromFireJson(String documentId, Branch branch, Customer customer,
+      CashDrawer cashDrawer, Map<String, dynamic> json) {
     this.id = documentId;
     this.documentType = json['documentType'];
     this.state = json['state'];
-    this.dateTime = DateTime.fromMillisecondsSinceEpoch(
-        json['dateTime'].seconds * 1000);
+    this.dateTime =
+        DateTime.fromMillisecondsSinceEpoch(json['dateTime'].seconds * 1000);
     this.quantity = json['quantity'];
     this.discount = json['discount'];
     this.subtotal = json['subtotal'];
@@ -55,10 +58,10 @@ class Invoice extends Object {
         json['modificationDate'].seconds * 1000);
     this.branch = branch;
     this.customer = customer;
+    this.cashDrawer = cashDrawer;
   }
 
   Map<String, dynamic> toFireJson() => {
-        'customerId': this.customer != null ? this.customer.customerId : '',
         'quantity': this.quantity,
         'discount': this.discount,
         'subtotal': this.subtotal,
@@ -66,7 +69,9 @@ class Invoice extends Object {
         'total': this.total,
         'creationUser': this.creationUser,
         'creationDate': Timestamp.fromDate(this.creationDate),
-        'branchId': this.branch.id
+        'customerId': this.customer != null ? this.customer.customerId : '',
+        'branchId': this.branch.id,
+        'cashDrawerId': this.cashDrawer.id
       };
 
   @override

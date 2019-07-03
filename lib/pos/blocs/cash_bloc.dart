@@ -1,5 +1,6 @@
 import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
+import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/category.dart';
@@ -13,6 +14,7 @@ import 'package:rxdart/rxdart.dart';
 class CashBloc extends BlocBase {
   final _enterprise = BehaviorSubject<Enterprise>();
   final _branch = BehaviorSubject<Branch>();
+  final _cashDrawer = BehaviorSubject<CashDrawer>();
   final _index = BehaviorSubject<int>();
   final _items = BehaviorSubject<List<Item>>();
   final _invoice = BehaviorSubject<Invoice>();
@@ -81,6 +83,10 @@ class CashBloc extends BlocBase {
 
   Observable<Enterprise> get enterprise => _enterprise.stream;
 
+  Observable<Branch> get branch => _branch.stream;
+
+  ValueObservable<CashDrawer> get cashDrawer => _cashDrawer.stream;
+
   /// Functions
   Function(int) get changeIndex => _index.add;
 
@@ -99,6 +105,10 @@ class CashBloc extends BlocBase {
   Function(bool) get changeProcessStatus => _processed.add;
 
   Function(Enterprise) get changeEnterprise => _enterprise.add;
+
+  Function(Branch) get changeBranch => _branch.add;
+
+  Function(CashDrawer) get changeCashDrawer => _cashDrawer.add;
 
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
@@ -149,11 +159,21 @@ class CashBloc extends BlocBase {
       taxes = double.parse(taxes.toStringAsFixed(2));
       total = double.parse(total.toStringAsFixed(2));
 
-      invoice = Invoice(null, quantity, discount, subtotal, taxes, total,
-          List<InvoiceLine>(), '', DateTime.now(), _branch.value);
+      invoice = Invoice(
+          null,
+          quantity,
+          discount,
+          subtotal,
+          taxes,
+          total,
+          List<InvoiceLine>(),
+          '',
+          DateTime.now(),
+          _branch.value,
+          _cashDrawer.value);
     } else {
-      invoice =
-          Invoice(null, 0, 0, 0, 0, 0, null, '', DateTime.now(), _branch.value);
+      invoice = Invoice(null, 0, 0, 0, 0, 0, null, '', DateTime.now(),
+          _branch.value, _cashDrawer.value);
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -236,7 +256,8 @@ class CashBloc extends BlocBase {
         _invoiceDetail.value,
         user,
         DateTime.now(),
-        _branch.value);
+        _branch.value,
+        _cashDrawer.value);
 
     if (newInvoice.detail.length == 0) {
       return _message.sink.add('No hay items en la factura.');
@@ -270,7 +291,7 @@ class CashBloc extends BlocBase {
         .then((number) => _customerNumberOfInvoices.sink.add(number));
 
     await _crmRepository
-        .customerLastInvoice(_enterprise.value, _branch.value, customer)
+        .customerLastInvoice(_enterprise.value, customer)
         .then((invoice) => _customerLastInvoice.sink.add(invoice));
   }
 
@@ -301,5 +322,6 @@ class CashBloc extends BlocBase {
     _itemPresentation.close();
     _enterprise.close();
     _branch.close();
+    _cashDrawer.close();
   }
 }

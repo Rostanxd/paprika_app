@@ -34,4 +34,7 @@ class SalesRepository {
           String state) =>
       _invoiceApi.fetchDocumentsBy(
           branch, documentType, fromDate, toDate, state);
+
+  Future<void> openCashDrawer(OpeningCashDrawer openingCashDrawer) =>
+      _cashDrawerFirebaseApi.openingCashDrawer(openingCashDrawer);
 }

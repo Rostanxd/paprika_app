@@ -7,33 +7,31 @@ import 'package:paprika_app/pos/models/cash_drawer.dart';
 class CashDrawerFirebaseApi {
   BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
 
-  Future<CashDrawer> fetchCashDrawerById(String id) async {
-    String id;
-    String branchId;
+  Future<CashDrawer> fetchCashDrawerById(String cashDrawerId) async {
     Branch branch;
     Map<String, dynamic> data;
 
     await Firestore.instance
         .collection('cash_drawers')
-        .document(id)
+        .document(cashDrawerId)
         .get()
         .then((e) {
-      id = e.documentID;
-      branchId = e.data['branchId'];
       data = e.data;
     });
 
-    await _branchFirebaseApi.fetchBranchById(branchId).then((b) => branch = b);
+    await _branchFirebaseApi
+        .fetchBranchById(data['branchId'])
+        .then((b) => branch = b);
 
-    return CashDrawer.fromFireBase(id, branch, data);
+    return CashDrawer.fromFireBase(cashDrawerId, branch, data);
   }
 
   Future<List<CashDrawer>> fetchCashDrawersByBranch(Branch branch) async {
     List<CashDrawer> cashDrawers = List<CashDrawer>();
-
     await Firestore.instance
         .collection('cash_drawers')
         .where('branchId', isEqualTo: branch.id)
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((docs) {
       docs.documents.forEach((d) {
@@ -63,7 +61,7 @@ class CashDrawerFirebaseApi {
     if (docsSnapshot.length == 0) return null;
 
     await Future.forEach(docsSnapshot, (doc) async {
-      id = doc.documentId;
+      id = doc.documentID;
       cashDrawerId = doc.data['cashDrawerId'];
       data = doc.data;
 
@@ -72,5 +70,16 @@ class CashDrawerFirebaseApi {
     });
 
     return OpeningCashDrawer.fromFireJson(id, cashDrawer, device, data);
+  }
+
+  Future<DocumentReference> openingCashDrawer(
+      OpeningCashDrawer openingCashDrawer) async {
+    return await Firestore.instance.collection('opening_cash_drawer').add({
+      'cashDrawerId': openingCashDrawer.cashDrawer.id,
+      'deviceId': openingCashDrawer.device.id,
+      'openingDate': openingCashDrawer.openingDate,
+      'openingUser': openingCashDrawer.openingUser,
+      'state': openingCashDrawer.state,
+    });
   }
 }

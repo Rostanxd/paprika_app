@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
+import 'package:paprika_app/authentication/services/branch_services.dart';
 import 'package:paprika_app/crm/models/customer.dart';
+import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/services/cash_drawer_services.dart';
 
 class CustomerApi {
+  BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
+  CashDrawerFirebaseApi _cashDrawerFirebaseApi = CashDrawerFirebaseApi();
+
   Future<Customer> fetchCustomerById(String customerId) async {
     Customer customer;
     await Firestore.instance
@@ -54,9 +60,13 @@ class CustomerApi {
   }
 
   Future<Invoice> customerLastInvoice(
-      Enterprise enterprise, Branch branch, Customer customer) async {
-    List<Invoice> invoiceList = List<Invoice>();
+      Enterprise enterprise, Customer customer) async {
     Invoice invoice;
+    Branch branch;
+    CashDrawer cashDrawer;
+    List<Invoice> invoiceList = List<Invoice>();
+    List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
+
     await Firestore.instance
         .collection('invoices')
         .where('enterpriseId', isEqualTo: enterprise.id)
@@ -65,10 +75,19 @@ class CustomerApi {
         .limit(1)
         .getDocuments()
         .then((querySnapshot) {
-      querySnapshot.documents.forEach((i) => invoiceList
-          .add(Invoice.fromFireJson(i.documentID, branch, customer, i.data)));
+      invoiceDocsSnapshot = querySnapshot.documents;
     });
+
+    await Future.forEach(invoiceDocsSnapshot, (doc) async {
+      branch = await _branchFirebaseApi.fetchBranchById(doc.data['branchId']);
+      cashDrawer = await _cashDrawerFirebaseApi
+          .fetchCashDrawerById(doc.data['cashDrawerId']);
+
+      invoiceList.add(Invoice.fromFireJson(
+          doc.documentID, branch, customer, cashDrawer, doc.data));
+    });
+
     if (invoiceList.length == 0) return invoice;
-    return invoice = invoiceList[0];
+    return invoiceList[0];
   }
 }

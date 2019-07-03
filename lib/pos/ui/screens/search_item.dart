@@ -54,7 +54,7 @@ class _SearchItemState extends State<SearchItem> {
             onPressed: () {
               widget.scaffoldKey.currentState.openDrawer();
             }),
-        title: Text('POS'),
+        title: Text('POS - ${widget.cashBloc.cashDrawer.value.name}'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[
           StreamBuilder(

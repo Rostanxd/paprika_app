@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/crm/services/customer_services.dart';
@@ -24,6 +23,6 @@ class CrmRepository {
       _customerApi.customerNumberOfInvoices(customerId);
 
   Future<Invoice> customerLastInvoice(
-          Enterprise enterprise, Branch branch, Customer customer) =>
-      _customerApi.customerLastInvoice(enterprise, branch, customer);
+          Enterprise enterprise, Customer customer) =>
+      _customerApi.customerLastInvoice(enterprise, customer);
 }

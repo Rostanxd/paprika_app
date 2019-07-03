@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
+import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
   final String documentType;
+  final CashDrawer cashDrawer;
 
-  const CashPage({Key key, this.documentType}) : super(key: key);
+  const CashPage({Key key, this.documentType, this.cashDrawer})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CashPageState();
@@ -23,6 +26,9 @@ class _CashPageState extends State<CashPage> {
   @override
   void initState() {
     _cashBloc = CashBloc();
+
+    /// Set up the cash drawer
+    _cashBloc.changeCashDrawer(widget.cashDrawer);
 
     /// Messenger's listener
     _cashBloc.messenger.listen((message) {

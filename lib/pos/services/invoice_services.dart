@@ -1,13 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
+import 'package:paprika_app/authentication/services/branch_services.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/crm/services/customer_services.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/services/item_services.dart';
+import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/services/cash_drawer_services.dart';
 
 class InvoiceApi {
   CustomerApi _customerApi = CustomerApi();
+  BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
+  CashDrawerFirebaseApi _cashDrawerFirebaseApi = CashDrawerFirebaseApi();
   ItemApi _itemApi = ItemApi();
 
   Future<DocumentReference> createInvoice(Invoice invoice) async {
@@ -47,7 +52,7 @@ class InvoiceApi {
           await _customerApi.fetchCustomerById(document.data['customerId']);
 
       invoice = Invoice.fromFireJson(
-          document.documentID, branch, customer, document.data);
+          document.documentID, branch, customer, null, document.data);
 
       invoice.detail = await fetchInvoiceDetail(invoice);
 
@@ -56,6 +61,35 @@ class InvoiceApi {
     });
 
     return invoices;
+  }
+
+  Future<Invoice> fetchInvoiceById(String invoiceId) async {
+    Invoice invoice;
+    Branch branch;
+    CashDrawer cashDrawer;
+    Customer customer;
+    Map<String, dynamic> data = Map<String, dynamic>();
+
+    /// Getting the invoices headers
+    await Firestore.instance
+        .collection('invoices')
+        .document(invoiceId)
+        .get()
+        .then((document) async {
+      customer =
+          await _customerApi.fetchCustomerById(document.data['customerId']);
+
+      branch =
+          await _branchFirebaseApi.fetchBranchById(document.data['branchId']);
+
+      cashDrawer = await _cashDrawerFirebaseApi
+          .fetchCashDrawerById(document.data['branchId']);
+
+      invoice =
+          Invoice.fromFireJson(invoiceId, branch, customer, cashDrawer, data);
+    });
+
+    return invoice;
   }
 
   Future<List<InvoiceLine>> fetchInvoiceDetail(Invoice invoice) async {
