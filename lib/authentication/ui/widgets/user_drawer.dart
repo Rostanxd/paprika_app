@@ -151,6 +151,14 @@ class _UserDrawerState extends State<UserDrawer> {
     ));
 
     _listChildren.add(ListTile(
+      title: Text('CRM'),
+      leading: Icon(Icons.person),
+      onTap: () {
+        Navigator.pop(context);
+      },
+    ));
+
+    _listChildren.add(ListTile(
       title: Text('Recetas'),
       leading: Icon(Icons.book),
       onTap: () {

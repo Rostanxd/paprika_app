@@ -271,6 +271,21 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
             ListTile(
               leading: Container(
                   margin: EdgeInsets.all(10.0),
+                  child: Icon(Icons.local_convenience_store)),
+              title: StreamBuilder(
+                  stream: widget.cashBloc.customerLasInvoice,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+                    if (snapshot.hasError) return Text('-');
+                    return snapshot.hasData
+                        ? Text(snapshot.data.branch.name)
+                        : Text('-');
+                  }),
+              subtitle: Text('Local'),
+            ),
+            ListTile(
+              leading: Container(
+                  margin: EdgeInsets.all(10.0),
                   child: Icon(Icons.calendar_today)),
               title: StreamBuilder(
                   stream: widget.cashBloc.customerLasInvoice,

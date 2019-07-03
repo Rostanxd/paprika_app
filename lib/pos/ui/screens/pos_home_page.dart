@@ -66,7 +66,7 @@ class _PosHomePageState extends State<PosHomePage> {
         Container(
           height: 300.0,
           width: 500.0,
-          margin: EdgeInsets.only(top: 10.0),
+          margin: EdgeInsets.only(top: 10.0, left: 10.0),
           child: Card(
             elevation: 5.0,
             child: Center(
@@ -178,6 +178,7 @@ class _PosHomePageState extends State<PosHomePage> {
                         MaterialPageRoute(
                             builder: (context) => CashPage(
                                   documentType: 'I',
+                                  branch: _authenticationBloc.branch.value,
                                   cashDrawer: openingCashDrawer.cashDrawer,
                                 )));
                   }),

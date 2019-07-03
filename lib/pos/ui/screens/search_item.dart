@@ -10,10 +10,16 @@ import 'package:paprika_app/inventory/ui/screens/item_detail.dart';
 
 class SearchItem extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final String documentType;
   final CashBloc cashBloc;
   final String itemToFind;
 
-  const SearchItem({Key key, this.cashBloc, this.itemToFind, this.scaffoldKey})
+  const SearchItem(
+      {Key key,
+      this.cashBloc,
+      this.itemToFind,
+      this.scaffoldKey,
+      this.documentType})
       : super(key: key);
 
   @override
@@ -54,7 +60,9 @@ class _SearchItemState extends State<SearchItem> {
             onPressed: () {
               widget.scaffoldKey.currentState.openDrawer();
             }),
-        title: Text('POS - ${widget.cashBloc.cashDrawer.value.name}'),
+        title: widget.documentType == 'I'
+            ? Text('POS - ${widget.cashBloc.cashDrawer.value.name}')
+            : Text('Toma de pedidos'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[
           StreamBuilder(

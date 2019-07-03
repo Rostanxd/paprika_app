@@ -26,7 +26,10 @@ class Invoice extends Object {
   CashDrawer cashDrawer;
 
   Invoice(
+      this.state,
       this.customer,
+      this.dateTime,
+      this.documentType,
       this.quantity,
       this.discount,
       this.subtotal,
@@ -35,6 +38,8 @@ class Invoice extends Object {
       this.detail,
       this.creationUser,
       this.creationDate,
+      this.modificationUser,
+      this.modificationDate,
       this.branch,
       this.cashDrawer);
 
@@ -62,6 +67,9 @@ class Invoice extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
+        'dateTime': Timestamp.fromDate(this.dateTime),
+        'documentType': this.documentType,
+        'state': this.state,
         'quantity': this.quantity,
         'discount': this.discount,
         'subtotal': this.subtotal,
@@ -69,6 +77,8 @@ class Invoice extends Object {
         'total': this.total,
         'creationUser': this.creationUser,
         'creationDate': Timestamp.fromDate(this.creationDate),
+        'modificationUser': this.modificationUser,
+        'modificationDate': Timestamp.fromDate(this.modificationDate),
         'customerId': this.customer != null ? this.customer.customerId : '',
         'branchId': this.branch.id,
         'cashDrawerId': this.cashDrawer.id
@@ -76,11 +86,13 @@ class Invoice extends Object {
 
   @override
   String toString() {
-    return 'Invoice{id: $id, customer: $customer, quantity: $quantity, '
+    return 'Invoice{id: $id, state: $state, documentType: $documentType, '
+        'dateTime: $dateTime, note: $note, quantity: $quantity, '
         'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
-        'total: $total, creationUser: $creationUser, '
-        'creationDate: $creationDate, detail: $detail, '
-        'branch: ${branch.toString()}';
+        'total: $total, modificationUser: $modificationUser, '
+        'modificationDate: $modificationDate, creationUser: $creationUser, '
+        'creationDate: $creationDate, detail: $detail, customer: $customer, '
+        'branch: $branch, cashDrawer: $cashDrawer}';
   }
 }
 
@@ -96,8 +108,8 @@ class InvoiceLine extends Object {
   double taxes;
   double total;
 
-  InvoiceLine(this.item, this.discountRate, this.discountValue, this.quantity,
-      this.subtotal, this.taxes, this.total);
+  InvoiceLine(this.item, this.dispatchMeasure, this.discountRate,
+      this.discountValue, this.quantity, this.subtotal, this.taxes, this.total);
 
   InvoiceLine.fromFireJson(
       String documentId, Item item, Map<String, dynamic> json) {
@@ -133,8 +145,10 @@ class InvoiceLine extends Object {
 
   @override
   String toString() {
-    return 'InvoiceDetail{id: $invoiceId, '
+    return 'InvoiceLine{invoiceId: $invoiceId, lineId: $lineId, '
+        'item: $item, dispatchMeasure: $dispatchMeasure, '
         'discountRate: $discountRate, discountValue: $discountValue, '
-        'quantity: $quantity, subtotal: $subtotal, totalDetail: $total}';
+        'quantity: $quantity, subtotal: $subtotal, taxes: $taxes, '
+        'total: $total}';
   }
 }

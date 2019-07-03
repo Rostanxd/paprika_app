@@ -47,15 +47,32 @@ class CustomerApi {
         .add(customer.toFireJson());
   }
 
-  Future<int> customerNumberOfInvoices(String customerId) async {
+  Future<int> customerNumberOfInvoices(
+      Enterprise enterprise, String customerId) async {
     int numberTickets = 0;
+    Branch branch;
+    List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
+
     await Firestore.instance
         .collection('invoices')
         .where('customerId', isEqualTo: customerId)
+        .where('documentType', isEqualTo: 'I')
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((querySnapshot) {
-      numberTickets = querySnapshot.documents.length;
+      invoiceDocsSnapshot.addAll(querySnapshot.documents);
     });
+
+    /// Invoices details
+    await Future.forEach(invoiceDocsSnapshot, (doc) async {
+      branch = await _branchFirebaseApi.fetchBranchById(doc.data['branchId']);
+
+      /// Only our enterprise
+      if (branch.enterprise.id == enterprise.id) {
+        numberTickets += 1;
+      }
+    });
+
     return numberTickets;
   }
 
@@ -67,24 +84,30 @@ class CustomerApi {
     List<Invoice> invoiceList = List<Invoice>();
     List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
 
+    /// Invoices
     await Firestore.instance
         .collection('invoices')
-        .where('enterpriseId', isEqualTo: enterprise.id)
-        .where('customerId', isEqualTo: customer.id)
+        .where('customerId', isEqualTo: customer.customerId)
+        .where('documentType', isEqualTo: 'I')
+        .where('state', isEqualTo: 'A')
         .orderBy('creationDate', descending: true)
         .limit(1)
         .getDocuments()
         .then((querySnapshot) {
-      invoiceDocsSnapshot = querySnapshot.documents;
+      invoiceDocsSnapshot.addAll(querySnapshot.documents);
     });
 
+    /// Invoices details
     await Future.forEach(invoiceDocsSnapshot, (doc) async {
       branch = await _branchFirebaseApi.fetchBranchById(doc.data['branchId']);
       cashDrawer = await _cashDrawerFirebaseApi
           .fetchCashDrawerById(doc.data['cashDrawerId']);
 
-      invoiceList.add(Invoice.fromFireJson(
-          doc.documentID, branch, customer, cashDrawer, doc.data));
+      /// Only our enterprise
+      if (branch.enterprise.id == enterprise.id) {
+        invoiceList.add(Invoice.fromFireJson(
+            doc.documentID, branch, customer, cashDrawer, doc.data));
+      }
     });
 
     if (invoiceList.length == 0) return invoice;

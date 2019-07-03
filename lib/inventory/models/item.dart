@@ -35,7 +35,8 @@ class Item extends Object {
       this.sku,
       this.enterprise);
 
-  Item.fromFireJson(String documentId, Map<String, dynamic> json) {
+  Item.fromFireJson(String documentId, Enterprise enterprise, Category category,
+      Measure measure, Map<String, dynamic> json) {
     var _cost = json['cost'];
     var _price = json['price'];
     String _colorCode = json['colorCode'] == '' ? '0' : json['colorCode'];
@@ -51,6 +52,10 @@ class Item extends Object {
     this.imagePath = json['imagePath'];
     this.representation = json['representation'];
     this.sku = json['sku'];
+
+    this.enterprise = enterprise;
+    this.category = category;
+    this.measure = measure;
   }
 
   Map<String, dynamic> toFireJson() => {
@@ -69,7 +74,8 @@ class Item extends Object {
         'enterpriseId': this.enterprise.id
       };
 
-  Item.fromJson(Map<String, dynamic> json) {
+  Item.fromJson(
+      Enterprise enterprise, Measure measure, Map<String, dynamic> json) {
     var _cost = json['cost'];
     var _price = json['price'];
 
@@ -84,6 +90,9 @@ class Item extends Object {
     this.imagePath = json['imagePath'];
     this.representation = json['representation'];
     this.sku = json['sku'];
+
+    this.enterprise = enterprise;
+    this.measure = measure;
   }
 
   @override

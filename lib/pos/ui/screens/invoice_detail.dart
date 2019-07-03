@@ -10,8 +10,10 @@ import 'package:paprika_app/pos/ui/screens/invoice_customer.dart';
 
 class InvoiceDetail extends StatefulWidget {
   final CashBloc cashBloc;
+  final String documentType;
 
-  const InvoiceDetail({Key key, this.cashBloc}) : super(key: key);
+  const InvoiceDetail({Key key, this.cashBloc, this.documentType})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _InvoiceDetailState();
@@ -35,7 +37,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Text(
-          'Factura',
+          widget.documentType == 'I' ? 'Factura' : 'Detalle',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[

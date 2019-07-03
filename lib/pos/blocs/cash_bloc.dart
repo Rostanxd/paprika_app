@@ -1,5 +1,6 @@
 import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
+import 'package:paprika_app/inventory/models/measure.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
@@ -160,7 +161,10 @@ class CashBloc extends BlocBase {
       total = double.parse(total.toStringAsFixed(2));
 
       invoice = Invoice(
+          'A',
           null,
+          DateTime.now(),
+          'I',
           quantity,
           discount,
           subtotal,
@@ -169,11 +173,13 @@ class CashBloc extends BlocBase {
           List<InvoiceLine>(),
           '',
           DateTime.now(),
+          '',
+          DateTime.now(),
           _branch.value,
           _cashDrawer.value);
     } else {
-      invoice = Invoice(null, 0, 0, 0, 0, 0, null, '', DateTime.now(),
-          _branch.value, _cashDrawer.value);
+      invoice = Invoice('A', null, DateTime.now(), 'I', 0, 0, 0, 0, 0, null, '',
+          DateTime.now(), '', DateTime.now(), _branch.value, _cashDrawer.value);
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -204,14 +210,15 @@ class CashBloc extends BlocBase {
 
     /// Item's new in the list
     if (!exist) {
+      Measure measure = item.measure;
       double quantity = 1;
       double discount = 0;
       double subtotal = item.price;
       double taxes = double.parse((item.price * 0.12).toStringAsFixed(2));
       double total = double.parse((item.price * 1.12).toStringAsFixed(2));
 
-      _invoiceDetailList.add(
-          InvoiceLine(item, 0, discount, quantity, subtotal, taxes, total));
+      _invoiceDetailList.add(InvoiceLine(
+          item, measure, 0, discount, quantity, subtotal, taxes, total));
     }
 
     /// Add the invoice line list to the stream
@@ -247,13 +254,18 @@ class CashBloc extends BlocBase {
   Future<void> createInvoice(String user) async {
     /// Creating the invoice with its detail
     Invoice newInvoice = Invoice(
+        'A',
         _customer.value,
+        DateTime.now(),
+        'I',
         _invoice.value.quantity,
         _invoice.value.discount,
         _invoice.value.subtotal,
         _invoice.value.taxes,
         _invoice.value.total,
         _invoiceDetail.value,
+        user,
+        DateTime.now(),
         user,
         DateTime.now(),
         _branch.value,
@@ -287,7 +299,7 @@ class CashBloc extends BlocBase {
 
   Future<void> fetchCustomerSummary(Customer customer) async {
     await _crmRepository
-        .customerNumberOfInvoices(customer.customerId)
+        .customerNumberOfInvoices(_enterprise.value, customer.customerId)
         .then((number) => _customerNumberOfInvoices.sink.add(number));
 
     await _crmRepository

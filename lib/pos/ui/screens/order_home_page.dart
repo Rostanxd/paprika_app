@@ -3,6 +3,7 @@ import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/order_home_bloc.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
@@ -119,7 +120,15 @@ class _OrderHomePageState extends State<OrderHomePage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Color(_rootBloc.primaryColor.value),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CashPage(
+                        branch: _authenticationBloc.branch.value,
+                        documentType: 'O',
+                      )));
+        },
       ),
     );
   }

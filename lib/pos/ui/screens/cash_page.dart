@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
+import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
@@ -9,9 +10,10 @@ import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
   final String documentType;
+  final Branch branch;
   final CashDrawer cashDrawer;
 
-  const CashPage({Key key, this.documentType, this.cashDrawer})
+  const CashPage({Key key, this.documentType, this.cashDrawer, this.branch})
       : super(key: key);
 
   @override
@@ -27,8 +29,13 @@ class _CashPageState extends State<CashPage> {
   void initState() {
     _cashBloc = CashBloc();
 
-    /// Set up the cash drawer
-    _cashBloc.changeCashDrawer(widget.cashDrawer);
+    /// Setting up the branch
+    _cashBloc.changeBranch(widget.branch);
+
+    /// If we are doing a invoice
+    if (widget.documentType == 'I'){
+      _cashBloc.changeCashDrawer(widget.cashDrawer);
+    }
 
     /// Messenger's listener
     _cashBloc.messenger.listen((message) {
@@ -74,6 +81,7 @@ class _CashPageState extends State<CashPage> {
                   flex: 4,
                   child: SearchItem(
                     scaffoldKey: _scaffoldKey,
+                    documentType: widget.documentType,
                     cashBloc: _cashBloc,
                     itemToFind: '',
                   )),
