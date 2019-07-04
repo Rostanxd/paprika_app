@@ -30,6 +30,7 @@ class Invoice extends Object {
       this.customer,
       this.dateTime,
       this.documentType,
+      this.note,
       this.quantity,
       this.discount,
       this.subtotal,
@@ -47,6 +48,7 @@ class Invoice extends Object {
       CashDrawer cashDrawer, Map<String, dynamic> json) {
     this.id = documentId;
     this.documentType = json['documentType'];
+    this.note = json['note'];
     this.state = json['state'];
     this.dateTime =
         DateTime.fromMillisecondsSinceEpoch(json['dateTime'].seconds * 1000);
@@ -69,6 +71,7 @@ class Invoice extends Object {
   Map<String, dynamic> toFireJson() => {
         'dateTime': Timestamp.fromDate(this.dateTime),
         'documentType': this.documentType,
+        'note': this.note,
         'state': this.state,
         'quantity': this.quantity,
         'discount': this.discount,
@@ -80,14 +83,14 @@ class Invoice extends Object {
         'modificationUser': this.modificationUser,
         'modificationDate': Timestamp.fromDate(this.modificationDate),
         'customerId': this.customer != null ? this.customer.customerId : '',
-        'branchId': this.branch.id,
-        'cashDrawerId': this.cashDrawer.id
+        'branchId': this.branch != null ? this.branch.id : '',
+        'cashDrawerId': this.cashDrawer != null ? this.cashDrawer.id : '',
       };
 
   @override
   String toString() {
     return 'Invoice{id: $id, state: $state, documentType: $documentType, '
-        'dateTime: $dateTime, note: $note, quantity: $quantity, '
+        'note: $note, dateTime: $dateTime, note: $note, quantity: $quantity, '
         'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
         'total: $total, modificationUser: $modificationUser, '
         'modificationDate: $modificationDate, creationUser: $creationUser, '
@@ -120,7 +123,7 @@ class InvoiceLine extends Object {
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
     this.subtotal = json['subtotal'];
-    this.total = json['totalDetail'];
+    this.total = json['total'];
   }
 
   InvoiceLine.fromJson(Map<String, dynamic> json) {

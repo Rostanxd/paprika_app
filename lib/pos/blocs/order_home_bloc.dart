@@ -46,7 +46,7 @@ class OrderHomeBloc extends BlocBase {
 
   Future<void> fetchOrders() async {
     Timestamp fromDateTimeStamp = Timestamp.fromDate(_fromDate.value);
-    Timestamp toDateTimeStamp = Timestamp.fromDate(_fromDate.value);
+    Timestamp toDateTimeStamp = Timestamp.fromDate(_toDate.value);
     await _salesRepository
         .fetchDocumentByEnterprise(
             _branch.value, 'O', fromDateTimeStamp, toDateTimeStamp, 'A')

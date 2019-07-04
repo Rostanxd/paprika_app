@@ -41,8 +41,8 @@ class InvoiceApi {
         .where('branchId', isEqualTo: branch.id)
         .where('documentType', isEqualTo: documentType)
         .where('state', isEqualTo: state)
-//        .where('dateTime', isGreaterThanOrEqualTo: fromDate)
-//        .where('dateTime', isLessThanOrEqualTo: toDate)
+        .where('dateTime', isGreaterThanOrEqualTo: fromDate)
+        .where('dateTime', isLessThanOrEqualTo: toDate)
         .getDocuments()
         .then((documents) => invoiceDocSnapshots = documents.documents);
 

@@ -244,13 +244,30 @@ class _OrderHomePageState extends State<OrderHomePage> {
                   child: PopupMenuButton<String>(itemBuilder: (context) {
                     return [
                       PopupMenuItem(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(Icons.edit),
-                            Container(
-                                margin: EdgeInsets.only(left: 10.0),
-                                child: Text('Editar')),
-                          ],
+                        child: InkWell(
+                          child: Container(
+                            child: Row(
+                              children: <Widget>[
+                                Icon(Icons.edit),
+                                Container(
+                                    margin: EdgeInsets.only(left: 10.0),
+                                    child: Text('Editar')),
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CashPage(
+                                          invoice: _orderHomeBloc
+                                              .orderSelected.value,
+                                          documentType: 'O',
+                                          branch:
+                                              _authenticationBloc.branch.value,
+                                        )));
+                          },
                         ),
                       ),
                       PopupMenuItem(
@@ -429,7 +446,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                                   margin:
                                       EdgeInsets.only(left: 10.0, top: 10.0),
                                   child: Text(
-                                    'Total \$',
+                                    'Total',
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
@@ -437,8 +454,8 @@ class _OrderHomePageState extends State<OrderHomePage> {
                                 Container(
                                   margin:
                                       EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child:
-                                      Text('${snapshot.data.total.toString()}'),
+                                  child: Text(
+                                      '\$ ${snapshot.data.total.toString()}'),
                                 )
                               ],
                             ),
@@ -456,7 +473,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                                 Container(
                                   margin:
                                       EdgeInsets.only(left: 10.0, top: 10.0),
-                                  width: 300.0,
+                                  width: 500.0,
                                   child: Text('${snapshot.data.note}'),
                                 )
                               ],

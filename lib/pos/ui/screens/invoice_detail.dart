@@ -346,6 +346,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                                               builder: (context) =>
                                                   CashCheckOutPage(
                                                     cashBloc: widget.cashBloc,
+                                                    documentType:
+                                                        widget.documentType,
                                                   )));
                                     })
                                 : RaisedButton(

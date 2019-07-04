@@ -32,6 +32,8 @@ class CashBloc extends BlocBase {
   final _customerNumberOfInvoices = BehaviorSubject<int>();
   final _customerLastInvoice = BehaviorSubject<Invoice>();
   final _itemPresentation = BehaviorSubject<String>();
+  final _dateTime = BehaviorSubject<DateTime>();
+  final _note = BehaviorSubject<String>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
   final CrmRepository _crmRepository = CrmRepository();
   final SalesRepository _salesRepository = SalesRepository();
@@ -88,8 +90,16 @@ class CashBloc extends BlocBase {
 
   ValueObservable<CashDrawer> get cashDrawer => _cashDrawer.stream;
 
+  ValueObservable<DateTime> get dateTime => _dateTime.stream;
+
+  ValueObservable<String> get note => _note.stream;
+
   /// Functions
   Function(int) get changeIndex => _index.add;
+
+  Function(Invoice) get changeInvoice => _invoice.add;
+
+  Function(List<InvoiceLine>) get changeInvoiceDetail => _invoiceDetail.add;
 
   Function(String) get changeSearchItem => _itemSearch.add;
 
@@ -110,6 +120,10 @@ class CashBloc extends BlocBase {
   Function(Branch) get changeBranch => _branch.add;
 
   Function(CashDrawer) get changeCashDrawer => _cashDrawer.add;
+
+  Function(DateTime) get changeDateTime => _dateTime.add;
+
+  Function(String) get changeNote => _note.add;
 
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
@@ -165,6 +179,7 @@ class CashBloc extends BlocBase {
           null,
           DateTime.now(),
           'I',
+          '',
           quantity,
           discount,
           subtotal,
@@ -178,8 +193,24 @@ class CashBloc extends BlocBase {
           _branch.value,
           _cashDrawer.value);
     } else {
-      invoice = Invoice('A', null, DateTime.now(), 'I', 0, 0, 0, 0, 0, null, '',
-          DateTime.now(), '', DateTime.now(), _branch.value, _cashDrawer.value);
+      invoice = Invoice(
+          'A',
+          null,
+          DateTime.now(),
+          'I',
+          '',
+          0,
+          0,
+          0,
+          0,
+          0,
+          null,
+          '',
+          DateTime.now(),
+          '',
+          DateTime.now(),
+          _branch.value,
+          _cashDrawer.value);
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -258,6 +289,7 @@ class CashBloc extends BlocBase {
         _customer.value,
         DateTime.now(),
         'I',
+        '',
         _invoice.value.quantity,
         _invoice.value.discount,
         _invoice.value.subtotal,
@@ -291,6 +323,58 @@ class CashBloc extends BlocBase {
         detail.invoiceId = document.documentID;
         await _salesRepository.createDetailInvoice(document.documentID, detail);
       });
+      _processed.sink.add(true);
+    }, onError: (error) {
+      _message.sink.add('Error durante el almacenamiento de la factura.');
+    });
+  }
+
+  Future<void> createOrder(String user) async {
+    /// Creating the invoice with its detail
+    Invoice newInvoice = Invoice(
+        'A',
+        _customer.value,
+        _dateTime.value,
+        'O',
+        _note.value,
+        _invoice.value.quantity,
+        _invoice.value.discount,
+        _invoice.value.subtotal,
+        _invoice.value.taxes,
+        _invoice.value.total,
+        _invoiceDetail.value,
+        user,
+        DateTime.now(),
+        user,
+        DateTime.now(),
+        _branch.value,
+        null);
+
+    if (newInvoice.detail.length == 0) {
+      return _message.sink.add('No hay items en la factura.');
+    }
+
+    if (newInvoice.customer == null) {
+      return _message.sink.add('No ha agregado el cliente a la factura.');
+    }
+
+    if (newInvoice.dateTime == null) {
+      return _message.sink.add('No ha agregado la fecha de entrega de la orden.'
+          '\nCorrija por favor.');
+    }
+
+    if (newInvoice.dateTime.isBefore(DateTime.now())) {
+      return _message.sink.add('Fecha de entrega inválida.'
+          '\nCorrija por favor.');
+    }
+
+    /// Creating the header
+    await _salesRepository.createInvoice(newInvoice).then((document) async {
+      newInvoice.detail.forEach((detail) async {
+        detail.invoiceId = document.documentID;
+        await _salesRepository.createDetailInvoice(document.documentID, detail);
+      });
+      _message.sink.add('Orden generada con éxito.');
       _processed.sink.add(true);
     }, onError: (error) {
       _message.sink.add('Error durante el almacenamiento de la factura.');
@@ -335,5 +419,7 @@ class CashBloc extends BlocBase {
     _enterprise.close();
     _branch.close();
     _cashDrawer.close();
+    _dateTime.close();
+    _note.close();
   }
 }

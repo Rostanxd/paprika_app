@@ -4,16 +4,19 @@ import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
+import 'package:paprika_app/pos/models/invoice.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
+  final Invoice invoice;
   final String documentType;
   final Branch branch;
   final CashDrawer cashDrawer;
 
-  const CashPage({Key key, this.documentType, this.cashDrawer, this.branch})
+  const CashPage(
+      {Key key, this.documentType, this.cashDrawer, this.branch, this.invoice})
       : super(key: key);
 
   @override
@@ -33,8 +36,17 @@ class _CashPageState extends State<CashPage> {
     _cashBloc.changeBranch(widget.branch);
 
     /// If we are doing a invoice
-    if (widget.documentType == 'I'){
+    if (widget.documentType == 'I') {
       _cashBloc.changeCashDrawer(widget.cashDrawer);
+    }
+
+    /// Updating mode
+    if (widget.invoice != null) {
+      _cashBloc.changeInvoice(widget.invoice);
+      _cashBloc.changeInvoiceDetail(widget.invoice.detail);
+      _cashBloc.changeCustomer(widget.invoice.customer);
+      _cashBloc.changeDateTime(widget.invoice.dateTime);
+      _cashBloc.changeNote(widget.invoice.note);
     }
 
     /// Messenger's listener
