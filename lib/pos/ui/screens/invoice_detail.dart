@@ -196,73 +196,60 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           return Center(
             child: Text(snapshot.error),
           );
-        return snapshot.hasData
-            ? Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                        child: Text(
-                          'Impuestos \$ ${snapshot.data.taxes}',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+        return Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 20.0),
+                  child: Text(
+                    'Impuestos',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        child: Text(
-                          'Total a pagar \$ ${snapshot.data.total}',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              )
-            : Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                        child: Text(
-                          'Impuestos \$ 0.0',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 20.0),
+                  child: Text(
+                    snapshot.hasData ? '\$ ${snapshot.data.taxes}' : '\S 0.0',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        child: Text(
-                          'Total a pagar \$ 0.0',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              );
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 20.0),
+                  child: Text(
+                    'Total a pagar',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 20.0),
+                  child: Text(
+                    snapshot.hasData ? '\$ ${snapshot.data.total}' : '\$ 0.0',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            )
+          ],
+        );
       },
     );
   }
@@ -417,7 +404,9 @@ class DataSearch extends SearchDelegate<String> {
                         child: Icon(Icons.person),
                       ),
                       title: Text(
-                          '${snapshot.data[index].id} - ${snapshot.data[index].lastName} ${snapshot.data[index].firstName}'),
+                          '${snapshot.data[index].id} - '
+                              '${snapshot.data[index].lastName} '
+                              '${snapshot.data[index].firstName}'),
                       onTap: () {
                         Navigator.push(
                             context,

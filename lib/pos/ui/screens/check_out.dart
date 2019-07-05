@@ -75,6 +75,7 @@ class _CheckOutState extends State<CheckOut> {
                       children: <Widget>[
                         _invoiceTotal(),
                         _cashReceived(),
+                        _depositPayment(),
                         _checkPayment(),
                         _creditCardPayment()
                       ],
@@ -186,18 +187,50 @@ class _CheckOutState extends State<CheckOut> {
     );
   }
 
-  Widget _checkPayment() {
+  Widget _depositPayment() {
     return Container(
       margin: EdgeInsets.only(top: 50.0),
-      width: 250.0,
+      width: 300.0,
       child: RaisedButton(
           elevation: 5.0,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Icon(Icons.aspect_ratio),
               Container(
-                  margin: EdgeInsets.only(left: 10.0), child: Text('Cheque')),
+                  width: 50.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Text('0.0')),
+              Container(width: 10.0, child: Text('|')),
+              Container(
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Icon(Icons.aspect_ratio)),
+              Container(
+                  margin: EdgeInsets.only(left: 10.0), child: Text('Abonos')),
+            ],
+          ),
+          onPressed: () {}),
+    );
+  }
+
+  Widget _checkPayment() {
+    return Container(
+      margin: EdgeInsets.only(top: 10.0),
+      width: 300.0,
+      child: RaisedButton(
+          elevation: 5.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                  width: 50.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Text('0.0')),
+              Container(width: 10.0, child: Text('|')),
+              Container(
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Icon(Icons.aspect_ratio)),
+              Container(
+                  margin: EdgeInsets.only(left: 10.0), child: Text('Cheques')),
             ],
           ),
           onPressed: () {}),
@@ -207,13 +240,20 @@ class _CheckOutState extends State<CheckOut> {
   Widget _creditCardPayment() {
     return Container(
       margin: EdgeInsets.only(top: 10.0),
-      width: 250.0,
+      width: 300.0,
       child: RaisedButton(
           elevation: 5.0,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Icon(Icons.credit_card),
+              Container(
+                  width: 50.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Text('0.0')),
+              Container(width: 10.0, child: Text('|')),
+              Container(
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Icon(Icons.credit_card)),
               Container(
                   margin: EdgeInsets.only(left: 10.0),
                   child: Text('Tarjeta de crédito')),

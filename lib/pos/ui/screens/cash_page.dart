@@ -100,6 +100,7 @@ class _CashPageState extends State<CashPage> {
               Flexible(
                   flex: 2,
                   child: InvoiceDetail(
+                    documentType: widget.documentType,
                     cashBloc: _cashBloc,
                   ))
             ],

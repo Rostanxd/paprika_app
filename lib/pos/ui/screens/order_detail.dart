@@ -64,7 +64,7 @@ class _OrderDetailState extends State<OrderDetail> {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       appBar: AppBar(
-        title: Text(''),
+        title: Text('Datos de la orden'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
       ),
       body: ListView(
