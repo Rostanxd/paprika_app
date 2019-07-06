@@ -168,6 +168,17 @@ class _PosHomePageState extends State<PosHomePage> {
               margin: EdgeInsets.only(right: 10.0, top: 110.0),
               child: RaisedButton(
                   child: Text(
+                    'Cerrar',
+                  ),
+                  color: Colors.white,
+                  onPressed: () {
+
+                  }),
+            ),
+            Container(
+              margin: EdgeInsets.only(right: 10.0, top: 110.0),
+              child: RaisedButton(
+                  child: Text(
                     'Continuar',
                     style: TextStyle(color: Colors.white),
                   ),

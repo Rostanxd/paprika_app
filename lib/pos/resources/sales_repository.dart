@@ -36,5 +36,8 @@ class SalesRepository {
           branch, documentType, fromDate, toDate, state);
 
   Future<void> openCashDrawer(OpeningCashDrawer openingCashDrawer) =>
-      _cashDrawerFirebaseApi.openingCashDrawer(openingCashDrawer);
+      _cashDrawerFirebaseApi.createOpeningCashDrawer(openingCashDrawer);
+
+  Future<void> updateOpeningCashDrawer(OpeningCashDrawer openingCashDrawer) =>
+      _cashDrawerFirebaseApi.updateOpeningCashDrawer(openingCashDrawer);
 }

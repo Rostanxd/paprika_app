@@ -65,14 +65,13 @@ class CashDrawerFirebaseApi {
       cashDrawerId = doc.data['cashDrawerId'];
       data = doc.data;
 
-      await fetchCashDrawerById(cashDrawerId)
-          .then((cd) => cashDrawer = cd);
+      await fetchCashDrawerById(cashDrawerId).then((cd) => cashDrawer = cd);
     });
 
     return OpeningCashDrawer.fromFireJson(id, cashDrawer, device, data);
   }
 
-  Future<DocumentReference> openingCashDrawer(
+  Future<DocumentReference> createOpeningCashDrawer(
       OpeningCashDrawer openingCashDrawer) async {
     return await Firestore.instance.collection('opening_cash_drawer').add({
       'cashDrawerId': openingCashDrawer.cashDrawer.id,
@@ -81,5 +80,13 @@ class CashDrawerFirebaseApi {
       'openingUser': openingCashDrawer.openingUser,
       'state': openingCashDrawer.state,
     });
+  }
+
+  Future<void> updateOpeningCashDrawer(
+      OpeningCashDrawer openingCashDrawer) async {
+    return await Firestore.instance
+        .collection('opening_cash_drawer')
+        .document(openingCashDrawer.id)
+        .updateData(openingCashDrawer.toFireJson());
   }
 }

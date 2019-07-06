@@ -267,7 +267,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 children: <Widget>[
                   Container(
                     margin:
-                        EdgeInsets.only(top: 20.0, bottom: 20.0, right: 10.0),
+                        EdgeInsets.only(top: 10.0, bottom: 20.0, right: 10.0),
                     child: Center(
                       child: RaisedButton(
                           child: Text('Nuevo'),
@@ -312,7 +312,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   ),
                   Container(
                     margin:
-                        EdgeInsets.only(top: 20.0, bottom: 20.0, left: 10.0),
+                        EdgeInsets.only(top: 10.0, bottom: 20.0, left: 10.0),
                     child: Center(
                       child: StreamBuilder(
                           stream: widget.cashBloc.invoiceDetail,

@@ -64,6 +64,20 @@ class PosHomeBloc extends BlocBase {
     await _salesRepository.openCashDrawer(_openingCashDrawer);
   }
 
+  /// finish
+  Future<void> closeCashDrawer() async {
+    OpeningCashDrawer _openingCashDrawer = OpeningCashDrawer(
+        _cashDrawerSelected.value,
+        _device.value,
+        DateTime.now(),
+        _user.value.id,
+        'C',
+        null,
+        null);
+
+    await _salesRepository.openCashDrawer(_openingCashDrawer);
+  }
+
   @override
   void dispose() {
     _enterprise.close();
