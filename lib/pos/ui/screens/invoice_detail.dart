@@ -103,14 +103,14 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
       body: ListView(
         children: <Widget>[
           Container(
-            color: Color(_rootBloc.tertiaryColor.value),
+            color: Color(0xFFFF9612),
             padding: EdgeInsets.only(left: 5.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 _listItems(),
                 Divider(
-                  color: Color(_rootBloc.primaryColor.value),
+                  color: Colors.deepOrange[700],
                 ),
                 _totalInvoice(),
                 _invoiceButtons(),
@@ -136,12 +136,32 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           builder: (BuildContext context,
               AsyncSnapshot<List<InvoiceLine>> snapshot) {
             return snapshot.hasData
-                ? ListView.builder(
+                ? ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
                       return Dismissible(
                         key: Key(
                             '${index.toString()}-${snapshot.data[index].item.id}'),
-                        child: _itemInTheList(snapshot.data[index]),
+                        child: ListTile(
+                          title: Text(
+                            snapshot.data[index].item.name,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          subtitle: Text(
+                            '\$ ${snapshot.data[index].item.price} x ${snapshot.data[index].quantity} und(s)',
+                            style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.white),
+                          ),
+                          trailing: Text(
+                            '\$ ${snapshot.data[index].subtotal}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                                color: Colors.white),
+                          ),
+                        ),
                         onDismissed: (direction) {
                           widget.cashBloc.removeItemFromInvoice(index);
                         },
@@ -158,8 +178,12 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                         ),
                       );
                     },
-                    itemCount: snapshot.data.length,
-                  )
+                    separatorBuilder: (context, index) {
+                      return Divider(
+                        color: Colors.grey[800],
+                      );
+                    },
+                    itemCount: snapshot.data.length)
                 : Container(
                     child: null,
                   );
@@ -177,7 +201,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          '\$ ${line.item.price} x ${line.quantity}',
+          '\$ ${line.item.price} x ${line.quantity} und(s)',
           style: TextStyle(fontStyle: FontStyle.italic),
         ),
         trailing: Text(
@@ -403,10 +427,9 @@ class DataSearch extends SearchDelegate<String> {
                         width: 75,
                         child: Icon(Icons.person),
                       ),
-                      title: Text(
-                          '${snapshot.data[index].id} - '
-                              '${snapshot.data[index].lastName} '
-                              '${snapshot.data[index].firstName}'),
+                      title: Text('${snapshot.data[index].id} - '
+                          '${snapshot.data[index].lastName} '
+                          '${snapshot.data[index].firstName}'),
                       onTap: () {
                         Navigator.push(
                             context,

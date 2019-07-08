@@ -89,4 +89,33 @@ class CashDrawerFirebaseApi {
         .document(openingCashDrawer.id)
         .updateData(openingCashDrawer.toFireJson());
   }
+
+  /// Check the state of the cash drawer in a day
+  Future<OpeningCashDrawer> lastOpeningCashDrawer(
+      DateTime dateTime, Branch branch, CashDrawer cashDrawer) async {
+    List<DocumentSnapshot> docsOpening = List<DocumentSnapshot>();
+    Device device;
+    await Firestore.instance
+        .collection('opening_cash_drawer')
+        .orderBy('openingDate', descending: true)
+        .where('cashDrawerId', isEqualTo: cashDrawer.id)
+        .limit(1)
+        .getDocuments()
+        .then((docs) {
+      docsOpening.addAll(docs.documents);
+    });
+
+    if (docsOpening.length == 0) return null;
+
+    await Firestore.instance
+        .collection('devices')
+        .document(docsOpening[0].data['deviceId'])
+        .get()
+        .then((data) {
+      device = Device.fromFireJson(data.documentID, branch, data.data);
+    });
+
+    return OpeningCashDrawer.fromFireJson(
+        docsOpening[0].documentID, cashDrawer, device, docsOpening[0].data);
+  }
 }

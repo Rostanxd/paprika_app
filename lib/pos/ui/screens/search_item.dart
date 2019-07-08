@@ -246,7 +246,10 @@ class _SearchItemState extends State<SearchItem> {
         }
 
         return Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+                Color(_rootBloc.primaryColor.value)),
+          ),
         );
       },
     );

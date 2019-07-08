@@ -69,6 +69,12 @@ class PosHomeBloc extends BlocBase {
     await _salesRepository.openCashDrawer(_openingCashDrawer);
   }
 
+  Future<OpeningCashDrawer> lastOpeningCashDrawer(
+      CashDrawer _cashDrawer) async {
+    return await _salesRepository.lastOpeningCashDrawer(
+        DateTime.now(), _branch.value, _cashDrawer);
+  }
+
   /// Closing the cash drawer
   Future<void> closeCashDrawer() async {
     OpeningCashDrawer _closingCashDrawer = _openedCashDrawer.value;
@@ -77,7 +83,7 @@ class PosHomeBloc extends BlocBase {
     _closingCashDrawer.closingDate = DateTime.now();
     _closingCashDrawer.closingUser = _user.value.id;
 
-    await _salesRepository.openCashDrawer(_closingCashDrawer);
+    await _salesRepository.updateOpeningCashDrawer(_closingCashDrawer);
 
     _message.sink.add('Caja cerrada correctamente');
     _openedCashDrawer.sink.add(_closingCashDrawer);

@@ -20,6 +20,30 @@ class _PosHomePageState extends State<PosHomePage> {
   @override
   void initState() {
     _posHomePageBloc = PosHomeBloc();
+
+    /// Messenger's listener
+    _posHomePageBloc.messenger.listen((message) {
+      if (message != null)
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Paprika dice:'),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(
+                      'Cerrar',
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            });
+    });
+
     super.initState();
   }
 
@@ -217,13 +241,9 @@ class _PosHomePageState extends State<PosHomePage> {
             ),
           ],
         ),
-        Divider(),
-        Container(
-            margin: EdgeInsets.only(left: 10.0, top: 10.0),
-            child: Text('No has aperturado caja con este dispositivo.')),
         Container(
           height: 200.0,
-          margin: EdgeInsets.only(left: 10.0, top: 10.0),
+          margin: EdgeInsets.only(left: 10.0, top: 20.0),
           child: Center(
             child: StreamBuilder(
               stream: _posHomePageBloc.cashDrawers,
@@ -244,27 +264,128 @@ class _PosHomePageState extends State<PosHomePage> {
 
                     return ListView.separated(
                         itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: Icon(Icons.computer),
-                            title: Text(snapshot.data[index].name),
-                            trailing: Icon(Icons.navigate_next),
-                            onTap: () {
-                              /// Selecting the cash drawer
-                              _posHomePageBloc.changeCashDrawerSelected(
-                                  snapshot.data[index]);
+                          return FutureBuilder(
+                            future: _posHomePageBloc
+                                .lastOpeningCashDrawer(snapshot.data[index]),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<OpeningCashDrawer>
+                                    cashDrawerSnapshot) {
+                              switch (cashDrawerSnapshot.connectionState) {
+                                case ConnectionState.waiting:
+                                  return ListTile(
+                                    leading: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Color(_rootBloc.primaryColor.value)),
+                                    ),
+                                    title: Text(snapshot.data[index].name),
+                                    subtitle: Text('Cargando'),
+                                    onTap: () {},
+                                  );
+                                default:
 
-                              /// Once open the cash drawer we navigate
-                              /// to the next page
-                              _posHomePageBloc.openCashDrawer().then((v) {
-                                /// Moving to cash page
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CashPage(
-                                              documentType: 'I',
-                                              cashDrawer: snapshot.data[index],
-                                            )));
-                              });
+                                  /// We never have opened this cash drawer
+                                  if (cashDrawerSnapshot.data == null) {
+                                    return ListTile(
+                                      leading: Icon(Icons.computer),
+                                      title: Text(snapshot.data[index].name),
+                                      subtitle: Text('Caja disponible'),
+                                      trailing: Icon(Icons.navigate_next),
+                                      onTap: () {
+                                        /// Selecting the cash drawer
+                                        _posHomePageBloc
+                                            .changeCashDrawerSelected(
+                                                snapshot.data[index]);
+
+                                        /// Once open the cash drawer we navigate
+                                        /// to the next page
+                                        _posHomePageBloc
+                                            .openCashDrawer()
+                                            .then((v) {
+                                          /// Moving to cash page
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CashPage(
+                                                        documentType: 'I',
+                                                        cashDrawer: snapshot
+                                                            .data[index],
+                                                      )));
+                                        });
+                                      },
+                                    );
+                                  }
+
+                                  /// The cash drawer was opened by other device
+                                  if (cashDrawerSnapshot.data.state == 'A') {
+                                    return ListTile(
+                                      leading: Icon(Icons.computer),
+                                      title: Text(snapshot.data[index].name),
+                                      subtitle: Text('Abierta - Aperturada el '
+                                          '${cashDrawerSnapshot.data.openingDate.year.toString()}/'
+                                          '${cashDrawerSnapshot.data.openingDate.month.toString()}/'
+                                          '${cashDrawerSnapshot.data.openingDate.day.toString()}'),
+                                      trailing: Icon(Icons.navigate_next),
+                                      onTap: () {
+                                        _posHomePageBloc.changeMessage(
+                                            'Lo sentimos caja aperturada en otro dispostivo.');
+                                      },
+                                    );
+                                  }
+
+                                  if (cashDrawerSnapshot.data.state == 'C' &&
+                                      cashDrawerSnapshot
+                                              .data.openingDate.year ==
+                                          DateTime.now().year &&
+                                      cashDrawerSnapshot
+                                              .data.openingDate.month ==
+                                          DateTime.now().month &&
+                                      cashDrawerSnapshot.data.openingDate.day ==
+                                          DateTime.now().day) {
+                                    return ListTile(
+                                      leading: Icon(Icons.computer),
+                                      title: Text(snapshot.data[index].name),
+                                      subtitle: Text('Cerrrada - Aperturada el '
+                                          '${cashDrawerSnapshot.data.openingDate.year.toString()}/'
+                                          '${cashDrawerSnapshot.data.openingDate.month.toString()}/'
+                                          '${cashDrawerSnapshot.data.openingDate.day.toString()}'),
+                                      trailing: Icon(Icons.navigate_next),
+                                      onTap: () {
+                                        _posHomePageBloc.changeMessage(
+                                            'Lo sentimos la caja ya ha sido aperturada hoy.');
+                                      },
+                                    );
+                                  }
+
+                                  /// We finally can open the cash drawer
+                                  return ListTile(
+                                    leading: Icon(Icons.computer),
+                                    title: Text(snapshot.data[index].name),
+                                    subtitle: Text('Caja disponible'),
+                                    trailing: Icon(Icons.navigate_next),
+                                    onTap: () {
+                                      /// Selecting the cash drawer
+                                      _posHomePageBloc.changeCashDrawerSelected(
+                                          snapshot.data[index]);
+
+                                      /// Once open the cash drawer we navigate
+                                      /// to the next page
+                                      _posHomePageBloc
+                                          .openCashDrawer()
+                                          .then((v) {
+                                        /// Moving to cash page
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => CashPage(
+                                                      documentType: 'I',
+                                                      cashDrawer:
+                                                          snapshot.data[index],
+                                                    )));
+                                      });
+                                    },
+                                  );
+                              }
                             },
                           );
                         },
