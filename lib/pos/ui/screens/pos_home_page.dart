@@ -206,7 +206,7 @@ class _PosHomePageState extends State<PosHomePage> {
                     'Continuar',
                     style: TextStyle(color: Colors.white),
                   ),
-                  color: Color(_rootBloc.primaryColor.value),
+                  color: Color(_rootBloc.submitColor.value),
                   onPressed: () {
                     Navigator.push(
                         context,

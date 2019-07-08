@@ -80,7 +80,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                       child: Text(
                         'Agregar a la factura',
                         style: TextStyle(
-                            color: Color(_rootBloc.primaryColor.value)),
+                            color: Color(_rootBloc.submitColor.value)),
                       ),
                       onPressed: () {
                         widget.cashBloc.changeCustomer(widget.customer);
@@ -216,7 +216,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
                   child: Text(
                     'Editar datos del cliente',
                     style:
-                        TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                        TextStyle(color: Color(_rootBloc.submitColor.value)),
                   ),
                   onPressed: () {
                     Navigator.push(

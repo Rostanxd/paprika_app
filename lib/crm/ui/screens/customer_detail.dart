@@ -150,7 +150,7 @@ class _CustomerDetailState extends State<CustomerDetail> {
                 'Guardar',
                 style: TextStyle(color: Colors.white),
               ),
-              color: Color(_rootBloc.primaryColor.value),
+              color: Color(_rootBloc.submitColor.value),
               onPressed: () {
                 if (_customerBloc.customer.value != null) {
                   _customerBloc.updateCustomer().then((bool) {

@@ -45,7 +45,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                     child: Text(
                       'Cerrar',
                       style:
-                          TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                          TextStyle(color: Color(_rootBloc.submitColor.value)),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
@@ -167,7 +167,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                                           'No, cancelar',
                                           style: TextStyle(
                                               color: Color(_rootBloc
-                                                  .primaryColor.value)),
+                                                  .submitColor.value)),
                                         ),
                                         onPressed: () {
                                           Navigator.pop(context);
@@ -205,7 +205,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                   'Guardar',
                   style: TextStyle(color: Colors.white),
                 ),
-                color: Color(_rootBloc.primaryColor.value),
+                color: Color(_rootBloc.submitColor.value),
                 onPressed: () {
                   if (_measureBloc.measure.value != null) {
                     _measureBloc.updateMeasure();
@@ -486,7 +486,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                                   'Nuevo',
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                color: Color(_rootBloc.primaryColor.value),
+                                color: Color(_rootBloc.submitColor.value),
                               )
                             : RaisedButton(
                                 onPressed: () {},
@@ -534,7 +534,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                           child: Text(
                             'Actualizar',
                             style: TextStyle(
-                                color: Color(_rootBloc.primaryColor.value)),
+                                color: Color(_rootBloc.submitColor.value)),
                           ),
                           onPressed: () {
                             _measureBloc.updateMeasurementConversion();
@@ -545,7 +545,7 @@ class _MeasureDetailState extends State<MeasureDetail> {
                           child: Text(
                             'Guardar',
                             style: TextStyle(
-                                color: Color(_rootBloc.primaryColor.value)),
+                                color: Color(_rootBloc.submitColor.value)),
                           ),
                           onPressed: () {
                             _measureBloc.createMeasurementConversion();

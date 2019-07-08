@@ -392,7 +392,7 @@ class _SearchItemState extends State<SearchItem> {
               'Agregar un nuevo item',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color(_rootBloc.primaryColor.value)),
+                  color: Color(_rootBloc.submitColor.value)),
             ),
             subtitle: Text('Permite crear un item vinculado directamente '
                 'a esta categoría.'),

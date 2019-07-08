@@ -50,7 +50,7 @@ class _CategoryListState extends State<CategoryList> {
       ),
       body: _itemListStreamBuilder(_categoryListBloc),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(_rootBloc.primaryColor.value),
+          backgroundColor: Color(_rootBloc.submitColor.value),
           child: Icon(
             Icons.add,
             color: Colors.white,

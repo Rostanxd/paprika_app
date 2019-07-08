@@ -172,7 +172,7 @@ class _CheckOutState extends State<CheckOut> {
         Container(
           margin: EdgeInsets.only(top: 50.0, left: 10.0),
           child: RaisedButton(
-              color: Color(_rootBloc.primaryColor.value),
+              color: Color(_rootBloc.submitColor.value),
               elevation: 5.0,
               child: Text(
                 'Continuar',
@@ -327,7 +327,7 @@ class _CheckOutState extends State<CheckOut> {
       margin: EdgeInsets.only(top: 150.0),
       width: MediaQuery.of(context).size.width * 0.3,
       child: RaisedButton(
-          color: Color(_rootBloc.primaryColor.value),
+          color: Color(_rootBloc.submitColor.value),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[

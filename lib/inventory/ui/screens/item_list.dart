@@ -51,7 +51,7 @@ class _ItemListState extends State<ItemList> {
       ),
       body: _itemListStreamBuilder(_authenticationBloc, _itemListBloc),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(_rootBloc.primaryColor.value),
+          backgroundColor: Color(_rootBloc.submitColor.value),
           child: Icon(
             Icons.add,
             color: Colors.white,

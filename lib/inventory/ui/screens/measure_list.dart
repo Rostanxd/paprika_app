@@ -85,7 +85,7 @@ class _MeasureListState extends State<MeasureList> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(_rootBloc.primaryColor.value),
+          backgroundColor: Color(_rootBloc.submitColor.value),
           child: Icon(
             Icons.add,
             color: Colors.white,

@@ -40,7 +40,7 @@ class _CategoryDetailState extends State<CategoryDetail> {
                     child: Text(
                       'Cerrar',
                       style:
-                          TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                          TextStyle(color: Color(_rootBloc.submitColor.value)),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
@@ -146,7 +146,7 @@ class _CategoryDetailState extends State<CategoryDetail> {
                                         'No, cancelar',
                                         style: TextStyle(
                                             color: Color(
-                                                _rootBloc.primaryColor.value)),
+                                                _rootBloc.submitColor.value)),
                                       ),
                                       onPressed: () {
                                         Navigator.pop(context);
@@ -184,7 +184,7 @@ class _CategoryDetailState extends State<CategoryDetail> {
                 'Guardar',
                 style: TextStyle(color: Colors.white),
               ),
-              color: Color(_rootBloc.primaryColor.value),
+              color: Color(_rootBloc.submitColor.value),
               onPressed: () {
                 if (_categoryBloc.category.value != null) {
                   _categoryBloc.updateCategory();

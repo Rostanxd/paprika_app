@@ -73,10 +73,11 @@ class RootBloc implements BlocBase {
 
   void fetchColors() {
     _darkPrimaryColor.sink.add(0xFFFF631D);
-    _primaryColor.sink.add(0xFFFF9612);
-    _secondaryColor.sink.add(0xFFFFAB40);
+    _primaryColor.sink.add(0xFFFB8E00);
+    _secondaryColor.sink.add(0xFFF5F5F5);
     _tertiaryColor.sink.add(0xFFFF9800);
-    _submitColor.sink.add(0xFFFF6E40);
+//    _submitColor.sink.add(0xFFFF5722);
+    _submitColor.sink.add(0xFFFF631D);
   }
 
   @override

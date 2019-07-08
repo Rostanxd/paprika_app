@@ -32,7 +32,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
-      backgroundColor: Color(_rootBloc.tertiaryColor.value),
+      backgroundColor: Color(_rootBloc.secondaryColor.value),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
@@ -103,14 +103,13 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
       body: ListView(
         children: <Widget>[
           Container(
-            color: Color(0xFFFF9612),
             padding: EdgeInsets.only(left: 5.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 _listItems(),
                 Divider(
-                  color: Colors.deepOrange[700],
+                  color: Color(_rootBloc.submitColor.value),
                 ),
                 _totalInvoice(),
                 _invoiceButtons(),
@@ -146,20 +145,20 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                             snapshot.data[index].item.name,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white),
+                                color: Colors.black),
                           ),
                           subtitle: Text(
                             '\$ ${snapshot.data[index].item.price} x ${snapshot.data[index].quantity} und(s)',
                             style: TextStyle(
                                 fontStyle: FontStyle.italic,
-                                color: Colors.white),
+                                color: Colors.black),
                           ),
                           trailing: Text(
                             '\$ ${snapshot.data[index].subtotal}',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18.0,
-                                color: Colors.white),
+                                color: Colors.black),
                           ),
                         ),
                         onDismissed: (direction) {
@@ -191,27 +190,6 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
     );
   }
 
-  Widget _itemInTheList(InvoiceLine line) {
-    return Card(
-      elevation: 5.0,
-      color: Color(_rootBloc.secondaryColor.value),
-      child: ListTile(
-        title: Text(
-          line.item.name,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          '\$ ${line.item.price} x ${line.quantity} und(s)',
-          style: TextStyle(fontStyle: FontStyle.italic),
-        ),
-        trailing: Text(
-          '\$ ${line.subtotal}',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-        ),
-      ),
-    );
-  }
-
   Widget _totalInvoice() {
     return StreamBuilder(
       stream: widget.cashBloc.invoice,
@@ -230,7 +208,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   child: Text(
                     'Impuestos',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold),
                   ),
@@ -240,7 +218,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   child: Text(
                     snapshot.hasData ? '\$ ${snapshot.data.taxes}' : '\S 0.0',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold),
                   ),
@@ -255,7 +233,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   child: Text(
                     'Total a pagar',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold),
                   ),
@@ -265,7 +243,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   child: Text(
                     snapshot.hasData ? '\$ ${snapshot.data.total}' : '\$ 0.0',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold),
                   ),
@@ -294,7 +272,11 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                         EdgeInsets.only(top: 10.0, bottom: 20.0, right: 10.0),
                     child: Center(
                       child: RaisedButton(
-                          child: Text('Nuevo'),
+                          child: Text(
+                            'Nuevo',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          color: Colors.white,
                           elevation: 5.0,
                           onPressed: () {
                             if (widget.cashBloc.invoice.value != null &&

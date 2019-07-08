@@ -164,7 +164,7 @@ class _OrderDetailState extends State<OrderDetail> {
                 'Guardar',
                 style: TextStyle(color: Colors.white),
               ),
-              color: Color(_rootBloc.primaryColor.value),
+              color: Color(_rootBloc.submitColor.value),
               onPressed: () {
                 _cashBloc.createOrder(_authenticationBloc.user.value.id);
               }),

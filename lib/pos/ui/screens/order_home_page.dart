@@ -119,7 +119,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        backgroundColor: Color(_rootBloc.primaryColor.value),
+        backgroundColor: Color(_rootBloc.submitColor.value),
         onPressed: () {
           Navigator.push(
               context,
@@ -657,7 +657,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
               FlatButton(
                 child: Text(
                   'Filtrar',
-                  style: TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                  style: TextStyle(color: Color(_rootBloc.submitColor.value)),
                 ),
                 onPressed: () {
                   Navigator.pop(context);

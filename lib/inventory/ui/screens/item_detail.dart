@@ -57,7 +57,7 @@ class _ItemDetailState extends State<ItemDetail> {
                     child: Text(
                       'Cerrar',
                       style:
-                          TextStyle(color: Color(_rootBloc.primaryColor.value)),
+                          TextStyle(color: Color(_rootBloc.submitColor.value)),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
@@ -201,7 +201,7 @@ class _ItemDetailState extends State<ItemDetail> {
                                         'No, cancelar',
                                         style: TextStyle(
                                             color: Color(
-                                                _rootBloc.primaryColor.value)),
+                                                _rootBloc.submitColor.value)),
                                       ),
                                       onPressed: () {
                                         Navigator.pop(context);
@@ -239,7 +239,7 @@ class _ItemDetailState extends State<ItemDetail> {
                 'Guardar',
                 style: TextStyle(color: Colors.white),
               ),
-              color: Color(_rootBloc.primaryColor.value),
+              color: Color(_rootBloc.submitColor.value),
               onPressed: () {
                 if (_itemBloc.item.value != null) {
                   _itemBloc.updateItem();
