@@ -103,6 +103,7 @@ class InvoiceLine extends Object {
   String invoiceId;
   String lineId;
   Item item;
+  double price;
   Measure dispatchMeasure;
   double discountRate;
   double discountValue;
@@ -111,7 +112,7 @@ class InvoiceLine extends Object {
   double taxes;
   double total;
 
-  InvoiceLine(this.item, this.dispatchMeasure, this.discountRate,
+  InvoiceLine(this.item, this.price, this.dispatchMeasure, this.discountRate,
       this.discountValue, this.quantity, this.subtotal, this.taxes, this.total);
 
   InvoiceLine.fromFireJson(
@@ -119,6 +120,7 @@ class InvoiceLine extends Object {
     this.lineId = documentId;
     this.invoiceId = json['invoiceId'];
     this.item = item;
+    this.price = json['price'];
     this.discountRate = json['discountRate'];
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
@@ -137,6 +139,7 @@ class InvoiceLine extends Object {
   Map<String, dynamic> toFireJson() => {
         'invoiceId': this.invoiceId,
         'itemId': this.item.id,
+        'price': this.price,
         'dispatchMeasureId': this.dispatchMeasure.id,
         'discountRate': this.discountRate,
         'discountValue': this.discountValue,
@@ -149,7 +152,7 @@ class InvoiceLine extends Object {
   @override
   String toString() {
     return 'InvoiceLine{invoiceId: $invoiceId, lineId: $lineId, '
-        'item: $item, dispatchMeasure: $dispatchMeasure, '
+        'item: $item, price: ${price.toString()}, dispatchMeasure: $dispatchMeasure, '
         'discountRate: $discountRate, discountValue: $discountValue, '
         'quantity: $quantity, subtotal: $subtotal, taxes: $taxes, '
         'total: $total}';

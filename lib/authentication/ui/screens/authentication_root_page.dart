@@ -131,7 +131,6 @@ class AuthenticationRootPage extends StatelessWidget {
                     fit: BoxFit.fill)),
           ),
           CircularProgressIndicator(
-            backgroundColor: Color(rootBloc.secondaryColor.value),
             valueColor: AlwaysStoppedAnimation<Color>(
                 Color(rootBloc.primaryColor.value)),
           ),

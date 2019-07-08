@@ -165,9 +165,9 @@ class _LoginPageState extends State<LoginPage> {
                 shadowColor: Color(0xff212121),
                 color: snapshot.data != null
                     ? snapshot.data
-                        ? Color(_rootBloc.primaryColor.value)
-                        : Colors.deepOrange[400]
-                    : Colors.deepOrange[400],
+                        ? Color(_rootBloc.submitColor.value)
+                        : Color(_rootBloc.secondaryColor.value)
+                    : Color(_rootBloc.secondaryColor.value),
                 elevation: 7.0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

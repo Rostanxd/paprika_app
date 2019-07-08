@@ -70,7 +70,7 @@ class _BranchPickPageState extends State<BranchPickPage> {
                               style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(_rootBloc.primaryColor.value)),
+                                  color: Color(_rootBloc.submitColor.value)),
                             ),
                           )
                         ],

@@ -226,6 +226,7 @@ class CashBloc extends BlocBase {
     /// Check if already have the item in the list
     _invoiceDetailList.forEach((d) {
       if (d.item.id == item.id) {
+        d.price = item.price;
         d.quantity += 1;
         d.subtotal = d.quantity * item.price;
         d.taxes = d.subtotal * 0.12;
@@ -241,6 +242,7 @@ class CashBloc extends BlocBase {
 
     /// Item's new in the list
     if (!exist) {
+      double price = double.parse((item.price).toStringAsFixed(2));
       Measure measure = item.measure;
       double quantity = 1;
       double discount = 0;
@@ -249,7 +251,7 @@ class CashBloc extends BlocBase {
       double total = double.parse((item.price * 1.12).toStringAsFixed(2));
 
       _invoiceDetailList.add(InvoiceLine(
-          item, measure, 0, discount, quantity, subtotal, taxes, total));
+          item, price, measure, 0, discount, quantity, subtotal, taxes, total));
     }
 
     /// Add the invoice line list to the stream
