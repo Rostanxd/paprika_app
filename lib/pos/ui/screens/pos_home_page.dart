@@ -81,7 +81,7 @@ class _PosHomePageState extends State<PosHomePage> {
                             Color(_rootBloc.primaryColor.value)),
                       );
                     default:
-                      return snapshot.hasData
+                      return snapshot.hasData && snapshot.data.state == 'A'
                           ? _openedCashDrawer(snapshot.data)
                           : _noOpenedCashDrawer();
                   }
@@ -172,7 +172,7 @@ class _PosHomePageState extends State<PosHomePage> {
                   ),
                   color: Colors.white,
                   onPressed: () {
-
+                    _posHomePageBloc.closeCashDrawer();
                   }),
             ),
             Container(

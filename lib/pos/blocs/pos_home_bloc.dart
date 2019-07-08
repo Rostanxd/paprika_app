@@ -15,6 +15,7 @@ class PosHomeBloc extends BlocBase {
   final _cashDrawers = BehaviorSubject<List<CashDrawer>>();
   final _device = BehaviorSubject<Device>();
   final _user = BehaviorSubject<User>();
+  final _message = BehaviorSubject<String>();
   final SalesRepository _salesRepository = SalesRepository();
 
   /// Observable
@@ -26,6 +27,8 @@ class PosHomeBloc extends BlocBase {
 
   Observable<List<CashDrawer>> get cashDrawers => _cashDrawers.stream;
 
+  Observable<String> get messenger => _message.stream;
+
   /// Functions
   Function(Enterprise) get changeEnterprise => _enterprise.add;
 
@@ -36,6 +39,8 @@ class PosHomeBloc extends BlocBase {
   Function(Device) get changeDevice => _device.add;
 
   Function(User) get changeUser => _user.add;
+
+  Function(String) get changeMessage => _message.add;
 
   Future<void> fetchOpenedCashDrawer(Device device) async {
     await _salesRepository.fetchOpenedCashDrawerOfDevice(device).then((data) {
@@ -64,18 +69,18 @@ class PosHomeBloc extends BlocBase {
     await _salesRepository.openCashDrawer(_openingCashDrawer);
   }
 
-  /// finish
+  /// Closing the cash drawer
   Future<void> closeCashDrawer() async {
-    OpeningCashDrawer _openingCashDrawer = OpeningCashDrawer(
-        _cashDrawerSelected.value,
-        _device.value,
-        DateTime.now(),
-        _user.value.id,
-        'C',
-        null,
-        null);
+    OpeningCashDrawer _closingCashDrawer = _openedCashDrawer.value;
 
-    await _salesRepository.openCashDrawer(_openingCashDrawer);
+    _closingCashDrawer.state = 'C';
+    _closingCashDrawer.closingDate = DateTime.now();
+    _closingCashDrawer.closingUser = _user.value.id;
+
+    await _salesRepository.openCashDrawer(_closingCashDrawer);
+
+    _message.sink.add('Caja cerrada correctamente');
+    _openedCashDrawer.sink.add(_closingCashDrawer);
   }
 
   @override
@@ -87,5 +92,6 @@ class PosHomeBloc extends BlocBase {
     _cashDrawers.close();
     _device.close();
     _user.close();
+    _message.close();
   }
 }
