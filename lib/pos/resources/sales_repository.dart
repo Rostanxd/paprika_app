@@ -17,6 +17,9 @@ class SalesRepository {
           String invoiceId, InvoiceLine detail) =>
       _invoiceApi.createDetailInvoice(invoiceId, detail);
 
+  Future<void> updateInvoiceData(Invoice invoice) =>
+      _invoiceApi.updateInvoiceData(invoice);
+
   Future<CashDrawer> fetchCashDrawerById(String id) =>
       _cashDrawerFirebaseApi.fetchCashDrawerById(id);
 

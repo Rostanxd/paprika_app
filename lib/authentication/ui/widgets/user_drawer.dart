@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/home_page.dart';
-import 'package:paprika_app/pos/ui/screens/order_home_page.dart';
+import 'package:paprika_app/pos/ui/screens/invoice_home_page.dart';
 import 'package:paprika_app/pos/ui/screens/pos_home_page.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
@@ -141,30 +141,48 @@ class _UserDrawerState extends State<UserDrawer> {
     ));
 
     _listChildren.add(ListTile(
+      title: Text('Facturas'),
+      leading: Icon(Icons.receipt),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => InvoiceHomePage(
+                      documentType: 'I',
+                    )));
+      },
+    ));
+
+    _listChildren.add(ListTile(
       title: Text('Pedidos'),
       leading: Icon(Icons.add_shopping_cart),
       onTap: () {
         Navigator.pop(context);
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => OrderHomePage()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => InvoiceHomePage(
+                      documentType: 'O',
+                    )));
       },
     ));
 
-    _listChildren.add(ListTile(
-      title: Text('CRM'),
-      leading: Icon(Icons.person),
-      onTap: () {
-        Navigator.pop(context);
-      },
-    ));
-
-    _listChildren.add(ListTile(
-      title: Text('Recetas'),
-      leading: Icon(Icons.book),
-      onTap: () {
-        Navigator.pop(context);
-      },
-    ));
+//    _listChildren.add(ListTile(
+//      title: Text('CRM'),
+//      leading: Icon(Icons.person),
+//      onTap: () {
+//        Navigator.pop(context);
+//      },
+//    ));
+//
+//    _listChildren.add(ListTile(
+//      title: Text('Recetas'),
+//      leading: Icon(Icons.book),
+//      onTap: () {
+//        Navigator.pop(context);
+//      },
+//    ));
 
     _listChildren.add(ListTile(
       title: Text('Items'),
@@ -177,6 +195,7 @@ class _UserDrawerState extends State<UserDrawer> {
     ));
 
     /// Adding options by the profile
+    _listChildren.add(Divider());
     if (_authenticationBloc.role.value.systemId != '02') {
       _listChildren.add(ListTile(
         title: Text('Configuración'),
@@ -186,7 +205,6 @@ class _UserDrawerState extends State<UserDrawer> {
     }
 
     /// Adding exit option
-    _listChildren.add(Divider());
     _listChildren.add(ListTile(
       title: Text('Salir'),
       leading: Icon(Icons.exit_to_app),

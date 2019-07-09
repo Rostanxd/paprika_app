@@ -94,7 +94,7 @@ class Invoice extends Object {
         'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
         'total: $total, modificationUser: $modificationUser, '
         'modificationDate: $modificationDate, creationUser: $creationUser, '
-        'creationDate: $creationDate, detail: $detail, customer: $customer, '
+        'creationDate: $creationDate, customer: $customer, '
         'branch: $branch, cashDrawer: $cashDrawer}';
   }
 }

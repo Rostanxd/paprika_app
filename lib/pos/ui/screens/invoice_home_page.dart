@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
-import 'package:paprika_app/pos/blocs/order_home_bloc.dart';
+import 'package:paprika_app/pos/blocs/invoice_home_bloc.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
 import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
-class OrderHomePage extends StatefulWidget {
+class InvoiceHomePage extends StatefulWidget {
+  final String documentType;
+
+  const InvoiceHomePage({Key key, this.documentType}) : super(key: key);
+
   @override
-  _OrderHomePageState createState() => _OrderHomePageState();
+  _InvoiceHomePageState createState() => _InvoiceHomePageState();
 }
 
-class _OrderHomePageState extends State<OrderHomePage> {
+class _InvoiceHomePageState extends State<InvoiceHomePage> {
   RootBloc _rootBloc;
   AuthenticationBloc _authenticationBloc;
-  OrderHomeBloc _orderHomeBloc;
+  InvoiceHomeBloc _invoiceHomeBloc;
   DateTime _fromDefaultDate = DateTime.now();
   List<DropdownMenuItem<String>> _branchesDropDownItems =
       List<DropdownMenuItem<String>>();
@@ -23,20 +27,21 @@ class _OrderHomePageState extends State<OrderHomePage> {
   TextEditingController _fromDateCtrl = TextEditingController();
   TextEditingController _toDateCtrl = TextEditingController();
   DateTime _now = new DateTime.now();
+  String _documentType;
 
   ///  Future to show the date picker
   Future _selectFromDate() async {
     DateTime picked = await showDatePicker(
         context: context,
-        initialDate: _orderHomeBloc.fromDate.value.toString().isNotEmpty &&
-                _orderHomeBloc.fromDate.value != null
-            ? _orderHomeBloc.fromDate.value
+        initialDate: _invoiceHomeBloc.fromDate.value.toString().isNotEmpty &&
+                _invoiceHomeBloc.fromDate.value != null
+            ? _invoiceHomeBloc.fromDate.value
             : _fromDefaultDate,
         firstDate: DateTime(_now.year - 3),
         lastDate: DateTime(_now.year + 1));
 
     if (picked != null) {
-      _orderHomeBloc.changeFromDate(picked);
+      _invoiceHomeBloc.changeFromDate(picked);
     }
   }
 
@@ -44,22 +49,48 @@ class _OrderHomePageState extends State<OrderHomePage> {
   Future _selectToDate() async {
     DateTime picked = await showDatePicker(
         context: context,
-        initialDate: _orderHomeBloc.toDate.value.toString().isNotEmpty &&
-                _orderHomeBloc.toDate.value != null
-            ? _orderHomeBloc.toDate.value
+        initialDate: _invoiceHomeBloc.toDate.value.toString().isNotEmpty &&
+                _invoiceHomeBloc.toDate.value != null
+            ? _invoiceHomeBloc.toDate.value
             : _fromDefaultDate,
         firstDate: DateTime(_now.year - 3),
         lastDate: DateTime(_now.year + 1));
 
     if (picked != null) {
-      _orderHomeBloc.changeToDate(picked);
+      _invoiceHomeBloc.changeToDate(picked);
     }
   }
 
   @override
   void initState() {
-    _orderHomeBloc = OrderHomeBloc();
-    _orderHomeBloc.changeOrderSelected(null);
+    _invoiceHomeBloc = InvoiceHomeBloc();
+    _invoiceHomeBloc.changeOrderSelected(null);
+    _documentType = widget.documentType;
+
+    /// Control the message in the dialog
+    _invoiceHomeBloc.messenger.listen((message) {
+      if (message != null)
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Paprica dice:'),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(
+                      'Cerrar',
+                      style:
+                          TextStyle(color: Color(_rootBloc.submitColor.value)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            });
+    });
     super.initState();
   }
 
@@ -69,8 +100,8 @@ class _OrderHomePageState extends State<OrderHomePage> {
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
 
     /// Updating the streams
-    _orderHomeBloc.changeEnterprise(_authenticationBloc.enterprise.value);
-    _orderHomeBloc.changeBranch(_authenticationBloc.branch.value);
+    _invoiceHomeBloc.changeEnterprise(_authenticationBloc.enterprise.value);
+    _invoiceHomeBloc.changeBranch(_authenticationBloc.branch.value);
 
     /// Loading the branches to the dropdown item
     _branchesDropDownItems.clear();
@@ -85,12 +116,19 @@ class _OrderHomePageState extends State<OrderHomePage> {
               child: Text(b.name),
             )));
 
-    _orderHomeBloc.changeBranchSelectedId(_authenticationBloc.branch.value.id);
+    _invoiceHomeBloc
+        .changeBranchSelectedId(_authenticationBloc.branch.value.id);
 
-    /// Getting the orders
-    _orderHomeBloc.changeFromDate(DateTime.now().subtract(Duration(days: 7)));
-    _orderHomeBloc.changeToDate(DateTime.now());
-    _orderHomeBloc.fetchOrders();
+    /// Getting the documents
+    if (_documentType == 'I') {
+      _invoiceHomeBloc
+          .changeFromDate(DateTime.now().subtract(Duration(days: 1)));
+    } else {
+      _invoiceHomeBloc
+          .changeFromDate(DateTime.now().subtract(Duration(days: 7)));
+    }
+    _invoiceHomeBloc.changeToDate(DateTime.now());
+    _invoiceHomeBloc.fetchDocumentsByType(_documentType);
 
     super.didChangeDependencies();
   }
@@ -99,7 +137,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pedidos realizados'),
+        title: _documentType == 'I'
+            ? Text('Facturas realizadas')
+            : Text('Pedidos realizados'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[],
       ),
@@ -109,31 +149,33 @@ class _OrderHomePageState extends State<OrderHomePage> {
         children: <Widget>[
           Flexible(
             flex: 3,
-            child: _orderList(),
+            child: _documentList(),
           ),
           Flexible(
             flex: 3,
-            child: _orderDetail(),
+            child: _documentDetail(),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        backgroundColor: Color(_rootBloc.submitColor.value),
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CashPage(
-                        branch: _authenticationBloc.branch.value,
-                        documentType: 'O',
-                      )));
-        },
-      ),
+      floatingActionButton: _documentType == 'O'
+          ? FloatingActionButton(
+              child: Icon(Icons.add),
+              backgroundColor: Color(_rootBloc.submitColor.value),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CashPage(
+                              branch: _authenticationBloc.branch.value,
+                              documentType: 'O',
+                            )));
+              },
+            )
+          : null,
     );
   }
 
-  Widget _orderList() {
+  Widget _documentList() {
     return Container(
       margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 10.0, right: 5.0),
       child: Card(
@@ -148,7 +190,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0),
                   child: Text(
-                    'Lista de pedidos',
+                    'Lista',
                     style:
                         TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
@@ -167,7 +209,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 height: 500.0,
                 margin: EdgeInsets.only(left: 10.0),
                 child: StreamBuilder(
-                    stream: _orderHomeBloc.orders,
+                    stream: _invoiceHomeBloc.orders,
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Invoice>> snapshot) {
                       switch (snapshot.connectionState) {
@@ -186,7 +228,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
 
                           if (!snapshot.hasData || snapshot.data.length == 0)
                             return Center(
-                              child: Text('No se han encontrado ordenes'),
+                              child: Text('No se hay resultados'),
                             );
 
                           return ListView.separated(
@@ -199,7 +241,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                                 subtitle: Text(
                                     'Fecha: ${snapshot.data[index].dateTime.toString()}'),
                                 onTap: () {
-                                  _orderHomeBloc.changeOrderSelected(
+                                  _invoiceHomeBloc.changeOrderSelected(
                                       snapshot.data[index]);
                                 },
                               );
@@ -219,7 +261,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
     );
   }
 
-  Widget _orderDetail() {
+  Widget _documentDetail() {
     return Container(
       margin: EdgeInsets.only(left: 5.0, top: 10.0, bottom: 10.0, right: 10.0),
       child: Card(
@@ -234,7 +276,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0),
                   child: Text(
-                    'Detalle del pedido',
+                    'Detalle',
                     style:
                         TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
@@ -242,50 +284,91 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 Container(
                   margin: EdgeInsets.only(top: 10.0, right: 10.0),
                   child: PopupMenuButton<String>(itemBuilder: (context) {
-                    return [
-                      PopupMenuItem(
-                        child: InkWell(
+                    if (_documentType == 'I') {
+                      return [
+                        PopupMenuItem(
+                            child: InkWell(
                           child: Container(
                             child: Row(
                               children: <Widget>[
-                                Icon(Icons.edit),
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.redAccent,
+                                ),
                                 Container(
                                     margin: EdgeInsets.only(left: 10.0),
-                                    child: Text('Editar')),
+                                    child: Text(
+                                      'Eliminar',
+                                      style: TextStyle(color: Colors.redAccent),
+                                    )),
                               ],
                             ),
                           ),
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CashPage(
-                                          invoice: _orderHomeBloc
-                                              .orderSelected.value,
-                                          documentType: 'O',
-                                          branch:
-                                              _authenticationBloc.branch.value,
-                                        )));
+                            _confirmCancelDocument();
                           },
-                        ),
-                      ),
-                      PopupMenuItem(
-                          child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.delete,
-                            color: Colors.redAccent,
+                        )),
+                      ];
+                    } else {
+                      return [
+                        PopupMenuItem(
+                          child: InkWell(
+                            child: Container(
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(Icons.edit),
+                                  Container(
+                                      margin: EdgeInsets.only(left: 10.0),
+                                      child: Text('Editar')),
+                                ],
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+
+                              if (_invoiceHomeBloc.documentSelected.value ==
+                                  null) {
+                                return _invoiceHomeBloc.changeMessage(
+                                    'Seleccione un documento para editarlo.');
+                              }
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CashPage(
+                                            invoice: _invoiceHomeBloc
+                                                .documentSelected.value,
+                                            documentType: 'O',
+                                            branch: _authenticationBloc
+                                                .branch.value,
+                                          )));
+                            },
                           ),
-                          Container(
-                              margin: EdgeInsets.only(left: 10.0),
-                              child: Text(
-                                'Eliminar',
-                                style: TextStyle(color: Colors.redAccent),
-                              )),
-                        ],
-                      )),
-                    ];
+                        ),
+                        PopupMenuItem(
+                            child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.delete,
+                              color: Colors.redAccent,
+                            ),
+                            InkWell(
+                              child: Container(
+                                  margin: EdgeInsets.only(left: 10.0),
+                                  child: Text(
+                                    'Eliminar',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _confirmCancelDocument();
+                              },
+                            ),
+                          ],
+                        )),
+                      ];
+                    }
                   }),
                 ),
               ],
@@ -293,7 +376,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
             Container(
                 margin: EdgeInsets.only(top: 10.0, left: 10.0),
                 child: StreamBuilder(
-                    stream: _orderHomeBloc.orderSelected,
+                    stream: _invoiceHomeBloc.documentSelected,
                     builder: (BuildContext context,
                         AsyncSnapshot<Invoice> snapshot) {
                       if (snapshot.hasError)
@@ -308,7 +391,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                         return Container(
                           height: 500,
                           child: Center(
-                            child: Text('Por favor seleccione un pedido'),
+                            child: Text('Por favor seleccione un documento'),
                           ),
                         );
 
@@ -642,7 +725,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Filtrar pedidos'),
+            title: Text('Filtrar documento'),
             content: _alertDialogFilterContent(),
             actions: <Widget>[
               FlatButton(
@@ -661,7 +744,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 ),
                 onPressed: () {
                   Navigator.pop(context);
-                  _orderHomeBloc.fetchOrders();
+                  _invoiceHomeBloc.fetchDocumentsByType(_documentType);
                 },
               ),
             ],
@@ -683,7 +766,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 margin: EdgeInsets.only(left: 20.0, bottom: 10.0),
                 width: 300.0,
                 child: StreamBuilder(
-                    stream: _orderHomeBloc.branchSelectedId,
+                    stream: _invoiceHomeBloc.branchSelectedId,
                     builder:
                         (BuildContext context, AsyncSnapshot<String> snapshot) {
                       return DropdownButtonFormField(
@@ -703,7 +786,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                                 ? snapshot.error.toString()
                                 : ''),
                         onChanged: (b) {
-                          _orderHomeBloc.changeBranchSelectedId(b);
+                          _invoiceHomeBloc.changeBranchSelectedId(b);
                         },
                       );
                     }),
@@ -720,7 +803,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 margin: EdgeInsets.only(left: 20.0, bottom: 10.0),
                 width: 300.0,
                 child: StreamBuilder(
-                    stream: _orderHomeBloc.fromDate,
+                    stream: _invoiceHomeBloc.fromDate,
                     builder: (BuildContext context,
                         AsyncSnapshot<DateTime> snapshot) {
                       if (snapshot.hasData)
@@ -762,7 +845,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 margin: EdgeInsets.only(left: 20.0, bottom: 10.0),
                 width: 300,
                 child: StreamBuilder(
-                    stream: _orderHomeBloc.toDate,
+                    stream: _invoiceHomeBloc.toDate,
                     builder: (BuildContext context,
                         AsyncSnapshot<DateTime> snapshot) {
                       if (snapshot.hasData)
@@ -797,5 +880,43 @@ class _OrderHomePageState extends State<OrderHomePage> {
         ],
       ),
     );
+  }
+
+  void _confirmCancelDocument() {
+    if (_invoiceHomeBloc.documentSelected.value == null) {
+      return _invoiceHomeBloc
+          .changeMessage('Seleccione un documento para eliminarlo.');
+    }
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Paprika dice:'),
+            content: Text('Estás seguro de querer eliminar este documento ?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(
+                  'Sí, elimiarlo',
+                  style: TextStyle(color: Color(_rootBloc.tertiaryColor.value)),
+                ),
+                onPressed: () {
+                  _invoiceHomeBloc.cancelDocument(_documentType,
+                      _authenticationBloc.user.value, _rootBloc.device.value);
+                  Navigator.pop(context);
+                },
+              ),
+              FlatButton(
+                child: Text(
+                  'No',
+                  style: TextStyle(color: Color(_rootBloc.submitColor.value)),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
   }
 }

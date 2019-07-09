@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget {
       ),
       drawer: UserDrawer(),
       body: Container(
-        child: Text('Hola mundo!'),
+        child: Text(''),
       ),
     );
   }

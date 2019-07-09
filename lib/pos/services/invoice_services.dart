@@ -28,10 +28,18 @@ class InvoiceApi {
         .add(detail.toFireJson());
   }
 
+  Future<void> updateInvoiceData(Invoice invoice) async {
+    await Firestore.instance
+        .collection('invoices')
+        .document(invoice.id)
+        .updateData(invoice.toFireJson());
+  }
+
   Future<List<Invoice>> fetchDocumentsBy(Branch branch, String documentType,
       Timestamp fromDate, Timestamp toDate, String state) async {
     Invoice invoice;
     Customer customer;
+    CashDrawer cashDrawer;
     List<Invoice> invoices = List<Invoice>();
     List<DocumentSnapshot> invoiceDocSnapshots = List<DocumentSnapshot>();
 
@@ -51,8 +59,11 @@ class InvoiceApi {
       customer =
           await _customerApi.fetchCustomerById(document.data['customerId']);
 
+      cashDrawer = await _cashDrawerFirebaseApi
+          .fetchCashDrawerById(document.data['cashDrawerId']);
+
       invoice = Invoice.fromFireJson(
-          document.documentID, branch, customer, null, document.data);
+          document.documentID, branch, customer, cashDrawer, document.data);
 
       invoice.detail = await fetchInvoiceDetail(invoice);
 
@@ -83,7 +94,7 @@ class InvoiceApi {
           await _branchFirebaseApi.fetchBranchById(document.data['branchId']);
 
       cashDrawer = await _cashDrawerFirebaseApi
-          .fetchCashDrawerById(document.data['branchId']);
+          .fetchCashDrawerById(document.data['cashDrawerId']);
 
       invoice =
           Invoice.fromFireJson(invoiceId, branch, customer, cashDrawer, data);
