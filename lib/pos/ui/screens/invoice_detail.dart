@@ -160,6 +160,9 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                                 fontSize: 18.0,
                                 color: Colors.black),
                           ),
+                          onTap: () {
+                            _callDialogEditLine(snapshot.data[index], index);
+                          },
                         ),
                         onDismissed: (direction) {
                           widget.cashBloc.removeItemFromInvoice(index);
@@ -355,6 +358,298 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 ],
               );
       },
+    );
+  }
+
+  /// Call window to edit the invoice detail
+  void _callDialogEditLine(InvoiceLine _invoiceLine, int index) {
+    /// Updating the stream
+    widget.cashBloc.changeQuantityLine(_invoiceLine.quantity);
+    widget.cashBloc.changePriceLine(_invoiceLine.price);
+    widget.cashBloc.changeDiscRateLine(_invoiceLine.discountRate);
+    widget.cashBloc.changeDiscValueLine(_invoiceLine.discountValue);
+    widget.cashBloc.changeSubtotalLine(_invoiceLine.subtotal);
+    widget.cashBloc.changeTaxesLine(_invoiceLine.taxes);
+    widget.cashBloc.changeTotalLine(_invoiceLine.total);
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Editar detalle'),
+            content: _editLine(_invoiceLine),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(
+                  'Aceptar',
+                  style: TextStyle(color: Color(_rootBloc.submitColor.value)),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.cashBloc.updateInvoiceLine(index);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  Widget _editLine(InvoiceLine _invoiceLine) {
+    return Container(
+      height: 450.0,
+      child: Column(
+        children: <Widget>[
+          Divider(
+            color: Color(_rootBloc.primaryColor.value),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'Item',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 300.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Text(_invoiceLine.item.name),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'Cantidad',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 100.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: StreamBuilder(
+                      stream: widget.cashBloc.quantityLine,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                        return Text(snapshot.data.toString());
+                      }),
+                ),
+                Container(
+                  width: 60,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: FlatButton(
+                    color: Colors.redAccent,
+                    child: Icon(
+                      Icons.remove,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      widget.cashBloc.increaseDecreaseQuantityLine(false);
+                    },
+                  ),
+                ),
+                Container(
+                  width: 60,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: FlatButton(
+                    color: Colors.greenAccent,
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      widget.cashBloc.increaseDecreaseQuantityLine(true);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'Precio',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 300.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Text(_invoiceLine.price.toString()),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    '% Dscto.',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 100.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: StreamBuilder(
+                      stream: widget.cashBloc.discountRateLine,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                        return Text(snapshot.data.toString());
+                      }),
+                ),
+                Container(
+                  width: 60,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: FlatButton(
+                    color: Colors.redAccent,
+                    child: Text(
+                      '- 5',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      widget.cashBloc.increaseDecreaseDiscountRateLine(false);
+                    },
+                  ),
+                ),
+                Container(
+                  width: 60,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: FlatButton(
+                    color: Colors.greenAccent,
+                    child: Text(
+                      '+ 5',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      widget.cashBloc.increaseDecreaseDiscountRateLine(true);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'Dscto. \$',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 300.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: StreamBuilder(
+                      stream: widget.cashBloc.discValueLine,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                        return Text(snapshot.data.toString());
+                      }),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'Sub-Total \$',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 300.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: StreamBuilder(
+                      stream: widget.cashBloc.subtotalLine,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                        return Text(snapshot.data.toString());
+                      }),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'Impuestos \$',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 300.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: StreamBuilder(
+                      stream: widget.cashBloc.taxesLine,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                        return Text(snapshot.data.toString());
+                      }),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 150.0,
+                  child: Text(
+                    'T. lineal \$',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 300.0,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: StreamBuilder(
+                      stream: widget.cashBloc.totalLine,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                        return Text(snapshot.data.toString());
+                      }),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

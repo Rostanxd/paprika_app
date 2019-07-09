@@ -34,6 +34,13 @@ class CashBloc extends BlocBase {
   final _itemPresentation = BehaviorSubject<String>();
   final _dateTime = BehaviorSubject<DateTime>();
   final _note = BehaviorSubject<String>();
+  final _quantityLine = BehaviorSubject<double>();
+  final _priceLine = BehaviorSubject<double>();
+  final _discountRateLine = BehaviorSubject<double>();
+  final _discountValueLine = BehaviorSubject<double>();
+  final _subtotalLine = BehaviorSubject<double>();
+  final _taxesLine = BehaviorSubject<double>();
+  final _totalLine = BehaviorSubject<double>();
   final InventoryRepository _inventoryRepository = InventoryRepository();
   final CrmRepository _crmRepository = CrmRepository();
   final SalesRepository _salesRepository = SalesRepository();
@@ -94,6 +101,20 @@ class CashBloc extends BlocBase {
 
   ValueObservable<String> get note => _note.stream;
 
+  ValueObservable<double> get quantityLine => _quantityLine.stream;
+
+  ValueObservable<double> get priceLine => _priceLine.stream;
+
+  ValueObservable<double> get discountRateLine => _discountRateLine.stream;
+
+  ValueObservable<double> get discValueLine => _discountValueLine.stream;
+
+  ValueObservable<double> get subtotalLine => _subtotalLine.stream;
+
+  ValueObservable<double> get taxesLine => _taxesLine.stream;
+
+  ValueObservable<double> get totalLine => _totalLine.stream;
+
   /// Functions
   Function(int) get changeIndex => _index.add;
 
@@ -124,6 +145,20 @@ class CashBloc extends BlocBase {
   Function(DateTime) get changeDateTime => _dateTime.add;
 
   Function(String) get changeNote => _note.add;
+
+  Function(double) get changeQuantityLine => _quantityLine.add;
+
+  Function(double) get changePriceLine => _priceLine.add;
+
+  Function(double) get changeDiscRateLine => _discountRateLine.add;
+
+  Function(double) get changeDiscValueLine => _discountValueLine.add;
+
+  Function(double) get changeSubtotalLine => _subtotalLine.add;
+
+  Function(double) get changeTaxesLine => _taxesLine.add;
+
+  Function(double) get changeTotalLine => _totalLine.add;
 
   void fetchItemsByCategory(String categoryId) async {
     _items.sink.add(null);
@@ -400,6 +435,84 @@ class CashBloc extends BlocBase {
             : 'L');
   }
 
+  void increaseDecreaseQuantityLine(bool increase) {
+    double quantity = _quantityLine.value;
+    if (increase) {
+      _quantityLine.sink.add(quantity + 1);
+    } else {
+      if (quantity != 1) {
+        _quantityLine.sink.add(quantity - 1);
+      }
+    }
+
+    _updateLineStreamFields();
+  }
+
+  void increaseDecreaseDiscountRateLine(bool increase) {
+    double discountRate = _discountRateLine.value;
+    if (increase) {
+      discountRate += 5;
+      _discountRateLine.sink.add(discountRate);
+    } else {
+      if (discountRate != 0) {
+        discountRate -= 5;
+        _discountRateLine.sink.add(discountRate);
+      }
+    }
+
+    _updateLineStreamFields();
+  }
+
+  void _updateLineStreamFields() {
+    /// Updating the discount value
+    if (_discountRateLine.value != 0) {
+      _discountValueLine.sink.add(_quantityLine.value *
+          _priceLine.value *
+          (_discountRateLine.value / 100));
+    } else {
+      _discountValueLine.sink.add(0);
+    }
+
+    /// Updating the sub-total
+    _subtotalLine.sink.add(
+        (_priceLine.value * _quantityLine.value) - _discountValueLine.value);
+
+    /// Updating taxes
+    _taxesLine.sink
+        .add(double.parse((_subtotalLine.value * 0.12).toStringAsFixed(2)));
+
+    /// Updating total line
+    _totalLine.sink.add(_taxesLine.value + _subtotalLine.value);
+  }
+
+  void updateInvoiceLine(int index) {
+    List<InvoiceLine> _invoiceDetailUpd = _invoiceDetail.value;
+
+    _invoiceDetailUpd[index].quantity = _quantityLine.value;
+    _invoiceDetailUpd[index].discountRate = _discountRateLine.value;
+    _invoiceDetailUpd[index].discountValue = _discountValueLine.value;
+    _invoiceDetailUpd[index].subtotal = _subtotalLine.value;
+    _invoiceDetailUpd[index].taxes = _taxesLine.value;
+    _invoiceDetailUpd[index].total = _totalLine.value;
+
+    /// Add the invoice detail with the line changed to the stream
+    _invoiceDetail.sink.add(_invoiceDetailUpd);
+
+    /// Updating Invoice header
+    _updateInvoice();
+
+    /// Set null the stream
+    Future.delayed(Duration(seconds: 1)).then((v) {
+      _quantityLine.sink.add(null);
+      _priceLine.sink.add(null);
+      _discountRateLine.sink.add(null);
+      _discountValueLine.sink.add(null);
+      _subtotalLine.sink.add(null);
+      _taxesLine.sink.add(null);
+      _totalLine.sink.add(null);
+    });
+  }
+
   @override
   void dispose() {
     _index.close();
@@ -423,5 +536,12 @@ class CashBloc extends BlocBase {
     _cashDrawer.close();
     _dateTime.close();
     _note.close();
+    _quantityLine.close();
+    _priceLine.close();
+    _discountRateLine.close();
+    _discountValueLine.close();
+    _subtotalLine.close();
+    _taxesLine.close();
+    _totalLine.close();
   }
 }
