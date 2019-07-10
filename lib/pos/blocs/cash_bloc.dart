@@ -31,6 +31,7 @@ class CashBloc extends BlocBase {
   final _message = BehaviorSubject<String>();
   final _customerNumberOfInvoices = BehaviorSubject<int>();
   final _customerLastInvoice = BehaviorSubject<Invoice>();
+  final _finalCustomer = BehaviorSubject<Customer>();
   final _itemPresentation = BehaviorSubject<String>();
   final _dateTime = BehaviorSubject<DateTime>();
   final _note = BehaviorSubject<String>();
@@ -100,6 +101,9 @@ class CashBloc extends BlocBase {
   ValueObservable<DateTime> get dateTime => _dateTime.stream;
 
   ValueObservable<String> get note => _note.stream;
+
+  Observable<Customer> get finalCustomer =>
+      _finalCustomer.stream;
 
   ValueObservable<double> get quantityLine => _quantityLine.stream;
 
@@ -513,6 +517,14 @@ class CashBloc extends BlocBase {
     });
   }
 
+  void fetchFinalCustomer() async {
+    await _crmRepository
+        .fetchCustomerById('vKgvpPnymTbTXqJi5FZZ')
+        .then((customer) {
+      _finalCustomer.sink.add(customer);
+    });
+  }
+
   @override
   void dispose() {
     _index.close();
@@ -530,6 +542,7 @@ class CashBloc extends BlocBase {
     _message.close();
     _customerNumberOfInvoices.close();
     _customerLastInvoice.close();
+    _finalCustomer.close();
     _itemPresentation.close();
     _enterprise.close();
     _branch.close();

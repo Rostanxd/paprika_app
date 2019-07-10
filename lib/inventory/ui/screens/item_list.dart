@@ -44,12 +44,14 @@ class _ItemListState extends State<ItemList> {
             onPressed: () {
               showSearch(
                   context: context,
-                  delegate: DataSearch(_itemListBloc, _authenticationBloc));
+                  delegate: DataSearch(
+                      _itemListBloc, _rootBloc, _authenticationBloc));
             },
           ),
         ],
       ),
-      body: _itemListStreamBuilder(_authenticationBloc, _itemListBloc),
+      body:
+          _itemListStreamBuilder(_rootBloc, _authenticationBloc, _itemListBloc),
       floatingActionButton: FloatingActionButton(
           backgroundColor: Color(_rootBloc.submitColor.value),
           child: Icon(
@@ -69,10 +71,11 @@ class _ItemListState extends State<ItemList> {
 }
 
 class DataSearch extends SearchDelegate<String> {
+  final RootBloc _rootBloc;
   final AuthenticationBloc _authenticationBloc;
   final ItemListBloc _itemListBloc;
 
-  DataSearch(this._itemListBloc, this._authenticationBloc);
+  DataSearch(this._itemListBloc, this._rootBloc, this._authenticationBloc);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -100,7 +103,8 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return _itemListStreamBuilder(_authenticationBloc, _itemListBloc);
+    return _itemListStreamBuilder(
+        _rootBloc, _authenticationBloc, _itemListBloc);
   }
 
   @override
@@ -113,11 +117,12 @@ class DataSearch extends SearchDelegate<String> {
             'Ingrese su búsqueda.',
             style: TextStyle(fontSize: 16.0),
           ));
-    return _itemListStreamBuilder(_authenticationBloc, _itemListBloc);
+    return _itemListStreamBuilder(
+        _rootBloc, _authenticationBloc, _itemListBloc);
   }
 }
 
-Widget _itemListStreamBuilder(
+Widget _itemListStreamBuilder(RootBloc _rootBloc,
     AuthenticationBloc _authenticationBloc, ItemListBloc _itemListBloc) {
   return StreamBuilder(
     stream: _itemListBloc.itemsBySearch,
@@ -129,7 +134,10 @@ Widget _itemListStreamBuilder(
       switch (snapshot.connectionState) {
         case ConnectionState.waiting:
           return Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  Color(_rootBloc.primaryColor.value)),
+            ),
           );
           break;
         default:

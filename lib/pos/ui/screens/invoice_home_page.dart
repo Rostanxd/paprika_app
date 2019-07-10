@@ -64,7 +64,6 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
   @override
   void initState() {
     _invoiceHomeBloc = InvoiceHomeBloc();
-    _invoiceHomeBloc.changeOrderSelected(null);
     _documentType = widget.documentType;
 
     /// Control the message in the dialog
@@ -228,7 +227,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
 
                           if (!snapshot.hasData || snapshot.data.length == 0)
                             return Center(
-                              child: Text('No se hay resultados'),
+                              child: Text('No hay resultados'),
                             );
 
                           return ListView.separated(
@@ -241,7 +240,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                 subtitle: Text(
                                     'Fecha: ${snapshot.data[index].dateTime.toString()}'),
                                 onTap: () {
-                                  _invoiceHomeBloc.changeOrderSelected(
+                                  _invoiceHomeBloc.changeDocumentSelected(
                                       snapshot.data[index]);
                                 },
                               );
@@ -376,287 +375,226 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
             Container(
                 margin: EdgeInsets.only(top: 10.0, left: 10.0),
                 child: StreamBuilder(
-                    stream: _invoiceHomeBloc.documentSelected,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Invoice> snapshot) {
-                      if (snapshot.hasError)
-                        return Container(
-                          height: 500,
-                          child: Center(
-                            child: Text(snapshot.error.toString()),
-                          ),
-                        );
-
-                      if (snapshot.data == null)
-                        return Container(
-                          height: 500,
-                          child: Center(
-                            child: Text('Por favor seleccione un documento'),
-                          ),
-                        );
-
-                      return Center(
-                        child: Column(
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  child: Text(
-                                    'Datos del cliente',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(
-                                            _rootBloc.primaryColor.value)),
-                                  ),
+                    stream: _invoiceHomeBloc.loadingDocDetail,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      return snapshot.hasData && snapshot.data
+                          ? Container(
+                              height: 500,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Color(_rootBloc.primaryColor.value)),
                                 ),
-                              ],
-                            ),
-                            Divider(),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Nombres',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                      '${snapshot.data.customer.lastName} '
-                                      '${snapshot.data.customer.firstName}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Celular',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                      '${snapshot.data.customer.cellphoneOne}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Teléfono',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                      '${snapshot.data.customer.telephoneOne}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.only(top: 20.0),
-                                  child: Text(
-                                    'Pedido',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(
-                                            _rootBloc.primaryColor.value)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Divider(),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Fecha entrega',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                      '${snapshot.data.dateTime.toString()}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Unidades',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                      '${snapshot.data.quantity.toString()}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Total',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                      '\$ ${snapshot.data.total.toString()}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  child: Text(
-                                    'Nota',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      EdgeInsets.only(left: 10.0, top: 10.0),
-                                  width: 500.0,
-                                  child: Text('${snapshot.data.note}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.only(top: 20.0),
-                                  child: Text(
-                                    'Detalle',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(
-                                            _rootBloc.primaryColor.value)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Divider(),
-                            Container(
-                              margin: EdgeInsets.only(left: 10.0, right: 20.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  Container(
-                                    width: 120.0,
-                                    margin: EdgeInsets.only(bottom: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        'Item',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 80.0,
-                                    margin: EdgeInsets.only(bottom: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        'Cantidad',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 80.0,
-                                    margin: EdgeInsets.only(bottom: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        'Precio',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 80.0,
-                                    margin: EdgeInsets.only(bottom: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        '% Dcto.',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 80.0,
-                                    margin: EdgeInsets.only(bottom: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        'Total',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
-                            ),
-                            Container(
-                              height: 200.0,
-                              margin: EdgeInsets.only(left: 10.0, right: 20.0),
-                              padding: EdgeInsets.only(top: 5.0),
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      top: BorderSide(color: Colors.grey),
-                                      bottom: BorderSide(color: Colors.grey))),
-                              child: snapshot.data.detail == null ||
-                                      snapshot.data.detail.length == 0
-                                  ? Center(
-                                      child: Text('No hay datos'),
-                                    )
-                                  : ListView.separated(
-                                      itemBuilder: (context, index) {
-                                        return Row(
+                            )
+                          : StreamBuilder(
+                              stream: _invoiceHomeBloc.documentSelected,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<Invoice> snapshot) {
+                                if (snapshot.hasError)
+                                  return Container(
+                                    height: 500,
+                                    child: Center(
+                                      child: Text(snapshot.error.toString()),
+                                    ),
+                                  );
+
+                                if (snapshot.data == null)
+                                  return Container(
+                                    height: 500,
+                                    child: Center(
+                                      child: Text(
+                                          'Por favor seleccione un documento'),
+                                    ),
+                                  );
+
+                                return Center(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            child: Text(
+                                              'Datos del cliente',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(_rootBloc
+                                                      .primaryColor.value)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Divider(),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Nombres',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                                '${snapshot.data.customer.lastName} '
+                                                '${snapshot.data.customer.firstName}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Celular',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                                '${snapshot.data.customer.cellphoneOne}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Teléfono',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                                '${snapshot.data.customer.telephoneOne}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(top: 20.0),
+                                            child: Text(
+                                              'Pedido',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(_rootBloc
+                                                      .primaryColor.value)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Divider(),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Fecha entrega',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                                '${snapshot.data.dateTime.toString()}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Unidades',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                                '${snapshot.data.quantity.toString()}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Total',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                                '\$ ${snapshot.data.total.toString()}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            child: Text(
+                                              'Nota',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                left: 10.0, top: 10.0),
+                                            width: 500.0,
+                                            child:
+                                                Text('${snapshot.data.note}'),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.only(top: 20.0),
+                                            child: Text(
+                                              'Detalle',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(_rootBloc
+                                                      .primaryColor.value)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Divider(),
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                            left: 10.0, right: 20.0),
+                                        child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           crossAxisAlignment:
@@ -664,54 +602,163 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                           children: <Widget>[
                                             Container(
                                               width: 120.0,
-                                              child: Text(snapshot.data
-                                                  .detail[index].item.name),
-                                            ),
-                                            Container(
-                                              width: 80.0,
+                                              margin:
+                                                  EdgeInsets.only(bottom: 10.0),
                                               child: Center(
-                                                child: Text(snapshot
-                                                    .data.detail[index].quantity
-                                                    .toString()),
+                                                child: Text(
+                                                  'Item',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                               ),
                                             ),
                                             Container(
                                               width: 80.0,
+                                              margin:
+                                                  EdgeInsets.only(bottom: 10.0),
                                               child: Center(
-                                                child: Text(snapshot.data
-                                                    .detail[index].item.price
-                                                    .toString()),
+                                                child: Text(
+                                                  'Cantidad',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                               ),
                                             ),
                                             Container(
                                               width: 80.0,
+                                              margin:
+                                                  EdgeInsets.only(bottom: 10.0),
                                               child: Center(
-                                                child: Text(snapshot.data
-                                                    .detail[index].discountRate
-                                                    .toString()),
+                                                child: Text(
+                                                  'Precio',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                               ),
                                             ),
                                             Container(
                                               width: 80.0,
+                                              margin:
+                                                  EdgeInsets.only(bottom: 10.0),
                                               child: Center(
-                                                child: Text(snapshot
-                                                    .data.detail[index].total
-                                                    .toString()),
+                                                child: Text(
+                                                  '% Dcto.',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 80.0,
+                                              margin:
+                                                  EdgeInsets.only(bottom: 10.0),
+                                              child: Center(
+                                                child: Text(
+                                                  'Total',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                               ),
                                             ),
                                           ],
-                                        );
-                                      },
-                                      separatorBuilder: (context, item) {
-                                        return Divider(
-                                          color: Colors.grey,
-                                        );
-                                      },
-                                      itemCount: snapshot.data.detail.length),
-                            )
-                          ],
-                        ),
-                      );
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 200.0,
+                                        margin: EdgeInsets.only(
+                                            left: 10.0, right: 20.0),
+                                        padding: EdgeInsets.only(top: 5.0),
+                                        decoration: BoxDecoration(
+                                            border: Border(
+                                                top: BorderSide(
+                                                    color: Colors.grey),
+                                                bottom: BorderSide(
+                                                    color: Colors.grey))),
+                                        child: snapshot.data.detail == null ||
+                                                snapshot.data.detail.length == 0
+                                            ? Center(
+                                                child: Text('No hay datos'),
+                                              )
+                                            : ListView.separated(
+                                                itemBuilder: (context, index) {
+                                                  return Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      Container(
+                                                        width: 120.0,
+                                                        child: Text(snapshot
+                                                            .data
+                                                            .detail[index]
+                                                            .item
+                                                            .name),
+                                                      ),
+                                                      Container(
+                                                        width: 80.0,
+                                                        child: Center(
+                                                          child: Text(snapshot
+                                                              .data
+                                                              .detail[index]
+                                                              .quantity
+                                                              .toString()),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 80.0,
+                                                        child: Center(
+                                                          child: Text(snapshot
+                                                              .data
+                                                              .detail[index]
+                                                              .item
+                                                              .price
+                                                              .toString()),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 80.0,
+                                                        child: Center(
+                                                          child: Text(snapshot
+                                                              .data
+                                                              .detail[index]
+                                                              .discountRate
+                                                              .toString()),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 80.0,
+                                                        child: Center(
+                                                          child: Text(snapshot
+                                                              .data
+                                                              .detail[index]
+                                                              .total
+                                                              .toString()),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                                separatorBuilder:
+                                                    (context, item) {
+                                                  return Divider(
+                                                    color: Colors.grey,
+                                                  );
+                                                },
+                                                itemCount: snapshot
+                                                    .data.detail.length),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              });
                     })),
           ],
         ),

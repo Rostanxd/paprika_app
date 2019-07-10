@@ -154,19 +154,19 @@ class _UserDrawerState extends State<UserDrawer> {
       },
     ));
 
-    _listChildren.add(ListTile(
-      title: Text('Pedidos'),
-      leading: Icon(Icons.add_shopping_cart),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => InvoiceHomePage(
-                      documentType: 'O',
-                    )));
-      },
-    ));
+//    _listChildren.add(ListTile(
+//      title: Text('Pedidos'),
+//      leading: Icon(Icons.add_shopping_cart),
+//      onTap: () {
+//        Navigator.pop(context);
+//        Navigator.push(
+//            context,
+//            MaterialPageRoute(
+//                builder: (context) => InvoiceHomePage(
+//                      documentType: 'O',
+//                    )));
+//      },
+//    ));
 
 //    _listChildren.add(ListTile(
 //      title: Text('CRM'),

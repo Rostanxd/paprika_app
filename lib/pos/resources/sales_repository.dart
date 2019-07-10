@@ -10,6 +10,9 @@ class SalesRepository {
   final InvoiceApi _invoiceApi = InvoiceApi();
   final CashDrawerFirebaseApi _cashDrawerFirebaseApi = CashDrawerFirebaseApi();
 
+  Future<List<InvoiceLine>> fetchInvoiceDetail(Invoice invoice) =>
+      _invoiceApi.fetchInvoiceDetail(invoice);
+
   Future<DocumentReference> createInvoice(Invoice invoice) =>
       _invoiceApi.createInvoice(invoice);
 

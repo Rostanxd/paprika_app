@@ -50,17 +50,17 @@ class _ItemsMainConfigurationState extends State<ItemsMainConfiguration> {
                       builder: (context) => CategoryList()));
             },
           ),
-          ListTile(
-            leading: Icon(Icons.list),
-            title: Text('Medidas'),
-            trailing: Icon(Icons.navigate_next),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MeasureList()));
-            },
-          ),
+//          ListTile(
+//            leading: Icon(Icons.list),
+//            title: Text('Medidas'),
+//            trailing: Icon(Icons.navigate_next),
+//            onTap: () {
+//              Navigator.push(
+//                  context,
+//                  MaterialPageRoute(
+//                      builder: (context) => MeasureList()));
+//            },
+//          ),
         ],
       ),
     );

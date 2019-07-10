@@ -7,6 +7,7 @@ import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/invoice.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
+import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class CashPage extends StatefulWidget {
 }
 
 class _CashPageState extends State<CashPage> {
+  RootBloc _rootBloc;
   AuthenticationBloc _authenticationBloc;
   CashBloc _cashBloc;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -39,6 +41,9 @@ class _CashPageState extends State<CashPage> {
     if (widget.documentType == 'I') {
       _cashBloc.changeCashDrawer(widget.cashDrawer);
     }
+
+    /// Loading the final customer to the suggestion list
+    _cashBloc.fetchFinalCustomer();
 
     /// Updating mode
     if (widget.invoice != null) {
@@ -56,11 +61,17 @@ class _CashPageState extends State<CashPage> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Paprika dice:'),
+                title: Text(
+                  'Paprika dice:',
+                ),
                 content: Text(message),
                 actions: <Widget>[
                   FlatButton(
-                    child: Text('Cerrar'),
+                    child: Text(
+                      'Cerrar',
+                      style:
+                          TextStyle(color: Color(_rootBloc.submitColor.value)),
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -74,6 +85,7 @@ class _CashPageState extends State<CashPage> {
 
   @override
   void didChangeDependencies() {
+    _rootBloc = BlocProvider.of<RootBloc>(context);
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     _cashBloc.changeEnterprise(_authenticationBloc.enterprise.value);
     super.didChangeDependencies();

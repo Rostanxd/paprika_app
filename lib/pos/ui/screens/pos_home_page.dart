@@ -34,6 +34,8 @@ class _PosHomePageState extends State<PosHomePage> {
                   FlatButton(
                     child: Text(
                       'Cerrar',
+                      style:
+                          TextStyle(color: Color(_rootBloc.submitColor.value)),
                     ),
                     onPressed: () {
                       Navigator.pop(context);

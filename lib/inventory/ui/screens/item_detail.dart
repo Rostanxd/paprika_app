@@ -90,7 +90,7 @@ class _ItemDetailState extends State<ItemDetail> {
 
     /// Default values
     _itemBloc.changeCategory(widget.category != null ? widget.category.id : '');
-    _itemBloc.changeMeasure('');
+    _itemBloc.changeMeasure('ywYKZXuIb03dWcUwQ4Cm');
     _itemBloc.changeStateBool(true);
     _itemBloc.changeRepresentation('C');
     _itemBloc.changeColorCode(0xFFFE0E0E0);

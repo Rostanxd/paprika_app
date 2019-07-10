@@ -65,7 +65,7 @@ class InvoiceApi {
       invoice = Invoice.fromFireJson(
           document.documentID, branch, customer, cashDrawer, document.data);
 
-      invoice.detail = await fetchInvoiceDetail(invoice);
+//      invoice.detail = await fetchInvoiceDetail(invoice);
 
       /// Loading the invoice to the list
       invoices.add(invoice);

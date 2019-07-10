@@ -19,6 +19,7 @@ class InvoiceHomeBloc extends BlocBase {
   final _documentSelected = BehaviorSubject<Invoice>();
   final _openedCashDrawer = BehaviorSubject<OpeningCashDrawer>();
   final _message = BehaviorSubject<String>();
+  final _loadingDocDetail = BehaviorSubject<bool>();
   final SalesRepository _salesRepository = SalesRepository();
 
   /// Observables
@@ -38,6 +39,8 @@ class InvoiceHomeBloc extends BlocBase {
 
   Observable<String> get messenger => _message.stream;
 
+  Observable<bool> get loadingDocDetail => _loadingDocDetail.stream;
+
   /// Functions
   Function(Enterprise) get changeEnterprise => _enterprise.add;
 
@@ -49,8 +52,6 @@ class InvoiceHomeBloc extends BlocBase {
 
   Function(String) get changeBranchSelectedId => _branchSelectedId.add;
 
-  Function(Invoice) get changeOrderSelected => _documentSelected.add;
-
   Function(String) get changeMessage => _message.add;
 
   Future<void> fetchDocumentsByType(String documentType) async {
@@ -60,6 +61,15 @@ class InvoiceHomeBloc extends BlocBase {
         .fetchDocumentByEnterprise(_branch.value, documentType,
             fromDateTimeStamp, toDateTimeStamp, 'A')
         .then((os) => _orders.sink.add(os));
+  }
+
+  Future<void> changeDocumentSelected (Invoice invoice) async {
+    _loadingDocDetail.sink.add(true);
+    await _salesRepository.fetchInvoiceDetail(invoice).then((detail){
+      invoice.detail = detail;
+      _documentSelected.sink.add(invoice);
+    });
+    _loadingDocDetail.sink.add(false);
   }
 
   Future<void> cancelDocument(
@@ -116,5 +126,6 @@ class InvoiceHomeBloc extends BlocBase {
     _documentSelected.close();
     _openedCashDrawer.close();
     _message.close();
+    _loadingDocDetail.close();
   }
 }

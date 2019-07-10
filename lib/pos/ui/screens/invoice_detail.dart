@@ -439,8 +439,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   margin: EdgeInsets.only(left: 10.0),
                   child: StreamBuilder(
                       stream: widget.cashBloc.quantityLine,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
                         return Text(snapshot.data.toString());
                       }),
                 ),
@@ -512,8 +512,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   margin: EdgeInsets.only(left: 10.0),
                   child: StreamBuilder(
                       stream: widget.cashBloc.discountRateLine,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
                         return Text(snapshot.data.toString());
                       }),
                 ),
@@ -565,8 +565,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   margin: EdgeInsets.only(left: 10.0),
                   child: StreamBuilder(
                       stream: widget.cashBloc.discValueLine,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
                         return Text(snapshot.data.toString());
                       }),
                 ),
@@ -590,8 +590,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   margin: EdgeInsets.only(left: 10.0),
                   child: StreamBuilder(
                       stream: widget.cashBloc.subtotalLine,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
                         return Text(snapshot.data.toString());
                       }),
                 ),
@@ -615,8 +615,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   margin: EdgeInsets.only(left: 10.0),
                   child: StreamBuilder(
                       stream: widget.cashBloc.taxesLine,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
                         return Text(snapshot.data.toString());
                       }),
                 ),
@@ -640,8 +640,8 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   margin: EdgeInsets.only(left: 10.0),
                   child: StreamBuilder(
                       stream: widget.cashBloc.totalLine,
-                      builder:
-                          (BuildContext context, AsyncSnapshot<double> snapshot) {
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
                         return Text(snapshot.data.toString());
                       }),
                 ),
@@ -790,6 +790,30 @@ class DataSearch extends SearchDelegate<String> {
       ),
       Divider(),
     ]);
+
+    /// Adding suggested customers
+    _listWidgets.add(StreamBuilder(
+        stream: _cashBloc.finalCustomer,
+        builder: (BuildContext context, AsyncSnapshot<Customer> snapshot) {
+          return snapshot.hasData
+              ? ListTile(
+                  leading: Container(
+                    height: 75,
+                    width: 75,
+                    child: Icon(Icons.person),
+                  ),
+                  title: Text('${snapshot.data.id} - ${snapshot.data.lastName} '
+                      '${snapshot.data.firstName}'),
+                  trailing: Icon(Icons.navigate_next),
+                  onTap: () {
+                    _cashBloc.changeCustomer(snapshot.data);
+                    Navigator.pop(context);
+                  },
+                )
+              : Container(
+                  child: null,
+                );
+        }));
 
     /// No customers
     if (_customerList == null || _customerList.length == 0) {
