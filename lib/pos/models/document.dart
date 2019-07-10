@@ -5,10 +5,10 @@ import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
 
-class Invoice extends Object {
+class Document extends Object {
   String id;
   String state;
-  String documentType;
+  String type;
   DateTime dateTime;
   String note;
   double quantity;
@@ -20,16 +20,16 @@ class Invoice extends Object {
   DateTime modificationDate;
   String creationUser;
   DateTime creationDate;
-  List<InvoiceLine> detail;
+  List<DocumentLine> detail;
   Customer customer;
   Branch branch;
   CashDrawer cashDrawer;
 
-  Invoice(
+  Document(
       this.state,
       this.customer,
       this.dateTime,
-      this.documentType,
+      this.type,
       this.note,
       this.quantity,
       this.discount,
@@ -44,10 +44,10 @@ class Invoice extends Object {
       this.branch,
       this.cashDrawer);
 
-  Invoice.fromFireJson(String documentId, Branch branch, Customer customer,
+  Document.fromFireJson(String documentId, Branch branch, Customer customer,
       CashDrawer cashDrawer, Map<String, dynamic> json) {
     this.id = documentId;
-    this.documentType = json['documentType'];
+    this.type = json['type'];
     this.note = json['note'];
     this.state = json['state'];
     this.dateTime =
@@ -70,7 +70,7 @@ class Invoice extends Object {
 
   Map<String, dynamic> toFireJson() => {
         'dateTime': Timestamp.fromDate(this.dateTime),
-        'documentType': this.documentType,
+        'type': this.type,
         'note': this.note,
         'state': this.state,
         'quantity': this.quantity,
@@ -89,7 +89,7 @@ class Invoice extends Object {
 
   @override
   String toString() {
-    return 'Invoice{id: $id, state: $state, documentType: $documentType, '
+    return 'Invoice{id: $id, state: $state, type: $type, '
         'note: $note, dateTime: $dateTime, note: $note, quantity: $quantity, '
         'discount: $discount, subtotal: $subtotal, taxes: $taxes, '
         'total: $total, modificationUser: $modificationUser, '
@@ -99,8 +99,8 @@ class Invoice extends Object {
   }
 }
 
-class InvoiceLine extends Object {
-  String invoiceId;
+class DocumentLine extends Object {
+  String documentId;
   String lineId;
   Item item;
   double price;
@@ -112,13 +112,13 @@ class InvoiceLine extends Object {
   double taxes;
   double total;
 
-  InvoiceLine(this.item, this.price, this.dispatchMeasure, this.discountRate,
+  DocumentLine(this.item, this.price, this.dispatchMeasure, this.discountRate,
       this.discountValue, this.quantity, this.subtotal, this.taxes, this.total);
 
-  InvoiceLine.fromFireJson(
-      String documentId, Item item, Map<String, dynamic> json) {
-    this.lineId = documentId;
-    this.invoiceId = json['invoiceId'];
+  DocumentLine.fromFireJson(
+      String documentID, Item item, Map<String, dynamic> json) {
+    this.lineId = documentID;
+    this.documentId = json['documentId'];
     this.item = item;
     this.price = json['price'];
     this.discountRate = json['discountRate'];
@@ -128,7 +128,7 @@ class InvoiceLine extends Object {
     this.total = json['total'];
   }
 
-  InvoiceLine.fromJson(Map<String, dynamic> json) {
+  DocumentLine.fromJson(Map<String, dynamic> json) {
     this.discountRate = json['discountRate'];
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
@@ -137,7 +137,7 @@ class InvoiceLine extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
-        'invoiceId': this.invoiceId,
+        'documentId': this.documentId,
         'itemId': this.item.id,
         'price': this.price,
         'dispatchMeasureId': this.dispatchMeasure.id,
@@ -151,8 +151,9 @@ class InvoiceLine extends Object {
 
   @override
   String toString() {
-    return 'InvoiceLine{invoiceId: $invoiceId, lineId: $lineId, '
-        'item: $item, price: ${price.toString()}, dispatchMeasure: $dispatchMeasure, '
+    return 'InvoiceLine{documentId: $documentId, lineId: $lineId, '
+        'item: $item, price: ${price.toString()}, '
+        'dispatchMeasure: $dispatchMeasure, '
         'discountRate: $discountRate, discountValue: $discountValue, '
         'quantity: $quantity, subtotal: $subtotal, taxes: $taxes, '
         'total: $total}';

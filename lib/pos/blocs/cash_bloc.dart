@@ -6,7 +6,7 @@ import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/crm/models/customer.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/crm/resources/crm_repository.dart';
 import 'package:paprika_app/inventory/resources/inventory_repository.dart';
@@ -18,8 +18,8 @@ class CashBloc extends BlocBase {
   final _cashDrawer = BehaviorSubject<CashDrawer>();
   final _index = BehaviorSubject<int>();
   final _items = BehaviorSubject<List<Item>>();
-  final _invoice = BehaviorSubject<Invoice>();
-  final _invoiceDetail = BehaviorSubject<List<InvoiceLine>>();
+  final _invoice = BehaviorSubject<Document>();
+  final _invoiceDetail = BehaviorSubject<List<DocumentLine>>();
   final _categories = BehaviorSubject<List<Category>>();
   final _itemSearch = BehaviorSubject<String>();
   final _customerSearch = BehaviorSubject<String>();
@@ -30,7 +30,7 @@ class CashBloc extends BlocBase {
   final _invoiceChange = BehaviorSubject<double>();
   final _message = BehaviorSubject<String>();
   final _customerNumberOfInvoices = BehaviorSubject<int>();
-  final _customerLastInvoice = BehaviorSubject<Invoice>();
+  final _customerLastInvoice = BehaviorSubject<Document>();
   final _finalCustomer = BehaviorSubject<Customer>();
   final _itemPresentation = BehaviorSubject<String>();
   final _dateTime = BehaviorSubject<DateTime>();
@@ -51,9 +51,9 @@ class CashBloc extends BlocBase {
 
   Observable<List<Item>> get itemsByCategory => _items.stream;
 
-  ValueObservable<Invoice> get invoice => _invoice.stream;
+  ValueObservable<Document> get invoice => _invoice.stream;
 
-  Observable<List<InvoiceLine>> get invoiceDetail => _invoiceDetail.stream;
+  Observable<List<DocumentLine>> get invoiceDetail => _invoiceDetail.stream;
 
   ValueObservable<List<Category>> get categories => _categories.stream;
 
@@ -88,7 +88,7 @@ class CashBloc extends BlocBase {
   Observable<int> get customerNumberOfTickets =>
       _customerNumberOfInvoices.stream;
 
-  Observable<Invoice> get customerLasInvoice => _customerLastInvoice.stream;
+  Observable<Document> get customerLasInvoice => _customerLastInvoice.stream;
 
   Observable<String> get itemPresentation => _itemPresentation.stream;
 
@@ -122,9 +122,9 @@ class CashBloc extends BlocBase {
   /// Functions
   Function(int) get changeIndex => _index.add;
 
-  Function(Invoice) get changeInvoice => _invoice.add;
+  Function(Document) get changeInvoice => _invoice.add;
 
-  Function(List<InvoiceLine>) get changeInvoiceDetail => _invoiceDetail.add;
+  Function(List<DocumentLine>) get changeInvoiceDetail => _invoiceDetail.add;
 
   Function(String) get changeSearchItem => _itemSearch.add;
 
@@ -195,7 +195,7 @@ class CashBloc extends BlocBase {
     double subtotal = 0;
     double taxes = 0;
     double total = 0;
-    Invoice invoice;
+    Document invoice;
 
     if (_invoiceDetail.value != null) {
       /// Reading invoice detail list
@@ -213,7 +213,7 @@ class CashBloc extends BlocBase {
       taxes = double.parse(taxes.toStringAsFixed(2));
       total = double.parse(total.toStringAsFixed(2));
 
-      invoice = Invoice(
+      invoice = Document(
           'A',
           null,
           DateTime.now(),
@@ -224,7 +224,7 @@ class CashBloc extends BlocBase {
           subtotal,
           taxes,
           total,
-          List<InvoiceLine>(),
+          List<DocumentLine>(),
           '',
           DateTime.now(),
           '',
@@ -232,7 +232,7 @@ class CashBloc extends BlocBase {
           _branch.value,
           _cashDrawer.value);
     } else {
-      invoice = Invoice(
+      invoice = Document(
           'A',
           null,
           DateTime.now(),
@@ -258,9 +258,9 @@ class CashBloc extends BlocBase {
 
   void addItemToInvoice(Item item) {
     bool exist = false;
-    List<InvoiceLine> _invoiceDetailList = _invoiceDetail.value != null
+    List<DocumentLine> _invoiceDetailList = _invoiceDetail.value != null
         ? _invoiceDetail.value
-        : List<InvoiceLine>();
+        : List<DocumentLine>();
 
     /// Check if already have the item in the list
     _invoiceDetailList.forEach((d) {
@@ -289,7 +289,7 @@ class CashBloc extends BlocBase {
       double taxes = double.parse((item.price * 0.12).toStringAsFixed(2));
       double total = double.parse((item.price * 1.12).toStringAsFixed(2));
 
-      _invoiceDetailList.add(InvoiceLine(
+      _invoiceDetailList.add(DocumentLine(
           item, price, measure, 0, discount, quantity, subtotal, taxes, total));
     }
 
@@ -301,7 +301,7 @@ class CashBloc extends BlocBase {
   }
 
   void removeItemFromInvoice(int index) {
-    List<InvoiceLine> invoiceLine = _invoiceDetail.value;
+    List<DocumentLine> invoiceLine = _invoiceDetail.value;
     invoiceLine.removeAt(index);
     _invoiceDetail.sink.add(invoiceLine);
     _updateInvoice();
@@ -325,7 +325,7 @@ class CashBloc extends BlocBase {
 
   Future<void> createInvoice(String user) async {
     /// Creating the invoice with its detail
-    Invoice newInvoice = Invoice(
+    Document newInvoice = Document(
         'A',
         _customer.value,
         DateTime.now(),
@@ -361,7 +361,7 @@ class CashBloc extends BlocBase {
     /// Creating the header
     await _salesRepository.createInvoice(newInvoice).then((document) async {
       newInvoice.detail.forEach((detail) async {
-        detail.invoiceId = document.documentID;
+        detail.documentId = document.documentID;
         await _salesRepository.createDetailInvoice(document.documentID, detail);
       });
       _processed.sink.add(true);
@@ -372,7 +372,7 @@ class CashBloc extends BlocBase {
 
   Future<void> createOrder(String user) async {
     /// Creating the invoice with its detail
-    Invoice newInvoice = Invoice(
+    Document newInvoice = Document(
         'A',
         _customer.value,
         _dateTime.value,
@@ -412,7 +412,7 @@ class CashBloc extends BlocBase {
     /// Creating the header
     await _salesRepository.createInvoice(newInvoice).then((document) async {
       newInvoice.detail.forEach((detail) async {
-        detail.invoiceId = document.documentID;
+        detail.documentId = document.documentID;
         await _salesRepository.createDetailInvoice(document.documentID, detail);
       });
       _message.sink.add('Orden generada con éxito.');
@@ -490,7 +490,7 @@ class CashBloc extends BlocBase {
   }
 
   void updateInvoiceLine(int index) {
-    List<InvoiceLine> _invoiceDetailUpd = _invoiceDetail.value;
+    List<DocumentLine> _invoiceDetailUpd = _invoiceDetail.value;
 
     _invoiceDetailUpd[index].quantity = _quantityLine.value;
     _invoiceDetailUpd[index].discountRate = _discountRateLine.value;

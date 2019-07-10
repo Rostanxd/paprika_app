@@ -5,18 +5,18 @@ import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/authentication/models/user.dart';
 import 'package:paprika_app/models/bloc_base.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/pos/resources/sales_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class InvoiceHomeBloc extends BlocBase {
   final _enterprise = BehaviorSubject<Enterprise>();
   final _branch = BehaviorSubject<Branch>();
-  final _orders = BehaviorSubject<List<Invoice>>();
+  final _orders = BehaviorSubject<List<Document>>();
   final _fromDate = BehaviorSubject<DateTime>();
   final _toDate = BehaviorSubject<DateTime>();
   final _branchSelectedId = BehaviorSubject<String>();
-  final _documentSelected = BehaviorSubject<Invoice>();
+  final _documentSelected = BehaviorSubject<Document>();
   final _openedCashDrawer = BehaviorSubject<OpeningCashDrawer>();
   final _message = BehaviorSubject<String>();
   final _loadingDocDetail = BehaviorSubject<bool>();
@@ -27,7 +27,7 @@ class InvoiceHomeBloc extends BlocBase {
 
   Observable<Branch> get branch => _branch.stream;
 
-  Observable<List<Invoice>> get orders => _orders.stream;
+  Observable<List<Document>> get orders => _orders.stream;
 
   ValueObservable<DateTime> get fromDate => _fromDate.stream;
 
@@ -35,7 +35,7 @@ class InvoiceHomeBloc extends BlocBase {
 
   ValueObservable<String> get branchSelectedId => _branchSelectedId.stream;
 
-  ValueObservable<Invoice> get documentSelected => _documentSelected.stream;
+  ValueObservable<Document> get documentSelected => _documentSelected.stream;
 
   Observable<String> get messenger => _message.stream;
 
@@ -63,7 +63,7 @@ class InvoiceHomeBloc extends BlocBase {
         .then((os) => _orders.sink.add(os));
   }
 
-  Future<void> changeDocumentSelected (Invoice invoice) async {
+  Future<void> changeDocumentSelected (Document invoice) async {
     _loadingDocDetail.sink.add(true);
     await _salesRepository.fetchInvoiceDetail(invoice).then((detail){
       invoice.detail = detail;
@@ -74,7 +74,7 @@ class InvoiceHomeBloc extends BlocBase {
 
   Future<void> cancelDocument(
       String documentType, User user, Device device) async {
-    Invoice invoice = _documentSelected.value;
+    Document invoice = _documentSelected.value;
 
     if (documentType == 'I') {
       await _fetchOpenedCashDrawer(device);

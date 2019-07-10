@@ -3,7 +3,7 @@ import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/crm/models/customer.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/crm/ui/screens/customer_detail.dart';
 import 'package:paprika_app/pos/ui/screens/cash_check_out_page.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_customer.dart';
@@ -130,10 +130,10 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   Widget _listItems() {
     return Container(
       height: 500,
-      child: StreamBuilder<List<InvoiceLine>>(
+      child: StreamBuilder<List<DocumentLine>>(
           stream: widget.cashBloc.invoiceDetail,
           builder: (BuildContext context,
-              AsyncSnapshot<List<InvoiceLine>> snapshot) {
+              AsyncSnapshot<List<DocumentLine>> snapshot) {
             return snapshot.hasData
                 ? ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
@@ -196,7 +196,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   Widget _totalInvoice() {
     return StreamBuilder(
       stream: widget.cashBloc.invoice,
-      builder: (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<Document> snapshot) {
         if (snapshot.hasError)
           return Center(
             child: Text(snapshot.error),
@@ -326,7 +326,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                       child: StreamBuilder(
                           stream: widget.cashBloc.invoiceDetail,
                           builder: (BuildContext context,
-                              AsyncSnapshot<List<InvoiceLine>> snapshot) {
+                              AsyncSnapshot<List<DocumentLine>> snapshot) {
                             return snapshot.hasData && snapshot.data.length > 0
                                 ? RaisedButton(
                                     color: Color(0xFFFF6E40),
@@ -362,7 +362,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   }
 
   /// Call window to edit the invoice detail
-  void _callDialogEditLine(InvoiceLine _invoiceLine, int index) {
+  void _callDialogEditLine(DocumentLine _invoiceLine, int index) {
     /// Updating the stream
     widget.cashBloc.changeQuantityLine(_invoiceLine.quantity);
     widget.cashBloc.changePriceLine(_invoiceLine.price);
@@ -394,7 +394,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
         });
   }
 
-  Widget _editLine(InvoiceLine _invoiceLine) {
+  Widget _editLine(DocumentLine _invoiceLine) {
     return Container(
       height: 450.0,
       child: Column(

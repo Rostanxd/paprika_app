@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/device.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/pos/services/cash_drawer_services.dart';
 import 'package:paprika_app/pos/services/invoice_services.dart';
 
@@ -10,17 +10,17 @@ class SalesRepository {
   final InvoiceApi _invoiceApi = InvoiceApi();
   final CashDrawerFirebaseApi _cashDrawerFirebaseApi = CashDrawerFirebaseApi();
 
-  Future<List<InvoiceLine>> fetchInvoiceDetail(Invoice invoice) =>
+  Future<List<DocumentLine>> fetchInvoiceDetail(Document invoice) =>
       _invoiceApi.fetchInvoiceDetail(invoice);
 
-  Future<DocumentReference> createInvoice(Invoice invoice) =>
+  Future<DocumentReference> createInvoice(Document invoice) =>
       _invoiceApi.createInvoice(invoice);
 
   Future<DocumentReference> createDetailInvoice(
-          String invoiceId, InvoiceLine detail) =>
+          String invoiceId, DocumentLine detail) =>
       _invoiceApi.createDetailInvoice(invoiceId, detail);
 
-  Future<void> updateInvoiceData(Invoice invoice) =>
+  Future<void> updateInvoiceData(Document invoice) =>
       _invoiceApi.updateInvoiceData(invoice);
 
   Future<CashDrawer> fetchCashDrawerById(String id) =>
@@ -32,7 +32,7 @@ class SalesRepository {
   Future<OpeningCashDrawer> fetchOpenedCashDrawerOfDevice(Device device) =>
       _cashDrawerFirebaseApi.fetchOpenedCashDrawerOfDevice(device);
 
-  Future<List<Invoice>> fetchDocumentByEnterprise(
+  Future<List<Document>> fetchDocumentByEnterprise(
           Branch branch,
           String documentType,
           Timestamp fromDate,

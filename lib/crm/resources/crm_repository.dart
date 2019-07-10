@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/crm/services/customer_services.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 
 class CrmRepository {
   CustomerApi _customerApi = CustomerApi();
@@ -23,7 +23,7 @@ class CrmRepository {
           Enterprise enterprise, String customerId) =>
       _customerApi.customerNumberOfInvoices(enterprise, customerId);
 
-  Future<Invoice> customerLastInvoice(
+  Future<Document> customerLastInvoice(
           Enterprise enterprise, Customer customer) =>
       _customerApi.customerLastInvoice(enterprise, customer);
 }

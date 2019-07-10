@@ -4,7 +4,7 @@ import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 
 class CheckOut extends StatefulWidget {
   final CashBloc cashBloc;
@@ -106,7 +106,7 @@ class _CheckOutState extends State<CheckOut> {
           children: <Widget>[
             StreamBuilder(
               stream: widget.cashBloc.invoice,
-              builder: (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+              builder: (BuildContext context, AsyncSnapshot<Document> snapshot) {
                 return snapshot.hasData
                     ? Container(
                         margin: EdgeInsets.only(top: 50.0),

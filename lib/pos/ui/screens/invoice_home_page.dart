@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/invoice_home_bloc.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/pos/ui/screens/cash_page.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
@@ -210,7 +210,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                 child: StreamBuilder(
                     stream: _invoiceHomeBloc.orders,
                     builder: (BuildContext context,
-                        AsyncSnapshot<List<Invoice>> snapshot) {
+                        AsyncSnapshot<List<Document>> snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
                           return Center(
@@ -391,7 +391,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                           : StreamBuilder(
                               stream: _invoiceHomeBloc.documentSelected,
                               builder: (BuildContext context,
-                                  AsyncSnapshot<Invoice> snapshot) {
+                                  AsyncSnapshot<Document> snapshot) {
                                 if (snapshot.hasError)
                                   return Container(
                                     height: 500,

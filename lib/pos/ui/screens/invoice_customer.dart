@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/root_bloc.dart';
@@ -275,7 +275,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
               title: StreamBuilder(
                   stream: widget.cashBloc.customerLasInvoice,
                   builder:
-                      (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+                      (BuildContext context, AsyncSnapshot<Document> snapshot) {
                     if (snapshot.hasError) return Text('-');
                     return snapshot.hasData
                         ? Text(snapshot.data.branch.name)
@@ -290,7 +290,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
               title: StreamBuilder(
                   stream: widget.cashBloc.customerLasInvoice,
                   builder:
-                      (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+                      (BuildContext context, AsyncSnapshot<Document> snapshot) {
                     if (snapshot.hasError) return Text('-');
                     return snapshot.hasData
                         ? Text(snapshot.data.creationDate.toString())
@@ -305,7 +305,7 @@ class _InvoiceCustomerState extends State<InvoiceCustomer> {
               title: StreamBuilder(
                   stream: widget.cashBloc.customerLasInvoice,
                   builder:
-                      (BuildContext context, AsyncSnapshot<Invoice> snapshot) {
+                      (BuildContext context, AsyncSnapshot<Document> snapshot) {
                     if (snapshot.hasError) return Text('-');
                     return snapshot.hasData
                         ? Text(snapshot.data.total.toString())

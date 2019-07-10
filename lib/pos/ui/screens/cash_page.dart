@@ -4,14 +4,14 @@ import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/pos/ui/screens/invoice_detail.dart';
 import 'package:paprika_app/pos/ui/screens/search_item.dart';
 import 'package:paprika_app/root_bloc.dart';
 import 'package:paprika_app/widgets/bloc_provider.dart';
 
 class CashPage extends StatefulWidget {
-  final Invoice invoice;
+  final Document invoice;
   final String documentType;
   final Branch branch;
   final CashDrawer cashDrawer;

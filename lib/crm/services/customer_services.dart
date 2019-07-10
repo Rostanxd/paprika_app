@@ -4,7 +4,7 @@ import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/authentication/services/branch_services.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
-import 'package:paprika_app/pos/models/invoice.dart';
+import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/pos/services/cash_drawer_services.dart';
 
 class CustomerApi {
@@ -54,9 +54,9 @@ class CustomerApi {
     List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
 
     await Firestore.instance
-        .collection('invoices')
+        .collection('documents')
         .where('customerId', isEqualTo: customerId)
-        .where('documentType', isEqualTo: 'I')
+        .where('type', isEqualTo: 'I')
         .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((querySnapshot) {
@@ -76,19 +76,19 @@ class CustomerApi {
     return numberTickets;
   }
 
-  Future<Invoice> customerLastInvoice(
+  Future<Document> customerLastInvoice(
       Enterprise enterprise, Customer customer) async {
-    Invoice invoice;
+    Document invoice;
     Branch branch;
     CashDrawer cashDrawer;
-    List<Invoice> invoiceList = List<Invoice>();
+    List<Document> invoiceList = List<Document>();
     List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
 
     /// Invoices
     await Firestore.instance
-        .collection('invoices')
+        .collection('documents')
         .where('customerId', isEqualTo: customer.customerId)
-        .where('documentType', isEqualTo: 'I')
+        .where('type', isEqualTo: 'I')
         .where('state', isEqualTo: 'A')
         .orderBy('creationDate', descending: true)
         .limit(1)
@@ -105,7 +105,7 @@ class CustomerApi {
 
       /// Only our enterprise
       if (branch.enterprise.id == enterprise.id) {
-        invoiceList.add(Invoice.fromFireJson(
+        invoiceList.add(Document.fromFireJson(
             doc.documentID, branch, customer, cashDrawer, doc.data));
       }
     });
