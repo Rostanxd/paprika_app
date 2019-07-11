@@ -364,6 +364,7 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
   /// Call window to edit the invoice detail
   void _callDialogEditLine(DocumentLine _invoiceLine, int index) {
     /// Updating the stream
+    widget.cashBloc.changeItemLine(_invoiceLine.item);
     widget.cashBloc.changeQuantityLine(_invoiceLine.quantity);
     widget.cashBloc.changePriceLine(_invoiceLine.price);
     widget.cashBloc.changeDiscRateLine(_invoiceLine.discountRate);
@@ -573,6 +574,9 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
               ],
             ),
           ),
+          Divider(
+            color: Color(_rootBloc.primaryColor.value),
+          ),
           Container(
             height: 50.0,
             child: Row(
@@ -622,6 +626,9 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 ),
               ],
             ),
+          ),
+          Divider(
+            color: Color(_rootBloc.primaryColor.value),
           ),
           Container(
             height: 50.0,

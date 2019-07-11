@@ -110,8 +110,9 @@ class OpeningCashDrawer extends Object {
 
   @override
   String toString() {
-    return 'OpeningCashDrawer{id: $id, cashDrawer: $cashDrawer, '
-        'device: $device, openingDate: $openingDate, openingUser: $openingUser, '
+    return 'OpeningCashDrawer{id: $id, cashDrawerId: ${cashDrawer.id}, '
+        'deviceId: ${device.id}, openingDate: $openingDate, '
+        'openingUser: $openingUser, '
         'state: $state, closingDate: $closingDate, closingUser: $closingUser}';
   }
 }

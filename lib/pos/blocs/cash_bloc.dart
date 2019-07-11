@@ -35,6 +35,7 @@ class CashBloc extends BlocBase {
   final _itemPresentation = BehaviorSubject<String>();
   final _dateTime = BehaviorSubject<DateTime>();
   final _note = BehaviorSubject<String>();
+  final _itemLine = BehaviorSubject<Item>();
   final _quantityLine = BehaviorSubject<double>();
   final _priceLine = BehaviorSubject<double>();
   final _discountRateLine = BehaviorSubject<double>();
@@ -102,8 +103,7 @@ class CashBloc extends BlocBase {
 
   ValueObservable<String> get note => _note.stream;
 
-  Observable<Customer> get finalCustomer =>
-      _finalCustomer.stream;
+  Observable<Customer> get finalCustomer => _finalCustomer.stream;
 
   ValueObservable<double> get quantityLine => _quantityLine.stream;
 
@@ -149,6 +149,8 @@ class CashBloc extends BlocBase {
   Function(DateTime) get changeDateTime => _dateTime.add;
 
   Function(String) get changeNote => _note.add;
+
+  Function(Item) get changeItemLine => _itemLine.add;
 
   Function(double) get changeQuantityLine => _quantityLine.add;
 
@@ -258,6 +260,8 @@ class CashBloc extends BlocBase {
 
   void addItemToInvoice(Item item) {
     bool exist = false;
+    double tax = item.payVat == null || !item.payVat ? 0.0 : 0.12;
+
     List<DocumentLine> _invoiceDetailList = _invoiceDetail.value != null
         ? _invoiceDetail.value
         : List<DocumentLine>();
@@ -268,8 +272,8 @@ class CashBloc extends BlocBase {
         d.price = item.price;
         d.quantity += 1;
         d.subtotal = d.quantity * item.price;
-        d.taxes = d.subtotal * 0.12;
-        d.total = d.subtotal * 1.12;
+        d.taxes = d.subtotal * tax;
+        d.total = d.subtotal + (d.subtotal * tax);
 
         d.quantity = double.parse(d.quantity.toStringAsFixed(2));
         d.subtotal = double.parse(d.subtotal.toStringAsFixed(2));
@@ -286,8 +290,9 @@ class CashBloc extends BlocBase {
       double quantity = 1;
       double discount = 0;
       double subtotal = item.price;
-      double taxes = double.parse((item.price * 0.12).toStringAsFixed(2));
-      double total = double.parse((item.price * 1.12).toStringAsFixed(2));
+      double taxes = double.parse((item.price * tax).toStringAsFixed(2));
+      double total =
+          double.parse((item.price + (item.price * tax)).toStringAsFixed(2));
 
       _invoiceDetailList.add(DocumentLine(
           item, price, measure, 0, discount, quantity, subtotal, taxes, total));
@@ -468,6 +473,10 @@ class CashBloc extends BlocBase {
   }
 
   void _updateLineStreamFields() {
+    /// Check if the item pay vat
+    double tax =
+        _itemLine.value.payVat == null || !_itemLine.value.payVat ? 0.0 : 0.12;
+
     /// Updating the discount value
     if (_discountRateLine.value != 0) {
       _discountValueLine.sink.add(_quantityLine.value *
@@ -483,7 +492,7 @@ class CashBloc extends BlocBase {
 
     /// Updating taxes
     _taxesLine.sink
-        .add(double.parse((_subtotalLine.value * 0.12).toStringAsFixed(2)));
+        .add(double.parse((_subtotalLine.value * tax).toStringAsFixed(2)));
 
     /// Updating total line
     _totalLine.sink.add(_taxesLine.value + _subtotalLine.value);
@@ -549,6 +558,7 @@ class CashBloc extends BlocBase {
     _cashDrawer.close();
     _dateTime.close();
     _note.close();
+    _itemLine.close();
     _quantityLine.close();
     _priceLine.close();
     _discountRateLine.close();
