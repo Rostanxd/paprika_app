@@ -310,6 +310,9 @@ class _PosHomePageState extends State<PosHomePage> {
                                                   builder: (context) =>
                                                       CashPage(
                                                         documentType: 'I',
+                                                        branch:
+                                                            _authenticationBloc
+                                                                .branch.value,
                                                         cashDrawer: snapshot
                                                             .data[index],
                                                       )));
@@ -381,6 +384,9 @@ class _PosHomePageState extends State<PosHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) => CashPage(
                                                       documentType: 'I',
+                                                      branch:
+                                                          _authenticationBloc
+                                                              .branch.value,
                                                       cashDrawer:
                                                           snapshot.data[index],
                                                     )));

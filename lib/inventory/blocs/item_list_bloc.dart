@@ -15,7 +15,7 @@ class ItemListBloc extends BlocBase {
           .debounce(Duration(milliseconds: 500))
           .switchMap((terms) async* {
         yield await _inventoryRepository.fetchItemsByName(
-            _enterprise.value.id, terms);
+            _enterprise.value, terms);
       });
 
   ValueObservable<String> get itemSearch => _itemSearch.stream;

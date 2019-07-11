@@ -489,7 +489,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                           Container(
                                             margin: EdgeInsets.only(top: 20.0),
                                             child: Text(
-                                              'Pedido',
+                                              'Información',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Color(_rootBloc

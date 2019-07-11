@@ -61,7 +61,7 @@ class CashBloc extends BlocBase {
           .debounce(Duration(milliseconds: 500))
           .switchMap((terms) async* {
         yield await _inventoryRepository.fetchItemsByName(
-            _enterprise.value.id, terms);
+            _enterprise.value, terms);
       });
 
   Observable<List<Customer>> get customersBySearch {

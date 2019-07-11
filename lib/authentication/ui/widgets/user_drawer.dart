@@ -83,8 +83,9 @@ class _UserDrawerState extends State<UserDrawer> {
                       ),
                     ),
                     Container(
+                      width: 150.0,
                       child: Text(
-                        _firebaseUser.email,
+                        '${_firebaseUser.email.substring(0, 15)}...',
                         style: TextStyle(color: Colors.black, fontSize: 14.0),
                       ),
                     ),

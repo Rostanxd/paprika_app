@@ -142,10 +142,12 @@ class CustomerBloc extends BlocBase {
       submit = false;
     }
 
+    /*
     if (submit && (!FieldTypeValidators.isEmail(_email.value))){
       _email.sink.addError('Email inválido por favor corrija');
       submit = false;
     }
+    */
 
     return submit;
   }

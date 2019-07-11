@@ -49,20 +49,37 @@ class ItemApi {
         documentSnapshot.documentID, enterprise, category, measure, data);
   }
 
-  Future<List<Item>> fetchItemsByName(String enterpriseId, String name) async {
+  Future<List<Item>> fetchItemsByName(Enterprise enterprise, String nameToFind) async {
+    Category category;
+    Measure measure;
+    Item item;
     List<Item> itemList = List<Item>();
     List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
 
     await Firestore.instance
         .collection('items')
-        .where('enterpriseId', isEqualTo: enterpriseId)
-        .where('name', isGreaterThanOrEqualTo: name)
+        .where('enterpriseId', isEqualTo: enterprise.id)
         .getDocuments()
         .then((data) => docSnapshotList.addAll(data.documents));
 
     await Future.forEach(docSnapshotList, (docItem) async {
-      await fetchItemById(docItem.documentID)
-          .then((item) => itemList.add(item));
+      String name = docItem['name'].toUpperCase();
+      if (name.contains(nameToFind.toUpperCase())){
+        /// Getting the category
+        await _categoryApi
+            .fetchCategoryById(docItem['categoryId'])
+            .then((c) => category = c);
+
+        /// Getting the measure
+        await _measureApi
+            .fetchMeasureById(docItem['measureId'])
+            .then((m) => measure = m);
+
+        item = Item.fromFireJson(
+            docItem.documentID, enterprise, category, measure, docItem.data);
+
+        itemList.add(item);
+      }
     });
 
     return itemList;

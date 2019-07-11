@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
@@ -29,8 +30,8 @@ class InventoryRepository {
   Future<Measure> fetchMeasureById(String id) =>
       _measureApi.fetchMeasureById(id);
 
-  Future<List<Item>> fetchItemsByName(String enterpriseId, String name) =>
-      _itemApi.fetchItemsByName(enterpriseId, name);
+  Future<List<Item>> fetchItemsByName(Enterprise enterprise, String name) =>
+      _itemApi.fetchItemsByName(enterprise, name);
 
   Future<List<Item>> fetchItemsByCategory(
           String enterpriseId, String categoryId) =>
