@@ -127,10 +127,6 @@ Widget _itemListStreamBuilder(RootBloc _rootBloc,
   return StreamBuilder(
     stream: _itemListBloc.itemsBySearch,
     builder: (BuildContext context, AsyncSnapshot<List<Item>> snapshot) {
-      if (snapshot.hasError)
-        return Center(
-          child: Text(snapshot.error.toString()),
-        );
       switch (snapshot.connectionState) {
         case ConnectionState.waiting:
           return Center(
@@ -141,6 +137,10 @@ Widget _itemListStreamBuilder(RootBloc _rootBloc,
           );
           break;
         default:
+          if (snapshot.hasError)
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
           if (snapshot.hasData && snapshot.data.length > 0) {
             return ListView.separated(
               separatorBuilder: (context, index) => Divider(

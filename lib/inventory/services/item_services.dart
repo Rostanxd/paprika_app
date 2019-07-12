@@ -49,10 +49,12 @@ class ItemApi {
         documentSnapshot.documentID, enterprise, category, measure, data);
   }
 
-  Future<List<Item>> fetchItemsByName(Enterprise enterprise, String nameToFind) async {
+  Future<List<Item>> fetchItemsByName(
+      Enterprise enterprise, String nameToFind) async {
     Category category;
     Measure measure;
     Item item;
+    int max;
     List<Item> itemList = List<Item>();
     List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
 
@@ -62,9 +64,15 @@ class ItemApi {
         .getDocuments()
         .then((data) => docSnapshotList.addAll(data.documents));
 
-    await Future.forEach(docSnapshotList, (docItem) async {
+    if (docSnapshotList.length >= 10) {
+      max = 10;
+    } else {
+      max = docSnapshotList.length;
+    }
+
+    await Future.forEach(docSnapshotList.take(max), (docItem) async {
       String name = docItem['name'].toUpperCase();
-      if (name.contains(nameToFind.toUpperCase())){
+      if (name.contains(nameToFind.toUpperCase())) {
         /// Getting the category
         await _categoryApi
             .fetchCategoryById(docItem['categoryId'])
@@ -86,22 +94,31 @@ class ItemApi {
   }
 
   Future<List<Item>> fetchItemsByCategory(
-      String enterpriseId, String categoryId) async {
+      Enterprise enterprise, Category category) async {
+    Item item;
+    Measure measure;
     List<Item> itemList = List<Item>();
     List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
 
     /// Loading the items by category
     await Firestore.instance
         .collection('items')
-        .where('enterpriseId', isEqualTo: enterpriseId)
-        .where('categoryId', isEqualTo: categoryId)
+        .where('enterpriseId', isEqualTo: enterprise.id)
+        .where('categoryId', isEqualTo: category.id)
         .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((data) => docSnapshotList.addAll(data.documents));
 
     await Future.forEach(docSnapshotList, (docItem) async {
-      await fetchItemById(docItem.documentID)
-          .then((item) => itemList.add(item));
+      /// Getting the measure
+      await _measureApi
+          .fetchMeasureById(docItem['measureId'])
+          .then((m) => measure = m);
+
+      item = Item.fromFireJson(
+          docItem.documentID, enterprise, category, measure, docItem.data);
+
+      itemList.add(item);
     });
 
     return itemList;

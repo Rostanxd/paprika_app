@@ -23,14 +23,18 @@ class CustomerApi {
     return customer;
   }
 
-  Future<List<Customer>> fetchCustomersById(String id) async {
+  Future<List<Customer>> fetchCustomersById(String idToFind) async {
     List<Customer> customerList = List<Customer>();
     await Firestore.instance
         .collection('customers')
-        .where('id', isGreaterThanOrEqualTo: id)
+        .where('id', isGreaterThanOrEqualTo: idToFind)
         .getDocuments()
-        .then((documents) => customerList.addAll(documents.documents
-            .map((c) => Customer.fromFireJson(c.documentID, c.data))));
+        .then((documents) {
+      customerList.addAll(documents.documents.where((doc) {
+        String id = doc.data['id'];
+        return id.contains(idToFind);
+      }).map((c) => Customer.fromFireJson(c.documentID, c.data)));
+    });
     return customerList;
   }
 

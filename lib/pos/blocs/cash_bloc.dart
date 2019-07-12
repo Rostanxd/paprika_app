@@ -17,10 +17,10 @@ class CashBloc extends BlocBase {
   final _branch = BehaviorSubject<Branch>();
   final _cashDrawer = BehaviorSubject<CashDrawer>();
   final _index = BehaviorSubject<int>();
-  final _items = BehaviorSubject<List<Item>>();
   final _invoice = BehaviorSubject<Document>();
   final _invoiceDetail = BehaviorSubject<List<DocumentLine>>();
   final _categories = BehaviorSubject<List<Category>>();
+  final _categoryToFind = BehaviorSubject<Category>();
   final _itemSearch = BehaviorSubject<String>();
   final _customerSearch = BehaviorSubject<String>();
   final _checkingOut = BehaviorSubject<bool>();
@@ -50,7 +50,12 @@ class CashBloc extends BlocBase {
   /// Observables
   ValueObservable<int> get index => _index.stream;
 
-  Observable<List<Item>> get itemsByCategory => _items.stream;
+  Observable<List<Item>> get itemsByCategory => _categoryToFind
+      .debounce(Duration(milliseconds: 500))
+      .switchMap((c) async* {
+        yield await _inventoryRepository
+            .fetchItemsByCategory(_enterprise.value, c);
+  });
 
   ValueObservable<Document> get invoice => _invoice.stream;
 
@@ -61,8 +66,9 @@ class CashBloc extends BlocBase {
   Observable<List<Item>> get itemsBySearch => _itemSearch
           .debounce(Duration(milliseconds: 500))
           .switchMap((terms) async* {
-        yield await _inventoryRepository.fetchItemsByName(
-            _enterprise.value, terms);
+        if (terms != '')
+          yield await _inventoryRepository.fetchItemsByName(
+              _enterprise.value, terms);
       });
 
   Observable<List<Customer>> get customersBySearch {
@@ -122,6 +128,8 @@ class CashBloc extends BlocBase {
   /// Functions
   Function(int) get changeIndex => _index.add;
 
+  Function(Category) get changeCategoryToFind => _categoryToFind.add;
+
   Function(Document) get changeInvoice => _invoice.add;
 
   Function(List<DocumentLine>) get changeInvoiceDetail => _invoiceDetail.add;
@@ -165,15 +173,6 @@ class CashBloc extends BlocBase {
   Function(double) get changeTaxesLine => _taxesLine.add;
 
   Function(double) get changeTotalLine => _totalLine.add;
-
-  void fetchItemsByCategory(String categoryId) async {
-    _items.sink.add(null);
-    await _inventoryRepository
-        .fetchItemsByCategory(_enterprise.value.id, categoryId)
-        .then((data) {
-      _items.sink.add(data);
-    });
-  }
 
   void fetchCategories() async {
     await _inventoryRepository
@@ -537,10 +536,10 @@ class CashBloc extends BlocBase {
   @override
   void dispose() {
     _index.close();
-    _items.close();
     _invoice.close();
     _invoiceDetail.close();
     _categories.close();
+    _categoryToFind.close();
     _itemSearch.close();
     _customerSearch.close();
     _checkingOut.close();

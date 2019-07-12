@@ -38,6 +38,9 @@ class _SearchItemState extends State<SearchItem> {
     /// Presentation
     widget.cashBloc.changePresentation();
 
+    /// Getting all the categories
+    widget.cashBloc.fetchCategories();
+
     super.initState();
   }
 
@@ -50,9 +53,6 @@ class _SearchItemState extends State<SearchItem> {
 
   @override
   Widget build(BuildContext context) {
-    /// Getting all the categories
-    widget.cashBloc.fetchCategories();
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -134,6 +134,15 @@ class _SearchItemState extends State<SearchItem> {
                   });
             }),
       ),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.refresh,
+            color: Colors.white,
+          ),
+          backgroundColor: Color(_rootBloc.submitColor.value),
+          onPressed: () {
+            widget.cashBloc.fetchCategories();
+          }),
       bottomNavigationBar: StreamBuilder(
           stream: widget.cashBloc.categories,
           builder: (BuildContext context,
@@ -221,36 +230,46 @@ class _SearchItemState extends State<SearchItem> {
 
   /// Widgets
   Widget _loadItemsByCategory(Category category) {
-    widget.cashBloc.fetchItemsByCategory(category.id);
+    widget.cashBloc.changeCategoryToFind(category);
 
     return StreamBuilder<List<Item>>(
       stream: widget.cashBloc.itemsByCategory,
       builder: (BuildContext context, AsyncSnapshot<List<Item>> snapItemList) {
-        if (snapItemList.hasError)
-          return Center(
-            child: Text(snapItemList.error),
-          );
+        switch (snapItemList.connectionState) {
+          case ConnectionState.waiting:
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Color(_rootBloc.primaryColor.value)),
+              ),
+            );
+          default:
+            if (snapItemList.hasError)
+              return Center(
+                child: Text(snapItemList.error),
+              );
 
-        if (snapItemList.hasData) {
-          return StreamBuilder(
-              stream: widget.cashBloc.itemPresentation,
-              builder: (BuildContext context,
-                  AsyncSnapshot<String> snapPresentation) {
-                if (snapPresentation.hasError || !snapPresentation.hasData)
-                  return Container(
-                    child: null,
-                  );
-                return _loadingByPresentation(
-                    snapPresentation.data, category, snapItemList.data);
-              });
+            if (!snapItemList.hasData) {
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(_rootBloc.primaryColor.value)),
+                ),
+              );
+            }
+
+            return StreamBuilder(
+                stream: widget.cashBloc.itemPresentation,
+                builder: (BuildContext context,
+                    AsyncSnapshot<String> snapPresentation) {
+                  if (snapPresentation.hasError || !snapPresentation.hasData)
+                    return Container(
+                      child: null,
+                    );
+                  return _loadingByPresentation(
+                      snapPresentation.data, category, snapItemList.data);
+                });
         }
-
-        return Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-                Color(_rootBloc.primaryColor.value)),
-          ),
-        );
       },
     );
   }
