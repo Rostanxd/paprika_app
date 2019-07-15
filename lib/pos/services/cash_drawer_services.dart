@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/device.dart';
 import 'package:paprika_app/authentication/services/branch_services.dart';
+import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
+import 'package:paprika_app/pos/models/document.dart';
 
 class CashDrawerFirebaseApi {
   BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
@@ -117,5 +119,39 @@ class CashDrawerFirebaseApi {
 
     return OpeningCashDrawer.fromFireJson(
         docsOpening[0].documentID, cashDrawer, device, docsOpening[0].data);
+  }
+
+  /// Invoices of the cash drawer
+  Future<List<Document>> fetchInvoiceOfCashDrawer(CashDrawer cashDrawer) async {
+    Customer customer;
+    DateTime today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    Timestamp todayTt = Timestamp.fromDate(today);
+    List<Document> documentList = List<Document>();
+    List<DocumentSnapshot> docSnapshots = List<DocumentSnapshot>();
+
+    await Firestore.instance
+        .collection('documents')
+        .where('cashDrawerId', isEqualTo: cashDrawer.id)
+        .where('dateTime', isGreaterThanOrEqualTo: todayTt)
+        .getDocuments()
+        .then((documents) {
+      docSnapshots.addAll(documents.documents);
+    });
+
+    await Future.forEach(docSnapshots, (document) async {
+      await Firestore.instance
+          .collection('customers')
+          .document(document.data['customerId'])
+          .get()
+          .then((c) {
+        customer = Customer.fromFireJson(c.documentID, c.data);
+      });
+
+      documentList.add(Document.fromFireJson(document.documentID,
+          cashDrawer.branch, customer, cashDrawer, document.data));
+    });
+
+    return documentList;
   }
 }

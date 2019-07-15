@@ -197,13 +197,13 @@ class _UserDrawerState extends State<UserDrawer> {
 
     /// Adding options by the profile
     _listChildren.add(Divider());
-    if (_authenticationBloc.role.value.systemId != '02') {
-      _listChildren.add(ListTile(
-        title: Text('Configuración'),
-        leading: Icon(Icons.settings),
-        onTap: () {},
-      ));
-    }
+//    if (_authenticationBloc.role.value.systemId != '02') {
+//      _listChildren.add(ListTile(
+//        title: Text('Configuración'),
+//        leading: Icon(Icons.settings),
+//        onTap: () {},
+//      ));
+//    }
 
     /// Adding exit option
     _listChildren.add(ListTile(
@@ -216,6 +216,19 @@ class _UserDrawerState extends State<UserDrawer> {
         /// Calling the function to sign out
         _authenticationBloc.userLogOut();
       },
+    ));
+
+    _listChildren.add(Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(right: 10.0),
+          child: Text(
+            'v0.1.0',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+        )
+      ],
     ));
   }
 }

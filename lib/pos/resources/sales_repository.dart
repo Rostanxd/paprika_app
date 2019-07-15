@@ -51,4 +51,7 @@ class SalesRepository {
           DateTime dateTime, Branch branch, CashDrawer cashDrawer) =>
       _cashDrawerFirebaseApi.lastOpeningCashDrawer(
           dateTime, branch, cashDrawer);
+
+  Future<List<Document>> fetchInvoiceOfCashDrawer(CashDrawer cashDrawer) =>
+      _cashDrawerFirebaseApi.fetchInvoiceOfCashDrawer(cashDrawer);
 }
