@@ -134,6 +134,8 @@ class CashDrawerFirebaseApi {
         .collection('documents')
         .where('cashDrawerId', isEqualTo: cashDrawer.id)
         .where('dateTime', isGreaterThanOrEqualTo: todayTt)
+        .where('type', isEqualTo: 'I')
+        .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((documents) {
       docSnapshots.addAll(documents.documents);
