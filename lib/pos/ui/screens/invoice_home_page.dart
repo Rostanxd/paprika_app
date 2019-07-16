@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
-import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/invoice_home_bloc.dart';
 import 'package:paprika_app/pos/models/document.dart';
 import 'package:paprika_app/pos/ui/screens/cash_page.dart';
@@ -142,7 +141,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
         backgroundColor: Color(_rootBloc.primaryColor.value),
         actions: <Widget>[],
       ),
-      drawer: UserDrawer(),
+//      drawer: UserDrawer(),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -238,7 +237,10 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                     '${snapshot.data[index].customer.lastName} '
                                     '${snapshot.data[index].customer.firstName}'),
                                 subtitle: Text(
+                                    '${snapshot.data[index].quantity} und. - '
                                     'Fecha: ${snapshot.data[index].dateTime.toString()}'),
+                                trailing:
+                                    Text('\$ ${snapshot.data[index].total}'),
                                 onTap: () {
                                   _invoiceHomeBloc.changeDocumentSelected(
                                       snapshot.data[index]);
@@ -505,7 +507,7 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                             margin: EdgeInsets.only(
                                                 left: 10.0, top: 10.0),
                                             child: Text(
-                                              'Fecha entrega',
+                                              'Fecha',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold),
                                             ),
@@ -553,26 +555,6 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                                 left: 10.0, top: 10.0),
                                             child: Text(
                                                 '\$ ${snapshot.data.total.toString()}'),
-                                          )
-                                        ],
-                                      ),
-                                      Row(
-                                        children: <Widget>[
-                                          Container(
-                                            margin: EdgeInsets.only(
-                                                left: 10.0, top: 10.0),
-                                            child: Text(
-                                              'Nota',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.only(
-                                                left: 10.0, top: 10.0),
-                                            width: 500.0,
-                                            child:
-                                                Text('${snapshot.data.note}'),
                                           )
                                         ],
                                       ),

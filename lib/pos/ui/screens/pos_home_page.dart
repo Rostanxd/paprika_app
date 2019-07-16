@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
-import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/pos_home_bloc.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/document.dart';
@@ -75,7 +74,7 @@ class _PosHomePageState extends State<PosHomePage> {
         title: Text('POS - Caja del día'),
         backgroundColor: Color(_rootBloc.primaryColor.value),
       ),
-      drawer: UserDrawer(),
+//      drawer: UserDrawer(),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

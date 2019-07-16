@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:paprika_app/authentication/blocs/authentication_bloc.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
-import 'package:paprika_app/authentication/ui/widgets/user_drawer.dart';
 import 'package:paprika_app/pos/blocs/cash_bloc.dart';
 import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/document.dart';
@@ -95,7 +94,7 @@ class _CashPageState extends State<CashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: UserDrawer(),
+//      drawer: UserDrawer(),
       body: Center(
         child: Container(
           child: Row(

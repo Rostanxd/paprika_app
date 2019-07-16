@@ -55,11 +55,11 @@ class _SearchItemState extends State<SearchItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              widget.scaffoldKey.currentState.openDrawer();
-            }),
+//        leading: IconButton(
+//            icon: Icon(Icons.menu),
+//            onPressed: () {
+//              widget.scaffoldKey.currentState.openDrawer();
+//            }),
         title: widget.documentType == 'I'
             ? Text('POS - ${widget.cashBloc.cashDrawer.value.name}')
             : Text('Toma de pedidos'),
