@@ -14,6 +14,11 @@ class Measure extends Object {
     this.standard = json['standard'];
   }
 
+  Measure.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.name = json['name'];
+  }
+
   Measure.fromJson(Map<String, dynamic> json) {
     this.id = json['id'];
     this.name = json['name'];
@@ -25,6 +30,11 @@ class Measure extends Object {
         'standard': this.standard,
         'enterpriseId': this.enterprise.id
       };
+
+  Map<String, dynamic> toSimpleMap() => {
+    'id': this.id,
+    'name': this.name
+  };
 
   @override
   String toString() {

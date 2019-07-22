@@ -24,6 +24,11 @@ class Enterprise extends Object {
       this.modificationDate,
       this.modificationUser);
 
+  Map<String, dynamic> toSimpleMap() => {
+    'id': this.id,
+    'name': this.name
+  };
+
   Enterprise.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
     this.ruc = json['ruc'];
@@ -36,6 +41,11 @@ class Enterprise extends Object {
     this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
         json['modificationDate'].seconds * 1000);
     this.modificationUser = json['modificationUser'];
+  }
+
+  Enterprise.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.name = json['name'];
   }
 
   @override

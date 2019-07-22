@@ -3,13 +3,10 @@ import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/authentication/services/branch_services.dart';
 import 'package:paprika_app/crm/models/customer.dart';
-import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/document.dart';
-import 'package:paprika_app/pos/services/cash_drawer_services.dart';
 
 class CustomerApi {
   BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
-  CashDrawerFirebaseApi _cashDrawerFirebaseApi = CashDrawerFirebaseApi();
 
   Future<Customer> fetchCustomerById(String customerId) async {
     Customer customer;
@@ -83,8 +80,6 @@ class CustomerApi {
   Future<Document> customerLastInvoice(
       Enterprise enterprise, Customer customer) async {
     Document invoice;
-    Branch branch;
-    CashDrawer cashDrawer;
     List<Document> invoiceList = List<Document>();
     List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
 
@@ -101,18 +96,9 @@ class CustomerApi {
       invoiceDocsSnapshot.addAll(querySnapshot.documents);
     });
 
-    /// Invoices details
-    await Future.forEach(invoiceDocsSnapshot, (doc) async {
-      branch = await _branchFirebaseApi.fetchBranchById(doc.data['branchId']);
-      cashDrawer = await _cashDrawerFirebaseApi
-          .fetchCashDrawerById(doc.data['cashDrawerId']);
-
-      /// Only our enterprise
-      if (branch.enterprise.id == enterprise.id) {
-        invoiceList.add(Document.fromFireJson(
-            doc.documentID, branch, customer, cashDrawer, doc.data));
-      }
-    });
+    /// We need to validate our enterprise here!!
+    invoiceDocsSnapshot.forEach((doc) =>
+        invoiceList.add(Document.fromFireJson(doc.documentID, doc.data)));
 
     if (invoiceList.length == 0) return invoice;
     return invoiceList[0];

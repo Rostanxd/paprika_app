@@ -233,9 +233,11 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                             itemBuilder: (context, index) {
                               return ListTile(
                                 leading: Icon(Icons.collections_bookmark),
-                                title: Text(
-                                    '${snapshot.data[index].customer.lastName} '
-                                    '${snapshot.data[index].customer.firstName}'),
+                                title: snapshot.data[index].customer != null
+                                    ? Text(
+                                        '${snapshot.data[index].customer.lastName} '
+                                        '${snapshot.data[index].customer.firstName}')
+                                    : Text(''),
                                 subtitle: Text(
                                     '${snapshot.data[index].quantity} und. - '
                                     'Fecha: ${snapshot.data[index].dateTime.toString()}'),

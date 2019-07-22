@@ -64,6 +64,12 @@ class Customer implements Person {
         DateTime.fromMillisecondsSinceEpoch(json['bornDate'].seconds * 1000);
   }
 
+  Customer.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.firstName = json['firstName'];
+    this.lastName = json['lastName'];
+  }
+
   Map<String, dynamic> toFireJson() => {
         'id': this.id != null ? this.id : '',
         'firstName': this.firstName != null ? this.firstName : '',
@@ -75,6 +81,12 @@ class Customer implements Person {
             ? Timestamp.fromDate(this.bornDate)
             : Timestamp(0, 0),
       };
+
+  Map<String, dynamic> toSimpleMap() => {
+    'id': this.id,
+    'firstName': this.firstName,
+    'lastName': this.lastName
+  };
 
   @override
   String toString() {

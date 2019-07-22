@@ -21,6 +21,11 @@ class Branch extends Object {
     this.telephone = json['telephone'];
   }
 
+  Branch.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.name = json['name'];
+  }
+
   Map<String, dynamic> toFireJson() => {
         'enterpriseId': this.enterprise.id,
         'state': this.state,
@@ -28,6 +33,11 @@ class Branch extends Object {
         'address': this.address,
         'telephone': this.telephone
       };
+
+  Map<String, dynamic> toSimpleMap() => {
+    'id': this.id,
+    'name': this.name
+  };
 
   @override
   String toString() {

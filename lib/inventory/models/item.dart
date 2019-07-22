@@ -14,9 +14,9 @@ class Item extends Object {
   String representation;
   int colorCode;
   String imagePath;
+  String sku;
   Category category;
   Measure measure;
-  String sku;
   Enterprise enterprise;
 
   Item(
@@ -35,8 +35,7 @@ class Item extends Object {
       this.sku,
       this.enterprise);
 
-  Item.fromFireJson(String documentId, Enterprise enterprise, Category category,
-      Measure measure, Map<String, dynamic> json) {
+  Item.fromFireJson(String documentId, Map<String, dynamic> json) {
     var _cost = json['cost'];
     var _price = json['price'];
     String _colorCode = json['colorCode'] == '' ? '0' : json['colorCode'];
@@ -53,9 +52,15 @@ class Item extends Object {
     this.representation = json['representation'];
     this.sku = json['sku'];
 
-    this.enterprise = enterprise;
-    this.category = category;
-    this.measure = measure;
+    /// Model maps
+    this.enterprise = json['enterprise'] != null
+        ? Enterprise.fromSimpleMap(json['enterprise'])
+        : null;
+    this.category = json['category'] != null
+        ? Category.fromSimpleMap(json['category'])
+        : null;
+    this.measure =
+        json['measure'] != null ? Measure.fromSimpleMap(json['measure']) : null;
   }
 
   Map<String, dynamic> toFireJson() => {
@@ -69,9 +74,9 @@ class Item extends Object {
         'imagePath': this.imagePath,
         'representation': this.representation,
         'sku': this.sku,
-        'categoryId': this.category.id,
-        'measureId': this.measure.id,
-        'enterpriseId': this.enterprise.id
+        'enterpriseId': this.enterprise.toSimpleMap(),
+        'categoryId': this.category.toSimpleMap(),
+        'measureId': this.measure.toSimpleMap(),
       };
 
   Item.fromJson(

@@ -44,8 +44,7 @@ class Document extends Object {
       this.branch,
       this.cashDrawer);
 
-  Document.fromFireJson(String documentId, Branch branch, Customer customer,
-      CashDrawer cashDrawer, Map<String, dynamic> json) {
+  Document.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
     this.type = json['type'];
     this.note = json['note'];
@@ -63,9 +62,16 @@ class Document extends Object {
     this.modificationUser = json['modificationUser'];
     this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
         json['modificationDate'].seconds * 1000);
-    this.branch = branch;
-    this.customer = customer;
-    this.cashDrawer = cashDrawer;
+
+    /// Model maps
+    this.customer = json['customer'] != null
+        ? Customer.fromSimpleMap(json['customer'])
+        : null;
+    this.branch =
+        json['branch'] != null ? Branch.fromSimpleMap(json['branch']) : null;
+    this.cashDrawer = json['cashDrawer'] != null
+        ? CashDrawer.fromSimpleMap(json['cashDrawer'])
+        : null;
   }
 
   Map<String, dynamic> toFireJson() => {
@@ -82,9 +88,12 @@ class Document extends Object {
         'creationDate': Timestamp.fromDate(this.creationDate),
         'modificationUser': this.modificationUser,
         'modificationDate': Timestamp.fromDate(this.modificationDate),
-        'customerId': this.customer != null ? this.customer.customerId : '',
-        'branchId': this.branch != null ? this.branch.id : '',
-        'cashDrawerId': this.cashDrawer != null ? this.cashDrawer.id : '',
+
+        /// Model maps
+        'customer': this.customer.toSimpleMap(),
+        'branch': this.branch.toSimpleMap(),
+        'cashDrawer': this.cashDrawer.toSimpleMap(),
+        'detail': this.detail.map((line) => line.toFireJson()).toList(),
       };
 
   @override

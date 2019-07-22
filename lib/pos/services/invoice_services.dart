@@ -1,18 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
-import 'package:paprika_app/authentication/services/branch_services.dart';
-import 'package:paprika_app/crm/models/customer.dart';
-import 'package:paprika_app/crm/services/customer_services.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/services/item_services.dart';
-import 'package:paprika_app/pos/models/cash_drawer.dart';
 import 'package:paprika_app/pos/models/document.dart';
-import 'package:paprika_app/pos/services/cash_drawer_services.dart';
 
 class InvoiceApi {
-  CustomerApi _customerApi = CustomerApi();
-  BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
-  CashDrawerFirebaseApi _cashDrawerFirebaseApi = CashDrawerFirebaseApi();
   ItemApi _itemApi = ItemApi();
 
   Future<DocumentReference> createInvoice(Document invoice) async {
@@ -37,11 +29,8 @@ class InvoiceApi {
 
   Future<List<Document>> fetchDocumentsBy(Branch branch, String documentType,
       Timestamp fromDate, Timestamp toDate, String state) async {
-    Document invoice;
-    Customer customer;
-    CashDrawer cashDrawer;
-    List<Document> invoices = List<Document>();
-    List<DocumentSnapshot> invoiceDocSnapshots = List<DocumentSnapshot>();
+    List<Document> documentList = List<Document>();
+    List<DocumentSnapshot> docSnapshots = List<DocumentSnapshot>();
 
     /// Getting the invoices headers
     await Firestore.instance
@@ -52,55 +41,23 @@ class InvoiceApi {
         .where('dateTime', isGreaterThanOrEqualTo: fromDate)
         .where('dateTime', isLessThanOrEqualTo: toDate)
         .getDocuments()
-        .then((documents) => invoiceDocSnapshots = documents.documents);
+        .then((documents) => docSnapshots = documents.documents);
 
-    /// Getting the invoices related data
-    await Future.forEach(invoiceDocSnapshots, (document) async {
-      customer =
-          await _customerApi.fetchCustomerById(document.data['customerId']);
-
-      cashDrawer = await _cashDrawerFirebaseApi
-          .fetchCashDrawerById(document.data['cashDrawerId']);
-
-      invoice = Document.fromFireJson(
-          document.documentID, branch, customer, cashDrawer, document.data);
-
-//      invoice.detail = await fetchInvoiceDetail(invoice);
-
-      /// Loading the invoice to the list
-      invoices.add(invoice);
+    docSnapshots.forEach((doc) {
+      documentList.add(Document.fromFireJson(doc.documentID, doc.data));
     });
 
-    return invoices;
+    return documentList;
   }
 
   Future<Document> fetchInvoiceById(String invoiceId) async {
-    Document invoice;
-    Branch branch;
-    CashDrawer cashDrawer;
-    Customer customer;
-    Map<String, dynamic> data = Map<String, dynamic>();
-
     /// Getting the invoices headers
-    await Firestore.instance
+    return await Firestore.instance
         .collection('documents')
         .document(invoiceId)
         .get()
-        .then((document) async {
-      customer =
-          await _customerApi.fetchCustomerById(document.data['customerId']);
-
-      branch =
-          await _branchFirebaseApi.fetchBranchById(document.data['branchId']);
-
-      cashDrawer = await _cashDrawerFirebaseApi
-          .fetchCashDrawerById(document.data['cashDrawerId']);
-
-      invoice =
-          Document.fromFireJson(invoiceId, branch, customer, cashDrawer, data);
-    });
-
-    return invoice;
+        .then((document) =>
+            Document.fromFireJson(document.documentID, document.data));
   }
 
   Future<List<DocumentLine>> fetchInvoiceDetail(Document invoice) async {

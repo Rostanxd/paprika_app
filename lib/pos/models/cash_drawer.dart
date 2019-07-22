@@ -16,11 +16,21 @@ class CashDrawer extends Object {
     this.name = json['name'];
   }
 
+  CashDrawer.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.name = json['name'];
+  }
+
   Map<String, dynamic> toFireJson() => {
         'branchId': this.branch.id,
         'state': this.state,
         'name': this.name,
       };
+
+  Map<String, dynamic> toSimpleMap() => {
+    'id': this.id,
+    'name': this.name
+  };
 
   @override
   String toString() {
