@@ -13,22 +13,15 @@ class AuthenticationFirebaseApi {
   }
 
   Future<User> userSystem(String uid) async {
-    User user;
-    await Firestore.instance
+    return await Firestore.instance
         .collection('users')
         .document(uid)
         .get()
-        .then((userDocument) async {
-      /// Loading the user data.
-      user = User.fromFireJson(userDocument.documentID, userDocument.data);
-    });
-
-    /// returning the user
-    return user;
+        .then((doc) =>
+            User.fromFireJson(doc.documentID, doc.data));
   }
 
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
   }
-
 }

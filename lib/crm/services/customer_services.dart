@@ -1,13 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:paprika_app/authentication/models/branch.dart';
 import 'package:paprika_app/authentication/models/enterprise.dart';
-import 'package:paprika_app/authentication/services/branch_services.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/pos/models/document.dart';
 
 class CustomerApi {
-  BranchFirebaseApi _branchFirebaseApi = BranchFirebaseApi();
-
   Future<Customer> fetchCustomerById(String customerId) async {
     Customer customer;
     await Firestore.instance
@@ -51,56 +47,37 @@ class CustomerApi {
   Future<int> customerNumberOfInvoices(
       Enterprise enterprise, String customerId) async {
     int numberTickets = 0;
-    Branch branch;
-    List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
-
     await Firestore.instance
         .collection('documents')
-        .where('customerId', isEqualTo: customerId)
+        .where('customer.id', isEqualTo: customerId)
         .where('type', isEqualTo: 'I')
         .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((querySnapshot) {
-      invoiceDocsSnapshot.addAll(querySnapshot.documents);
+      querySnapshot.documents.forEach((doc) {
+        if (doc.data['enterprise.id'] == enterprise.id) numberTickets += 1;
+      });
     });
-
-    /// Invoices details
-    await Future.forEach(invoiceDocsSnapshot, (doc) async {
-      branch = await _branchFirebaseApi.fetchBranchById(doc.data['branchId']);
-
-      /// Only our enterprise
-      if (branch.enterprise.id == enterprise.id) {
-        numberTickets += 1;
-      }
-    });
-
     return numberTickets;
   }
 
   Future<Document> customerLastInvoice(
       Enterprise enterprise, Customer customer) async {
-    Document invoice;
-    List<Document> invoiceList = List<Document>();
-    List<DocumentSnapshot> invoiceDocsSnapshot = List<DocumentSnapshot>();
-
     /// Invoices
-    await Firestore.instance
+    return await Firestore.instance
         .collection('documents')
-        .where('customerId', isEqualTo: customer.customerId)
+        .where('customer.id', isEqualTo: customer.customerId)
         .where('type', isEqualTo: 'I')
         .where('state', isEqualTo: 'A')
         .orderBy('creationDate', descending: true)
         .limit(1)
         .getDocuments()
         .then((querySnapshot) {
-      invoiceDocsSnapshot.addAll(querySnapshot.documents);
+      querySnapshot.documents.forEach((doc) {
+        if (doc.data['enterprise.id'] == enterprise.id) {
+          return Document.fromFireJson(doc.documentID, doc.data);
+        }
+      });
     });
-
-    /// We need to validate our enterprise here!!
-    invoiceDocsSnapshot.forEach((doc) =>
-        invoiceList.add(Document.fromFireJson(doc.documentID, doc.data)));
-
-    if (invoiceList.length == 0) return invoice;
-    return invoiceList[0];
   }
 }

@@ -8,10 +8,10 @@ class CashDrawer extends Object {
   String state;
   String name;
 
-  CashDrawer.fromFireBase(
-      String documentId, Branch branch, Map<String, dynamic> json) {
+  CashDrawer.fromFireBase(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
-    this.branch = branch;
+    this.branch =
+        json['branch'] != null ? Branch.fromSimpleMap(json['branch']) : null;
     this.state = json['state'];
     this.name = json['name'];
   }
@@ -27,10 +27,7 @@ class CashDrawer extends Object {
         'name': this.name,
       };
 
-  Map<String, dynamic> toSimpleMap() => {
-    'id': this.id,
-    'name': this.name
-  };
+  Map<String, dynamic> toSimpleMap() => {'id': this.id, 'name': this.name};
 
   @override
   String toString() {
@@ -81,22 +78,19 @@ class OpeningTurn extends Object {
 
 class OpeningCashDrawer extends Object {
   String id;
-  CashDrawer cashDrawer;
-  Device device;
   DateTime openingDate;
   String openingUser;
   String state;
   DateTime closingDate;
   String closingUser;
+  CashDrawer cashDrawer;
+  Device device;
 
   OpeningCashDrawer(this.cashDrawer, this.device, this.openingDate,
       this.openingUser, this.state, this.closingDate, this.closingUser);
 
-  OpeningCashDrawer.fromFireJson(String documentId, CashDrawer cashDrawer,
-      Device device, Map<String, dynamic> json) {
+  OpeningCashDrawer.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
-    this.cashDrawer = cashDrawer;
-    this.device = device;
     this.openingDate =
         DateTime.fromMillisecondsSinceEpoch(json['openingDate'].seconds * 1000);
     this.openingUser = json['openingUser'];
@@ -106,16 +100,21 @@ class OpeningCashDrawer extends Object {
             json['closingDate'].seconds * 1000)
         : null;
     this.closingUser = json['closingUser'] != null ? json['closingUser'] : '';
+    this.cashDrawer = json['cashDrawer'] != null
+        ? CashDrawer.fromSimpleMap(json['cashDrawer'])
+        : null;
+    this.device =
+        json['device'] != null ? Device.fromSimpleMap(json['device']) : null;
   }
 
   Map<String, dynamic> toFireJson() => {
-        'cashDrawerId': this.cashDrawer.id,
-        'deviceId': this.device.id,
         'openingDate': Timestamp.fromDate(this.openingDate),
         'openingUser': this.openingUser,
         'state': this.state,
         'closingDate': Timestamp.fromDate(this.closingDate),
         'closingUser': this.closingUser,
+        'cashDrawer': this.cashDrawer.toSimpleMap(),
+        'device': this.device.toSimpleMap(),
       };
 
   @override

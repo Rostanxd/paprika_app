@@ -63,6 +63,11 @@ class Item extends Object {
         json['measure'] != null ? Measure.fromSimpleMap(json['measure']) : null;
   }
 
+  Item.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.name = json['name'];
+  }
+
   Map<String, dynamic> toFireJson() => {
         'state': this.state,
         'name': this.name,
@@ -74,10 +79,12 @@ class Item extends Object {
         'imagePath': this.imagePath,
         'representation': this.representation,
         'sku': this.sku,
-        'enterpriseId': this.enterprise.toSimpleMap(),
-        'categoryId': this.category.toSimpleMap(),
-        'measureId': this.measure.toSimpleMap(),
+        'enterprise': this.enterprise.toSimpleMap(),
+        'category': this.category.toSimpleMap(),
+        'measure': this.measure.toSimpleMap(),
       };
+
+  Map<String, dynamic> toSimpleMap() => {'id': this.id, 'name': this.name};
 
   Item.fromJson(
       Enterprise enterprise, Measure measure, Map<String, dynamic> json) {

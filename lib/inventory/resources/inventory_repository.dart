@@ -37,12 +37,12 @@ class InventoryRepository {
           Enterprise enterprise, Category category) =>
       _itemApi.fetchItemsByCategory(enterprise, category);
 
-  Future<List<Category>> fetchCategories(String enterpriseId) =>
-      _categoryApi.fetchCategories(enterpriseId);
+  Future<List<Category>> fetchCategories(Enterprise enterprise) =>
+      _categoryApi.fetchCategories(enterprise);
 
   Future<List<Category>> fetchCategoriesByName(
-          String enterpriseId, String categoryName) =>
-      _categoryApi.fetchCategoriesByName(enterpriseId, categoryName);
+          Enterprise enterprise, String categoryName) =>
+      _categoryApi.fetchCategoriesByName(enterprise, categoryName);
 
   Future<void> updateCategory(Category category) =>
       _categoryApi.updateCategory(category);

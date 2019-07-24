@@ -11,10 +11,22 @@ class Role extends Object {
     this.name = json['name'];
   }
 
+  Role.fromSimpleMap(Map json){
+    this.id = json['id'];
+    this.systemId = json['systemId'];
+    this.name = json['name'];
+  }
+
   Map<String, dynamic> toFireJson() => {
         'systemId': this.systemId,
         'name': this.name,
       };
+
+  Map<String, dynamic> toSimpleMap() => {
+    'id':  this.id,
+    'systemId': this.systemId,
+    'name': this.name,
+  };
 
   @override
   String toString() {

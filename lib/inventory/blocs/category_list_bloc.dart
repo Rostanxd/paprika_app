@@ -15,7 +15,7 @@ class CategoryListBloc extends BlocBase {
           .debounce(Duration(milliseconds: 500))
           .switchMap((terms) async* {
         yield await _inventoryRepository.fetchCategoriesByName(
-            _enterprise.value.id, terms);
+            _enterprise.value, terms);
       });
 
   ValueObservable<String> get categorySearch => _categorySearch.stream;

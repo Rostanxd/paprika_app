@@ -65,7 +65,7 @@ class InvoiceHomeBloc extends BlocBase {
 
   Future<void> changeDocumentSelected (Document invoice) async {
     _loadingDocDetail.sink.add(true);
-    await _salesRepository.fetchInvoiceDetail(invoice).then((detail){
+    await _salesRepository.fetchDocumentDetail(invoice).then((detail){
       invoice.detail = detail;
       _documentSelected.sink.add(invoice);
     });
@@ -98,7 +98,7 @@ class InvoiceHomeBloc extends BlocBase {
     invoice.state = 'N';
     invoice.modificationDate = DateTime.now();
     invoice.modificationUser = user.id;
-    await _salesRepository.updateInvoiceData(invoice).then((v) {
+    await _salesRepository.updateDocumentData(invoice).then((v) {
       _message.sink.add('Documento anulado con éxito.');
 
       /// Fetch documents

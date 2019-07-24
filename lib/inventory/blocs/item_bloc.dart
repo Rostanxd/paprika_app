@@ -139,7 +139,7 @@ class ItemBloc extends BlocBase {
   void fetchCategories() async {
     _categoryList.sink.add(null);
     await _inventoryRepository
-        .fetchCategories(_enterprise.value.id)
+        .fetchCategories(_enterprise.value)
         .then((data) {
       _categoryList.sink.add(data);
     });

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/inventory/models/category.dart';
 
 class CategoryApi {
@@ -8,40 +9,40 @@ class CategoryApi {
         .collection('categories')
         .document(categoryId)
         .get()
-        .then((c) {
-      _category = Category.fromFireJson(c.documentID, c.data);
+        .then((doc) {
+      _category = Category.fromFireJson(doc.documentID, doc.data);
     });
 
     return _category;
   }
 
-  Future<List<Category>> fetchCategories(String enterpriseId) async {
+  Future<List<Category>> fetchCategories(Enterprise enterprise) async {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
         .orderBy('order')
-        .where('enterpriseId', isEqualTo: enterpriseId)
+        .where('enterprise.id', isEqualTo: enterprise.id)
         .where('state', isEqualTo: 'A')
         .getDocuments()
-        .then((data) {
-      _categoryList.addAll(data.documents
-          .map((c) => Category.fromFireJson(c.documentID, c.data)));
+        .then((querySnapshot) {
+      _categoryList.addAll(querySnapshot.documents
+          .map((doc) => Category.fromFireJson(doc.documentID, doc.data)));
     });
     return _categoryList;
   }
 
   Future<List<Category>> fetchCategoriesByName(
-      String enterpriseId, String name) async {
+      Enterprise enterprise, String name) async {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
         .orderBy('name')
         .orderBy('order', descending: false)
         .where('name', isGreaterThanOrEqualTo: name)
-        .where('enterpriseId', isEqualTo: enterpriseId)
+        .where('enterprise.id', isEqualTo: enterprise.id)
         .getDocuments()
-        .then((data) {
-      _categoryList.addAll(data.documents.map((c) {
+        .then((querySnapshot) {
+      _categoryList.addAll(querySnapshot.documents.map((c) {
         if (c.data['state'] == 'A' || c.data['state'] == 'I') {
           return Category.fromFireJson(c.documentID, c.data);
         }

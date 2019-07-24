@@ -11,33 +11,31 @@ class Branch extends Object {
   Branch(this.id, this.enterprise, this.state, this.name, this.address,
       this.telephone);
 
-  Branch.fromFireJson(
-      String documentId, Enterprise enterprise, Map<String, dynamic> json) {
+  Branch.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
-    this.enterprise = enterprise;
+    this.enterprise = json['enterprise'] != null
+        ? Enterprise.fromSimpleMap(json['enterprise'])
+        : null;
     this.state = json['state'];
     this.name = json['name'];
     this.address = json['address'];
     this.telephone = json['telephone'];
   }
 
-  Branch.fromSimpleMap(Map<String, dynamic> json) {
+  Branch.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.name = json['name'];
   }
 
   Map<String, dynamic> toFireJson() => {
-        'enterpriseId': this.enterprise.id,
+        'enterprise': this.enterprise.toSimpleMap(),
         'state': this.state,
         'name': this.name,
         'address': this.address,
         'telephone': this.telephone
       };
 
-  Map<String, dynamic> toSimpleMap() => {
-    'id': this.id,
-    'name': this.name
-  };
+  Map<String, dynamic> toSimpleMap() => {'id': this.id, 'name': this.name};
 
   @override
   String toString() {

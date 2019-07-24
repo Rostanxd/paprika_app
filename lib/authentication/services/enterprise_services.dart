@@ -12,30 +12,20 @@ class EnterpriseFirebaseApi {
   }
 
   Future<List<Enterprise>> fetchEnterprisesByUser(User user) async {
-    String enterpriseId;
     List<Enterprise> enterpriseList = List<Enterprise>();
-    List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
 
     /// Looking for enterprises with this user
     await Firestore.instance
         .collection('enterprises_users')
-        .where('userId', isEqualTo: user.id)
+        .where('user.id', isEqualTo: user.id)
         .where('state', isEqualTo: 'A')
         .getDocuments()
-        .then((docs) {
-      docSnapshotList.addAll(docs.documents);
+        .then((querySnapshots) {
+      querySnapshots.documents.forEach((doc) {
+        enterpriseList
+            .add(Enterprise.fromSimpleMap(doc.data['enterprise']));
+      });
     });
-
-    /// Reading each doc snapshot to get the enterprise data
-    await Future.forEach(docSnapshotList, (doc) async {
-      enterpriseId = doc.data['enterpriseId'];
-      if (doc.data['roleId'] != '') {
-        await fetchEnterprise(enterpriseId).then((e) {
-          enterpriseList.add(e);
-        });
-      }
-    });
-
     return enterpriseList;
   }
 }

@@ -24,10 +24,7 @@ class Enterprise extends Object {
       this.modificationDate,
       this.modificationUser);
 
-  Map<String, dynamic> toSimpleMap() => {
-    'id': this.id,
-    'name': this.name
-  };
+  Map<String, dynamic> toSimpleMap() => {'id': this.id, 'name': this.name};
 
   Enterprise.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
@@ -43,7 +40,7 @@ class Enterprise extends Object {
     this.modificationUser = json['modificationUser'];
   }
 
-  Enterprise.fromSimpleMap(Map<String, dynamic> json) {
+  Enterprise.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.name = json['name'];
   }
@@ -79,12 +76,13 @@ class EnterpriseUser extends Object {
       this.modificationDate,
       this.modificationUser);
 
-  EnterpriseUser.fromFireJson(String documentId, Enterprise enterprise,
-      User user, Role role, Map<String, dynamic> json) {
+  EnterpriseUser.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
-    this.enterprise = enterprise;
-    this.user = user;
-    this.role = role;
+    this.enterprise = json['enterprise'] != null
+        ? Enterprise.fromSimpleMap(json['enterprise'])
+        : null;
+    this.user = json['user'] != null ? User.fromSimpleMap(json['user']) : null;
+    this.role = json['role'] != null ? Role.fromSimpleMap(json['role']) : null;
     this.creationDate = DateTime.fromMillisecondsSinceEpoch(
         json['creationDate'].seconds * 1000);
     this.creationUser = json['creationuser'];
@@ -94,13 +92,13 @@ class EnterpriseUser extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
-        'enterpriseId': this.enterprise.id,
-        'userId': this.user.id,
-        'roleId': this.role.systemId,
         'state': this.state,
         'creationDate': Timestamp.fromDate(this.creationDate),
         'creationUser': this.creationUser,
         'modificationDate': Timestamp.fromDate(this.modificationDate),
         'modificationUser': this.modificationUser,
+        'enterprise': this.enterprise.toSimpleMap(),
+        'user': this.user.toSimpleMap(),
+        'role': this.role.toSimpleMap(),
       };
 }

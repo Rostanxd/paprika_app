@@ -14,22 +14,16 @@ class RoleFirebaseApi {
 
   Future<Role> fetchRoleByEnterpriseUser(
       Enterprise enterprise, User user) async {
-    Role userRole;
-    List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
-    await Firestore.instance
+    return await Firestore.instance
         .collection('enterprises_users')
-        .where('enterpriseId', isEqualTo: enterprise.id)
-        .where('userId', isEqualTo: user.id)
+        .where('enterprise.id', isEqualTo: enterprise.id)
+        .where('user.id', isEqualTo: user.id)
         .where('state', isEqualTo: 'A')
         .limit(1)
         .getDocuments()
-        .then((docs) => docSnapshotList.addAll(docs.documents));
-
-    await Future.forEach((docSnapshotList), (document) async {
-      await fetchRoleById(document.data['roleId'])
-          .then((role) => userRole = role);
+        .then((querySnapshot) {
+      querySnapshot.documents
+          .forEach((doc) => Role.fromSimpleMap(doc.data['role']));
     });
-
-    return userRole;
   }
 }

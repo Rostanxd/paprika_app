@@ -16,16 +16,18 @@ class ItemApi {
   Future<List<Item>> fetchItemsByName(
       Enterprise enterprise, String nameToFind) async {
     List<Item> itemList = List<Item>();
-    List<DocumentSnapshot> docSnapshotList = List<DocumentSnapshot>();
 
     await Firestore.instance
         .collection('items')
-        .where('enterpriseId', isEqualTo: enterprise.id)
+        .where('enterprise.id', isEqualTo: enterprise.id)
         .getDocuments()
-        .then((data) => docSnapshotList.addAll(data.documents));
-
-    docSnapshotList.forEach(
-        (doc) => itemList.add(Item.fromFireJson(doc.documentID, doc.data)));
+        .then((querySnapshot) {
+          querySnapshot.documents.forEach((doc){
+            if (doc.data['name'].toString().contains(nameToFind)) {
+              itemList.add(Item.fromFireJson(doc.documentID, doc.data));
+            }
+          });
+    });
 
     return itemList;
   }
@@ -38,8 +40,8 @@ class ItemApi {
     /// Loading the items by category
     await Firestore.instance
         .collection('items')
-        .where('enterpriseId', isEqualTo: enterprise.id)
-        .where('category/id', isEqualTo: category.id)
+        .where('enterprise.id', isEqualTo: enterprise.id)
+        .where('category.id', isEqualTo: category.id)
         .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((data) => docSnapshotList.addAll(data.documents));

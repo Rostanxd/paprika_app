@@ -15,8 +15,7 @@ class Device extends Object {
   DateTime modificationDate;
   Branch branch;
 
-  Device(
-      this.id,
+  Device(this.id,
       this.state,
       this.os,
       this.version,
@@ -29,8 +28,7 @@ class Device extends Object {
       this.modificationDate,
       this.branch);
 
-  Device.fromFireJson(
-      String documentId, Branch branch, Map<String, dynamic> json) {
+  Device.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
     this.state = json['state'];
     this.os = json['ios'];
@@ -44,10 +42,16 @@ class Device extends Object {
     this.modificationUser = json['modificationUser'];
     this.modificationDate = DateTime.fromMillisecondsSinceEpoch(
         json['modificationDate'].seconds * 1000);
-    this.branch = branch;
+    this.branch =
+    json['branch'] != null ? Branch.fromSimpleMap(json['branch']) : null;
   }
 
-  Map<String, dynamic> toFireJson() => {
+  Device.fromSimpleMap(Map<String, dynamic> json){
+    this.id = json['id'];
+  }
+
+  Map<String, dynamic> toFireJson() =>
+      {
         'state': this.state,
         'ios': this.os,
         'version': this.version,
@@ -58,8 +62,12 @@ class Device extends Object {
         'creationDate': Timestamp.fromDate(this.creationDate),
         'modificationUser': this.modificationUser,
         'modificationDate': Timestamp.fromDate(this.modificationDate),
-        'branchId': this.branch.id,
+        'branch': this.branch.toSimpleMap(),
       };
+
+  Map<String, dynamic> toSimpleMap() => {
+    'id': this.id,
+  };
 
   @override
   String toString() {

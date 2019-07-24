@@ -51,11 +51,11 @@ class CashBloc extends BlocBase {
   ValueObservable<int> get index => _index.stream;
 
   Observable<List<Item>> get itemsByCategory => _categoryToFind
-      .debounce(Duration(milliseconds: 500))
-      .switchMap((c) async* {
-        yield await _inventoryRepository
-            .fetchItemsByCategory(_enterprise.value, c);
-  });
+          .debounce(Duration(milliseconds: 500))
+          .switchMap((c) async* {
+        yield await _inventoryRepository.fetchItemsByCategory(
+            _enterprise.value, c);
+      });
 
   ValueObservable<Document> get invoice => _invoice.stream;
 
@@ -175,9 +175,7 @@ class CashBloc extends BlocBase {
   Function(double) get changeTotalLine => _totalLine.add;
 
   void fetchCategories() async {
-    await _inventoryRepository
-        .fetchCategories(_enterprise.value.id)
-        .then((data) {
+    await _inventoryRepository.fetchCategories(_enterprise.value).then((data) {
       _categories.sink.add(data);
       _index.sink.add(0);
     });
@@ -363,10 +361,11 @@ class CashBloc extends BlocBase {
     }
 
     /// Creating the header
-    await _salesRepository.createInvoice(newInvoice).then((document) async {
+    await _salesRepository.createDocument(newInvoice).then((document) async {
       newInvoice.detail.forEach((detail) async {
-        detail.documentId = document.documentID;
-        await _salesRepository.createDetailInvoice(document.documentID, detail);
+        detail.document = Document.fromSimpleMap(
+            {'id': document, 'customer': newInvoice.customer.toSimpleMap()});
+        await _salesRepository.createDetailDocument(document.documentID, detail);
       });
       _processed.sink.add(true);
     }, onError: (error) {
@@ -414,10 +413,11 @@ class CashBloc extends BlocBase {
     }
 
     /// Creating the header
-    await _salesRepository.createInvoice(newInvoice).then((document) async {
+    await _salesRepository.createDocument(newInvoice).then((document) async {
       newInvoice.detail.forEach((detail) async {
-        detail.documentId = document.documentID;
-        await _salesRepository.createDetailInvoice(document.documentID, detail);
+        detail.document = Document.fromSimpleMap(
+            {'id': document, 'customer': newInvoice.customer.toSimpleMap()});
+        await _salesRepository.createDetailDocument(document.documentID, detail);
       });
       _message.sink.add('Orden generada con éxito.');
       _processed.sink.add(true);

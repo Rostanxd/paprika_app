@@ -74,6 +74,13 @@ class Document extends Object {
         : null;
   }
 
+  Document.fromSimpleMap(Map<String, dynamic> json) {
+    this.id = json['id'];
+    this.customer = json['customer'] != null
+        ? Customer.fromSimpleMap(json['customer'])
+        : null;
+  }
+
   Map<String, dynamic> toFireJson() => {
         'dateTime': Timestamp.fromDate(this.dateTime),
         'type': this.type,
@@ -96,6 +103,11 @@ class Document extends Object {
         'detail': this.detail.map((line) => line.toFireJson()).toList(),
       };
 
+  Map<String, dynamic> toSimpleMap() => {
+        'id': this.id,
+        'customer': this.customer.toSimpleMap(),
+      };
+
   @override
   String toString() {
     return 'Invoice{id: $id, state: $state, type: $type, '
@@ -109,7 +121,6 @@ class Document extends Object {
 }
 
 class DocumentLine extends Object {
-  String documentId;
   String lineId;
   Item item;
   double price;
@@ -120,21 +131,25 @@ class DocumentLine extends Object {
   double subtotal;
   double taxes;
   double total;
+  Document document;
 
   DocumentLine(this.item, this.price, this.dispatchMeasure, this.discountRate,
       this.discountValue, this.quantity, this.subtotal, this.taxes, this.total);
 
-  DocumentLine.fromFireJson(
-      String documentID, Item item, Map<String, dynamic> json) {
+  DocumentLine.fromFireJson(String documentID, Map<String, dynamic> json) {
     this.lineId = documentID;
-    this.documentId = json['documentId'];
-    this.item = item;
+    this.document = json['document'] != null
+        ? Document.fromSimpleMap(json['document'])
+        : null;
     this.price = json['price'];
     this.discountRate = json['discountRate'];
     this.discountValue = json['discountValue'];
     this.quantity = json['quantity'];
     this.subtotal = json['subtotal'];
     this.total = json['total'];
+
+    /// Models
+    this.item = json['item'] != null ? Item.fromSimpleMap(json['item']) : null;
   }
 
   DocumentLine.fromJson(Map<String, dynamic> json) {
@@ -146,21 +161,21 @@ class DocumentLine extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
-        'documentId': this.documentId,
-        'itemId': this.item.id,
+        'document': this.document.toSimpleMap(),
         'price': this.price,
-        'dispatchMeasureId': this.dispatchMeasure.id,
         'discountRate': this.discountRate,
         'discountValue': this.discountValue,
         'quantity': this.quantity,
         'subtotal': this.subtotal,
         'taxes': this.taxes,
-        'total': this.total
+        'total': this.total,
+        'item': this.item.toSimpleMap(),
+        'dispatchMeasure': this.dispatchMeasure.toSimpleMap(),
       };
 
   @override
   String toString() {
-    return 'InvoiceLine{documentId: $documentId, lineId: $lineId, '
+    return 'InvoiceLine{lineId: $lineId, '
         'item: $item, price: ${price.toString()}, '
         'dispatchMeasure: $dispatchMeasure, '
         'discountRate: $discountRate, discountValue: $discountValue, '
