@@ -246,7 +246,7 @@ class _SearchItemState extends State<SearchItem> {
           default:
             if (snapItemList.hasError)
               return Center(
-                child: Text(snapItemList.error),
+                child: Text(snapItemList.error.toString()),
               );
 
             if (!snapItemList.hasData) {

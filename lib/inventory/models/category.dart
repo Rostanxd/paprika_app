@@ -16,7 +16,7 @@ class Category extends Object {
     this.order = json['order'];
   }
 
-  Category.fromSimpleMap(Map<String, dynamic> json) {
+  Category.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.name = json['name'];
   }
@@ -32,7 +32,7 @@ class Category extends Object {
         'name': this.name,
         'state': this.state,
         'order': this.order,
-        'enterpriseId': this.enterprise.id
+        'enterprise': this.enterprise.toSimpleMap()
       };
 
   Map<String, dynamic> toSimpleMap() => {

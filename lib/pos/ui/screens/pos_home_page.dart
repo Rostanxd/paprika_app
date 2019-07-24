@@ -114,7 +114,7 @@ class _PosHomePageState extends State<PosHomePage> {
                 default:
                   if (snapshot.hasError) return Text(snapshot.error.toString());
 
-                  if (!snapshot.hasData)
+                  if (!snapshot.hasData || snapshot.data.length == 0)
                     return Text('Al parecer no tienes configuradas las cajas.');
 
                   return _cashDrawerList(snapshot.data);

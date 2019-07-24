@@ -14,7 +14,7 @@ class Measure extends Object {
     this.standard = json['standard'];
   }
 
-  Measure.fromSimpleMap(Map<String, dynamic> json) {
+  Measure.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.name = json['name'];
   }

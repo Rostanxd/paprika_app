@@ -63,7 +63,7 @@ class Item extends Object {
         json['measure'] != null ? Measure.fromSimpleMap(json['measure']) : null;
   }
 
-  Item.fromSimpleMap(Map<String, dynamic> json) {
+  Item.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.name = json['name'];
   }

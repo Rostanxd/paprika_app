@@ -14,7 +14,8 @@ class RoleFirebaseApi {
 
   Future<Role> fetchRoleByEnterpriseUser(
       Enterprise enterprise, User user) async {
-    return await Firestore.instance
+    Role role;
+    await Firestore.instance
         .collection('enterprises_users')
         .where('enterprise.id', isEqualTo: enterprise.id)
         .where('user.id', isEqualTo: user.id)
@@ -23,7 +24,8 @@ class RoleFirebaseApi {
         .getDocuments()
         .then((querySnapshot) {
       querySnapshot.documents
-          .forEach((doc) => Role.fromSimpleMap(doc.data['role']));
+          .forEach((doc) => role = Role.fromSimpleMap(doc.data['role']));
     });
+    return role;
   }
 }
