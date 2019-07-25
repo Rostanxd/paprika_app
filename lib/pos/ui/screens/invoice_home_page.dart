@@ -702,7 +702,6 @@ class _InvoiceHomePageState extends State<InvoiceHomePage> {
                                                           child: Text(snapshot
                                                               .data
                                                               .detail[index]
-                                                              .item
                                                               .price
                                                               .toString()),
                                                         ),

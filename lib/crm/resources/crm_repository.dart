@@ -20,8 +20,8 @@ class CrmRepository {
       _customerApi.createCustomer(customer);
 
   Future<int> customerNumberOfInvoices(
-          Enterprise enterprise, String customerId) =>
-      _customerApi.customerNumberOfInvoices(enterprise, customerId);
+          Enterprise enterprise, Customer customer) =>
+      _customerApi.customerNumberOfInvoices(enterprise, customer);
 
   Future<Document> customerLastInvoice(
           Enterprise enterprise, Customer customer) =>

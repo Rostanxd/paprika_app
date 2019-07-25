@@ -229,7 +229,8 @@ class CashBloc extends BlocBase {
           '',
           DateTime.now(),
           _branch.value,
-          _cashDrawer.value);
+          _cashDrawer.value,
+          _enterprise.value);
     } else {
       invoice = Document(
           'A',
@@ -248,7 +249,8 @@ class CashBloc extends BlocBase {
           '',
           DateTime.now(),
           _branch.value,
-          _cashDrawer.value);
+          _cashDrawer.value,
+          _enterprise.value);
     }
     _cashReceived.sink.add(total);
     _invoice.sink.add(invoice);
@@ -344,7 +346,8 @@ class CashBloc extends BlocBase {
         user,
         DateTime.now(),
         _branch.value,
-        _cashDrawer.value);
+        _cashDrawer.value,
+        _enterprise.value);
 
     if (newInvoice.detail.length == 0) {
       return _message.sink.add('No hay items en la factura.');
@@ -360,13 +363,8 @@ class CashBloc extends BlocBase {
               '\nCorrija por favor.');
     }
 
-    /// Creating the header
-    await _salesRepository.createDocument(newInvoice).then((document) async {
-      newInvoice.detail.forEach((detail) async {
-        detail.document = Document.fromSimpleMap(
-            {'id': document, 'customer': newInvoice.customer.toSimpleMap()});
-        await _salesRepository.createDetailDocument(document.documentID, detail);
-      });
+    /// Creating the invoice
+    await _salesRepository.createDocument(newInvoice).then((document) {
       _processed.sink.add(true);
     }, onError: (error) {
       _message.sink.add('Error durante el almacenamiento de la factura.');
@@ -392,7 +390,8 @@ class CashBloc extends BlocBase {
         user,
         DateTime.now(),
         _branch.value,
-        null);
+        null,
+        _enterprise.value);
 
     if (newInvoice.detail.length == 0) {
       return _message.sink.add('No hay items en la factura.');
@@ -417,7 +416,8 @@ class CashBloc extends BlocBase {
       newInvoice.detail.forEach((detail) async {
         detail.document = Document.fromSimpleMap(
             {'id': document, 'customer': newInvoice.customer.toSimpleMap()});
-        await _salesRepository.createDetailDocument(document.documentID, detail);
+        await _salesRepository.createDetailDocument(
+            document.documentID, detail);
       });
       _message.sink.add('Orden generada con éxito.');
       _processed.sink.add(true);
@@ -428,7 +428,7 @@ class CashBloc extends BlocBase {
 
   Future<void> fetchCustomerSummary(Customer customer) async {
     await _crmRepository
-        .customerNumberOfInvoices(_enterprise.value, customer.customerId)
+        .customerNumberOfInvoices(_enterprise.value, customer)
         .then((number) => _customerNumberOfInvoices.sink.add(number));
 
     await _crmRepository

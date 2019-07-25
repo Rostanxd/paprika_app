@@ -32,18 +32,17 @@ class CategoryApi {
   }
 
   Future<List<Category>> fetchCategoriesByName(
-      Enterprise enterprise, String name) async {
+      Enterprise enterprise, String nameSearch) async {
     List<Category> _categoryList = List<Category>();
     await Firestore.instance
         .collection('categories')
-        .orderBy('name')
         .orderBy('order', descending: false)
-        .where('name', isGreaterThanOrEqualTo: name)
         .where('enterprise.id', isEqualTo: enterprise.id)
         .getDocuments()
         .then((querySnapshot) {
       _categoryList.addAll(querySnapshot.documents.map((c) {
-        if (c.data['state'] == 'A' || c.data['state'] == 'I') {
+        if (c.data['state'] == 'A' ||
+            c.data['state'] == 'I' && c.data['name'].contains(nameSearch)) {
           return Category.fromFireJson(c.documentID, c.data);
         }
       }));

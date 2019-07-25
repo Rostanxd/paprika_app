@@ -64,7 +64,8 @@ class Customer implements Person {
         DateTime.fromMillisecondsSinceEpoch(json['bornDate'].seconds * 1000);
   }
 
-  Customer.fromSimpleMap(Map<String, dynamic> json) {
+  Customer.fromSimpleMap(Map json) {
+    this.customerId = json['customerId'];
     this.id = json['id'];
     this.firstName = json['firstName'];
     this.lastName = json['lastName'];
@@ -84,6 +85,7 @@ class Customer implements Person {
 
   Map<String, dynamic> toSimpleMap() => {
     'id': this.id,
+    'customerId': this.customerId,
     'firstName': this.firstName,
     'lastName': this.lastName
   };

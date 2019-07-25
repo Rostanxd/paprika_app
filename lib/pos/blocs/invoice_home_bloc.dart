@@ -63,9 +63,9 @@ class InvoiceHomeBloc extends BlocBase {
         .then((os) => _orders.sink.add(os));
   }
 
-  Future<void> changeDocumentSelected (Document invoice) async {
+  Future<void> changeDocumentSelected(Document invoice) async {
     _loadingDocDetail.sink.add(true);
-    await _salesRepository.fetchDocumentDetail(invoice).then((detail){
+    await _salesRepository.fetchDocumentDetail(invoice).then((detail) {
       invoice.detail = detail;
       _documentSelected.sink.add(invoice);
     });
@@ -91,7 +91,8 @@ class InvoiceHomeBloc extends BlocBase {
       if (invoice.modificationDate.year != DateTime.now().year ||
           invoice.modificationDate.month != DateTime.now().month ||
           invoice.modificationDate.month != DateTime.now().month) {
-        return _message.sink.add('Lo sentimos la factura no fue generada hoy.');
+        return _message.sink.add(
+            'Lo sentimos la factura no fue generada con la fecha de la caja actual.');
       }
     }
 

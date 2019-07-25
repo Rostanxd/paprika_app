@@ -16,7 +16,7 @@ class CashDrawer extends Object {
     this.name = json['name'];
   }
 
-  CashDrawer.fromSimpleMap(Map<String, dynamic> json) {
+  CashDrawer.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.name = json['name'];
   }

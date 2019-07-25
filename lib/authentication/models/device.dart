@@ -46,7 +46,7 @@ class Device extends Object {
     json['branch'] != null ? Branch.fromSimpleMap(json['branch']) : null;
   }
 
-  Device.fromSimpleMap(Map<String, dynamic> json){
+  Device.fromSimpleMap(Map json){
     this.id = json['id'];
   }
 

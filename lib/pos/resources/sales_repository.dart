@@ -47,10 +47,8 @@ class SalesRepository {
   Future<void> updateOpeningCashDrawer(OpeningCashDrawer openingCashDrawer) =>
       _cashDrawerFirebaseApi.updateOpeningCashDrawer(openingCashDrawer);
 
-  Future<OpeningCashDrawer> lastOpeningCashDrawer(
-          DateTime dateTime, Branch branch, CashDrawer cashDrawer) =>
-      _cashDrawerFirebaseApi.lastOpeningCashDrawer(
-          dateTime, branch, cashDrawer);
+  Future<OpeningCashDrawer> lastOpeningCashDrawer(CashDrawer cashDrawer) =>
+      _cashDrawerFirebaseApi.lastOpeningCashDrawer(cashDrawer);
 
   Future<List<Document>> fetchInvoiceOfCashDrawer(CashDrawer cashDrawer) =>
       _cashDrawerFirebaseApi.fetchInvoiceOfCashDrawer(cashDrawer);

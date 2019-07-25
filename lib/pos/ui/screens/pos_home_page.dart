@@ -431,7 +431,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                                 _rootBloc.submitColor.value),
                                             onPressed: () {
                                               _posHomePageBloc
-                                                  .openCashDrawer(snapshot.data)
+                                                  .openCashDrawer(null)
                                                   .then((v) => Navigator.push(
                                                       context,
                                                       MaterialPageRoute(

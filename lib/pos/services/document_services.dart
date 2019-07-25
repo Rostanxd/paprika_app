@@ -31,7 +31,7 @@ class DocumentApi {
     /// Getting the invoices headers
     await Firestore.instance
         .collection('documents')
-        .where('branchId', isEqualTo: branch.id)
+        .where('branch.id', isEqualTo: branch.id)
         .where('type', isEqualTo: documentType)
         .where('state', isEqualTo: state)
         .where('dateTime', isGreaterThanOrEqualTo: fromDate)
@@ -56,15 +56,17 @@ class DocumentApi {
             Document.fromFireJson(document.documentID, document.data));
   }
 
-  Future<List<DocumentLine>> fetchDocumentDetail(Document invoice) async {
+  Future<List<DocumentLine>> fetchDocumentDetail(Document document) async {
+    List lineList = new List();
     List<DocumentLine> invoiceDetail = List<DocumentLine>();
     await Firestore.instance
-        .collection('documents_details')
-        .where('document/id', isEqualTo: invoice.id)
-        .getDocuments()
-        .then((querySnapshot) {
-      querySnapshot.documents.forEach((doc) {
-        invoiceDetail.add(DocumentLine.fromFireJson(doc.documentID, doc.data));
+        .collection('documents')
+        .document(document.id)
+        .get()
+        .then((doc) {
+      lineList = doc.data['detail'];
+      lineList.forEach((line){
+        invoiceDetail.add(DocumentLine.fromFireJson(document.id, line));
       });
     });
 

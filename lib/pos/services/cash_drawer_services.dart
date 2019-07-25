@@ -30,7 +30,8 @@ class CashDrawerFirebaseApi {
   }
 
   Future<OpeningCashDrawer> fetchOpenedCashDrawerOfDevice(Device device) async {
-    return await Firestore.instance
+    OpeningCashDrawer openingCashDrawer;
+    await Firestore.instance
         .collection('opening_cash_drawer')
         .orderBy('openingDate', descending: true)
         .where('device.id', isEqualTo: device.id)
@@ -38,9 +39,12 @@ class CashDrawerFirebaseApi {
         .limit(1)
         .getDocuments()
         .then((querySnapshot) {
-      querySnapshot.documents.forEach(
-          (doc) => OpeningCashDrawer.fromFireJson(doc.documentID, doc.data));
+      querySnapshot.documents.forEach((doc) {
+        openingCashDrawer =
+            OpeningCashDrawer.fromFireJson(doc.documentID, doc.data);
+      });
     });
+    return openingCashDrawer;
   }
 
   Future<DocumentReference> createOpeningCashDrawer(
@@ -63,18 +67,21 @@ class CashDrawerFirebaseApi {
   }
 
   /// Check the state of the cash drawer in a day
-  Future<OpeningCashDrawer> lastOpeningCashDrawer(
-      DateTime dateTime, Branch branch, CashDrawer cashDrawer) async {
-    return await Firestore.instance
+  Future<OpeningCashDrawer> lastOpeningCashDrawer(CashDrawer cashDrawer) async {
+    OpeningCashDrawer openingCashDrawer;
+    await Firestore.instance
         .collection('opening_cash_drawer')
         .orderBy('openingDate', descending: true)
         .where('cashDrawer.id', isEqualTo: cashDrawer.id)
         .limit(1)
         .getDocuments()
         .then((querySnapshot) {
-      querySnapshot.documents.forEach(
-          (doc) => OpeningCashDrawer.fromFireJson(doc.documentID, doc.data));
+      querySnapshot.documents.forEach((doc) {
+        openingCashDrawer =
+            OpeningCashDrawer.fromFireJson(doc.documentID, doc.data);
+      });
     });
+    return openingCashDrawer;
   }
 
   /// Invoices of the cash drawer

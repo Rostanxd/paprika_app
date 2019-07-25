@@ -36,8 +36,7 @@ class PosHomeBloc extends BlocBase {
   Observable<OpeningCashDrawer> get openedCashDrawer => _cashDrawerSelected
           .debounce(Duration(milliseconds: 500))
           .switchMap((term) async* {
-        yield await _salesRepository.lastOpeningCashDrawer(
-            DateTime.now(), _branch.value, term);
+        yield await _salesRepository.lastOpeningCashDrawer(term);
       });
 
   /// Functions
@@ -77,8 +76,7 @@ class PosHomeBloc extends BlocBase {
 
   Future<OpeningCashDrawer> lastOpeningCashDrawer(
       CashDrawer _cashDrawer) async {
-    return await _salesRepository.lastOpeningCashDrawer(
-        DateTime.now(), _branch.value, _cashDrawer);
+    return await _salesRepository.lastOpeningCashDrawer(_cashDrawer);
   }
 
   /// Closing the cash drawer

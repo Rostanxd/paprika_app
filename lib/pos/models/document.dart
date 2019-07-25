@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:paprika_app/authentication/models/branch.dart';
+import 'package:paprika_app/authentication/models/enterprise.dart';
 import 'package:paprika_app/crm/models/customer.dart';
 import 'package:paprika_app/inventory/models/item.dart';
 import 'package:paprika_app/inventory/models/measure.dart';
@@ -24,6 +25,7 @@ class Document extends Object {
   Customer customer;
   Branch branch;
   CashDrawer cashDrawer;
+  Enterprise enterprise;
 
   Document(
       this.state,
@@ -42,7 +44,8 @@ class Document extends Object {
       this.modificationUser,
       this.modificationDate,
       this.branch,
-      this.cashDrawer);
+      this.cashDrawer,
+      this.enterprise);
 
   Document.fromFireJson(String documentId, Map<String, dynamic> json) {
     this.id = documentId;
@@ -72,9 +75,12 @@ class Document extends Object {
     this.cashDrawer = json['cashDrawer'] != null
         ? CashDrawer.fromSimpleMap(json['cashDrawer'])
         : null;
+    this.enterprise = json['enterprise'] != null
+        ? Enterprise.fromSimpleMap(json['enterprise'])
+        : null;
   }
 
-  Document.fromSimpleMap(Map<String, dynamic> json) {
+  Document.fromSimpleMap(Map json) {
     this.id = json['id'];
     this.customer = json['customer'] != null
         ? Customer.fromSimpleMap(json['customer'])
@@ -101,6 +107,7 @@ class Document extends Object {
         'branch': this.branch.toSimpleMap(),
         'cashDrawer': this.cashDrawer.toSimpleMap(),
         'detail': this.detail.map((line) => line.toFireJson()).toList(),
+        'enterprise': this.enterprise.toSimpleMap(),
       };
 
   Map<String, dynamic> toSimpleMap() => {
@@ -136,7 +143,7 @@ class DocumentLine extends Object {
   DocumentLine(this.item, this.price, this.dispatchMeasure, this.discountRate,
       this.discountValue, this.quantity, this.subtotal, this.taxes, this.total);
 
-  DocumentLine.fromFireJson(String documentID, Map<String, dynamic> json) {
+  DocumentLine.fromFireJson(String documentID, Map json) {
     this.lineId = documentID;
     this.document = json['document'] != null
         ? Document.fromSimpleMap(json['document'])
@@ -150,6 +157,9 @@ class DocumentLine extends Object {
 
     /// Models
     this.item = json['item'] != null ? Item.fromSimpleMap(json['item']) : null;
+    this.dispatchMeasure = json['dispatchMeasure'] != null
+        ? Measure.fromSimpleMap(json['dispatchMeasure'])
+        : null;
   }
 
   DocumentLine.fromJson(Map<String, dynamic> json) {
@@ -161,7 +171,6 @@ class DocumentLine extends Object {
   }
 
   Map<String, dynamic> toFireJson() => {
-        'document': this.document.toSimpleMap(),
         'price': this.price,
         'discountRate': this.discountRate,
         'discountValue': this.discountValue,

@@ -45,17 +45,17 @@ class CustomerApi {
   }
 
   Future<int> customerNumberOfInvoices(
-      Enterprise enterprise, String customerId) async {
+      Enterprise enterprise, Customer customer) async {
     int numberTickets = 0;
     await Firestore.instance
         .collection('documents')
-        .where('customer.id', isEqualTo: customerId)
+        .where('customer.customerId', isEqualTo: customer.customerId)
         .where('type', isEqualTo: 'I')
         .where('state', isEqualTo: 'A')
         .getDocuments()
         .then((querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        if (doc.data['enterprise.id'] == enterprise.id) numberTickets += 1;
+        if (doc.data['enterprise']['id'] == enterprise.id) numberTickets += 1;
       });
     });
     return numberTickets;
@@ -63,10 +63,10 @@ class CustomerApi {
 
   Future<Document> customerLastInvoice(
       Enterprise enterprise, Customer customer) async {
-    /// Invoices
-    return await Firestore.instance
+    Document document;
+    await Firestore.instance
         .collection('documents')
-        .where('customer.id', isEqualTo: customer.customerId)
+        .where('customer.customerId', isEqualTo: customer.customerId)
         .where('type', isEqualTo: 'I')
         .where('state', isEqualTo: 'A')
         .orderBy('creationDate', descending: true)
@@ -74,10 +74,11 @@ class CustomerApi {
         .getDocuments()
         .then((querySnapshot) {
       querySnapshot.documents.forEach((doc) {
-        if (doc.data['enterprise.id'] == enterprise.id) {
-          return Document.fromFireJson(doc.documentID, doc.data);
+        if (doc.data['enterprise']['id'] == enterprise.id) {
+          document = Document.fromFireJson(doc.documentID, doc.data);
         }
       });
     });
+    return document;
   }
 }
